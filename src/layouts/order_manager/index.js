@@ -6,10 +6,13 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
 import authorsTableData from "layouts/order_manager/data/authorsTableData";
-import { Icon } from "@mui/material";
+import confirmOrder from "layouts/order_manager/data/confirmOrder";
+import cancelOrder from "layouts/order_manager/data/cancelOrder";
 
 function Order() {
   const { columns, rows } = authorsTableData();
+  const { columns: pColumns, rows: pRows } = confirmOrder();
+  const { columns: cancelColumns, rows: cancelRows } = cancelOrder();
 
   return (
     <DashboardLayout>
@@ -35,6 +38,58 @@ function Order() {
               <MDBox pt={3}>
                 <DataTable
                   table={{ columns, rows }}
+                  isSorted={false}
+                  entriesPerPage={false}
+                  showTotalEntries={false}
+                  noEndBorder
+                />
+              </MDBox>
+            </Card>
+          </Grid>
+          <Grid item xs={12}>
+            <Card>
+              <MDBox
+                mx={2}
+                mt={-3}
+                py={3}
+                px={2}
+                bgColor="green"
+                borderRadius="lg"
+                coloredShadow="info"
+              >
+                <MDTypography variant="h6" color="white">
+                  Confirmed Order
+                </MDTypography>
+              </MDBox>
+              <MDBox pt={3}>
+                <DataTable
+                  table={{ columns: pColumns, rows: pRows }}
+                  isSorted={false}
+                  entriesPerPage={false}
+                  showTotalEntries={false}
+                  noEndBorder
+                />
+              </MDBox>
+            </Card>
+          </Grid>
+          <Grid item xs={12}>
+            <Card>
+              <MDBox
+                mx={2}
+                mt={-3}
+                py={3}
+                px={2}
+                bgColor="error"
+                borderRadius="lg"
+                coloredShadow="info"
+              >
+                <MDTypography variant="h6" color="white">
+                  Cancelled Order
+                </MDTypography>
+              </MDBox>
+              <MDBox pt={3}>
+                <DataTable
+                  table={{ columns: cancelColumns, rows: cancelRows }}
                   isSorted={false}
                   entriesPerPage={false}
                   showTotalEntries={false}

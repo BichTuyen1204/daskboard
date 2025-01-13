@@ -4,6 +4,7 @@ import MDTypography from "components/MDTypography";
 import MDAvatar from "components/MDAvatar";
 import beef from "assets/images/beef.jpg";
 import { Icon } from "@mui/material";
+import { Link } from "react-router-dom";
 
 export default function data() {
   const Author = ({ image }) => (
@@ -93,29 +94,36 @@ export default function data() {
         action: (
           <MDBox display="flex" justifyContent="center" gap={1}>
             {/* Nút Edit */}
-            <MDTypography
-              component="button"
-              variant="caption"
-              fontWeight="medium"
+            <Link
+              to="/product_detail"
               style={{
-                backgroundColor: "white",
-                color: "#1976d2",
-                fontSize: "0.8em",
-                border: "none",
-                padding: "5px 10px",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                transition: "all 0.3s ease",
+                textDecoration: "none",
               }}
-              onMouseEnter={(e) => (e.target.style.backgroundColor = "#f0f4ff")}
-              onMouseLeave={(e) => (e.target.style.backgroundColor = "white")}
             >
-              <Icon fontSize="small" color="inherit" style={{ marginRight: "5px" }}>
-                edit
-              </Icon>
-            </MDTypography>
+              <MDTypography
+                component="button"
+                variant="caption"
+                fontWeight="medium"
+                style={{
+                  backgroundColor: "white",
+                  color: "#1976d2",
+                  fontSize: "0.8em",
+                  border: "none",
+                  padding: "5px 10px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => (e.target.style.backgroundColor = "#f0f4ff")}
+                onMouseLeave={(e) => (e.target.style.backgroundColor = "white")}
+              >
+                <Icon fontSize="small" color="inherit" style={{ marginRight: "5px" }}>
+                  edit
+                </Icon>
+              </MDTypography>
+            </Link>
             {/* Nút Delete */}
             <MDTypography
               component="button"

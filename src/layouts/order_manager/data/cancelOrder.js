@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
-import { Link } from "react-router-dom";
 
 export default function data() {
   const Creation_date = ({ title, description }) => (
@@ -101,10 +100,10 @@ export default function data() {
             fontWeight="medium"
             style={{
               fontSize: "0.8em",
-              color: "green",
+              color: "red",
             }}
           >
-            Confirm
+            Cancelled
           </MDTypography>
         ),
         discount_percentage: (
@@ -137,9 +136,7 @@ export default function data() {
                 cursor: "pointer",
               }}
             >
-              <Link to="/order_detail" style={{ color: "white" }}>
-                View
-              </Link>
+              View
             </MDTypography>
           </MDBox>
         ),

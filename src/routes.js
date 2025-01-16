@@ -10,6 +10,12 @@ import SignUp from "layouts/authentication/sign-up";
 import Icon from "@mui/material/Icon";
 import Product_Detail from "layouts/product_detail";
 import Order_Detail from "layouts/order_detail";
+import Profile_Detail from "layouts/profile_detail";
+import Add_Coupon from "layouts/add_coupon";
+import View_Coupon from "layouts/view_coupon";
+import View_Staff from "layouts/view_staff";
+import Add_Staff from "layouts/add_staff";
+import Add_Product from "layouts/add_product";
 
 const routes = [
   {
@@ -107,6 +113,30 @@ const routes = [
   {
     route: "/order_detail",
     component: <Order_Detail />,
+  },
+  {
+    route: "/profile_detail",
+    component: <Profile_Detail />,
+  },
+  {
+    route: "/add_coupon",
+    component: <Add_Coupon />,
+  },
+  {
+    route: "/view_coupon",
+    component: <View_Coupon />,
+  },
+  {
+    route: "/view_staff",
+    component: <View_Staff />,
+  },
+  {
+    route: "/add_staff",
+    component: <Add_Staff />,
+  },
+  {
+    route: "/add_product",
+    component: <Add_Product />,
   },
 ];
 

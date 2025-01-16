@@ -67,22 +67,22 @@ function ProfileInfoCard({ title, description, info, social, action, shadow }) {
   ));
 
   // Render the card social media icons
-  const renderSocial = social.map(({ link, icon, color }) => (
-    <MDBox
-      key={color}
-      component="a"
-      href={link}
-      target="_blank"
-      rel="noreferrer"
-      fontSize={size.lg}
-      color={socialMediaColors[color].main}
-      pr={1}
-      pl={0.5}
-      lineHeight={1}
-    >
-      {icon}
-    </MDBox>
-  ));
+  // const renderSocial = social.map(({ link, icon, color }) => (
+  //   <MDBox
+  //     key={color}
+  //     component="a"
+  //     href={link}
+  //     target="_blank"
+  //     rel="noreferrer"
+  //     fontSize={size.lg}
+  //     color={socialMediaColors[color].main}
+  //     pr={1}
+  //     pl={0.5}
+  //     lineHeight={1}
+  //   >
+  //     {icon}
+  //   </MDBox>
+  // ));
 
   return (
     <Card sx={{ height: "100%", boxShadow: !shadow && "none" }}>
@@ -105,15 +105,7 @@ function ProfileInfoCard({ title, description, info, social, action, shadow }) {
         <MDBox opacity={0.3}>
           <Divider />
         </MDBox>
-        <MDBox>
-          {renderItems}
-          <MDBox display="flex" py={1} pr={2}>
-            <MDTypography variant="button" fontWeight="bold" textTransform="capitalize">
-              social: &nbsp;
-            </MDTypography>
-            {renderSocial}
-          </MDBox>
-        </MDBox>
+        <MDBox>{renderItems}</MDBox>
       </MDBox>
     </Card>
   );

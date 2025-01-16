@@ -9,7 +9,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import ProfileInfoCard from "examples/Cards/InfoCards/ProfileInfoCard";
 import Header from "layouts/profile/components/Header";
 
-function Overview() {
+function Profile() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -90,4 +90,4 @@ function Overview() {
   );
 }
 
-export default Overview;
+export default Profile;

@@ -7,6 +7,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
 import authorsTableData from "layouts/staff_manager/data/authorsTableData";
 import { Icon } from "@mui/material";
+import { Link } from "react-router-dom";
 
 function Staff() {
   const { columns, rows } = authorsTableData();
@@ -29,7 +30,7 @@ function Staff() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Coupon list
+                  Staff list
                 </MDTypography>
               </MDBox>
               <MDBox pt={3}>
@@ -46,26 +47,28 @@ function Staff() {
         </Grid>
       </MDBox>
 
-      <MDBox
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        width="3.25rem"
-        height="3.25rem"
-        bgColor="white"
-        shadow="sm"
-        borderRadius="50%"
-        position="fixed"
-        right="2rem"
-        bottom="2rem"
-        zIndex={99}
-        color="dark"
-        sx={{ cursor: "pointer" }}
-      >
-        <Icon fontSize="small" color="inherit">
-          person_add
-        </Icon>
-      </MDBox>
+      <Link to="/add_staff">
+        <MDBox
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          width="3.25rem"
+          height="3.25rem"
+          bgColor="white"
+          shadow="sm"
+          borderRadius="50%"
+          position="fixed"
+          right="2rem"
+          bottom="2rem"
+          zIndex={99}
+          color="dark"
+          sx={{ cursor: "pointer" }}
+        >
+          <Icon fontSize="small" color="inherit">
+            person_add
+          </Icon>
+        </MDBox>
+      </Link>
     </DashboardLayout>
   );
 }

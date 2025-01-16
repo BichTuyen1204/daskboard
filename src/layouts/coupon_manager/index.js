@@ -7,6 +7,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
 import authorsTableData from "layouts/coupon_manager/data/authorsTableData";
 import { Icon } from "@mui/material";
+import { Link } from "react-router-dom";
 
 function Coupon() {
   const { columns, rows } = authorsTableData();
@@ -45,26 +46,28 @@ function Coupon() {
           </Grid>
         </Grid>
       </MDBox>
-      <MDBox
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        width="3.25rem"
-        height="3.25rem"
-        bgColor="white"
-        shadow="sm"
-        borderRadius="50%"
-        position="fixed"
-        right="2rem"
-        bottom="2rem"
-        zIndex={99}
-        color="dark"
-        sx={{ cursor: "pointer" }}
-      >
-        <Icon fontSize="small" color="inherit">
-          add
-        </Icon>
-      </MDBox>
+      <Link to="/add_coupon">
+        <MDBox
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          width="3.25rem"
+          height="3.25rem"
+          bgColor="white"
+          shadow="sm"
+          borderRadius="50%"
+          position="fixed"
+          right="2rem"
+          bottom="2rem"
+          zIndex={99}
+          color="dark"
+          sx={{ cursor: "pointer" }}
+        >
+          <Icon fontSize="small" color="inherit">
+            add
+          </Icon>
+        </MDBox>
+      </Link>
     </DashboardLayout>
   );
 }

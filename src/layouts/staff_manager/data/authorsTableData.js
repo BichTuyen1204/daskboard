@@ -3,6 +3,7 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDAvatar from "components/MDAvatar";
 import beef from "assets/images/beef.jpg";
+import { Link } from "react-router-dom";
 
 export default function data() {
   const Author = ({ image }) => (
@@ -30,6 +31,7 @@ export default function data() {
 
   return {
     columns: [
+      { Header: "id", accessor: "id", width: "5%", align: "left" },
       { Header: "name of coupon", accessor: "name", width: "20%", align: "left" },
       { Header: "creation date", accessor: "creation_date", align: "center" },
       { Header: "expiration date", accessor: "expiration_date", align: "center" },
@@ -39,7 +41,20 @@ export default function data() {
 
     rows: [
       {
-        image: <Author image={beef} />,
+        id: (
+          <MDTypography
+            component="a"
+            href="#"
+            variant="caption"
+            color="text"
+            fontWeight="medium"
+            style={{
+              fontSize: "0.8em",
+            }}
+          >
+            S01
+          </MDTypography>
+        ),
         name: <Name name="Chirs" />,
         creation_date: <Creation_date title="01/01/2025" />,
         expiration_date: (
@@ -85,24 +100,26 @@ export default function data() {
           </MDTypography>
         ),
         action: (
-          <MDBox display="flex" justifyContent="center">
-            <MDTypography
-              component="button"
-              variant="caption"
-              color="white"
-              fontWeight="medium"
-              style={{
-                backgroundColor: "#1976d2",
-                fontSize: "0.8em",
-                border: "none",
-                borderRadius: "2px",
-                padding: "5px 10px",
-                cursor: "pointer",
-              }}
-            >
-              View
-            </MDTypography>
-          </MDBox>
+          <Link to="/view_staff">
+            <MDBox display="flex" justifyContent="center">
+              <MDTypography
+                component="button"
+                variant="caption"
+                color="white"
+                fontWeight="medium"
+                style={{
+                  backgroundColor: "#1976d2",
+                  fontSize: "0.8em",
+                  border: "none",
+                  borderRadius: "2px",
+                  padding: "5px 10px",
+                  cursor: "pointer",
+                }}
+              >
+                View
+              </MDTypography>
+            </MDBox>
+          </Link>
         ),
       },
     ],

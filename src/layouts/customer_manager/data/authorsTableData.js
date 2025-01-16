@@ -4,6 +4,7 @@ import MDTypography from "components/MDTypography";
 import MDAvatar from "components/MDAvatar";
 import MDBadge from "components/MDBadge";
 import v from "assets/images/v.jpg";
+import { Link } from "react-router-dom";
 
 export default function data() {
   const Image = ({ image }) => (
@@ -56,7 +57,6 @@ export default function data() {
             <MDTypography
               component="button"
               variant="caption"
-              color="white"
               fontWeight="medium"
               style={{
                 backgroundColor: "#1976d2",
@@ -67,7 +67,9 @@ export default function data() {
                 cursor: "pointer",
               }}
             >
-              View
+              <Link style={{ color: "white" }} to="/profile_detail">
+                View
+              </Link>
             </MDTypography>
           </MDBox>
         ),

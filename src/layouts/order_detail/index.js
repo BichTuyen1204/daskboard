@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Card from "@mui/material/Card";
-import { Grid, TextField, Button } from "@mui/material";
+import { Grid, TextField, Button, Icon } from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -17,13 +17,6 @@ function OrderDetail() {
     description: 10,
   });
 
-  const handleChange = (field, value) => {
-    setProduct((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
   return (
     <DashboardLayout>
       <MDBox pb={3}>
@@ -31,12 +24,16 @@ function OrderDetail() {
           <Grid item xs={12} md={12} lg={12}>
             <Card>
               <MDBox p={3}>
+                <Link to="/order">
+                  <Icon sx={{ cursor: "pointer", "&:hover": { color: "gray" } }}>arrow_back</Icon>
+                </Link>
                 <div style={{ fontWeight: "500", fontSize: "0.9em", paddingBottom: "5px" }}>
                   Order ID: {product.id}
                 </div>
                 <div style={{ fontWeight: "500", fontSize: "0.6em", paddingBottom: "10px" }}>
                   January 1, 2025 at 09:48 am form Cần Thơ
                 </div>
+                {/* Order Item */}
                 <Card>
                   <Grid p={2}>
                     <div style={{ fontWeight: "500", fontSize: "0.8em" }}>Order Item</div>
@@ -49,6 +46,7 @@ function OrderDetail() {
                           color: "green",
                           backgroundColor: "lightgreen",
                           border: "1px solid lightgreen",
+                          cursor: "pointer",
                         }}
                       >
                         Confirm
@@ -65,7 +63,7 @@ function OrderDetail() {
                           marginBottom: "16px",
                         }}
                       />
-                      <div>
+                      <div style={{ paddingLeft: "15px", width: "50%" }}>
                         <div
                           style={{
                             fontSize: "0.6em",
@@ -81,149 +79,308 @@ function OrderDetail() {
                           Name of product
                         </div>
                       </div>
+                      <div style={{ display: "flex", width: "50%" }}>
+                        <div>
+                          <button
+                            style={{
+                              padding: "5px 15px",
+                              background: "#373737",
+                              color: "white",
+                              border: "1px solid gray",
+                              borderRadius: "5px",
+                              marginRight: "10rem",
+                            }}
+                          >
+                            3 x $500
+                          </button>
+                          <button
+                            style={{
+                              padding: "5px 15px",
+                              background: "#373737",
+                              color: "white",
+                              border: "1px solid gray",
+                              borderRadius: "5px",
+                              marginRight: "10rem",
+                            }}
+                          >
+                            $1500
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </Grid>
                 </Card>
-                <Grid container spacing={3}>
-                  {/* Left Section: Image */}
-                  <Grid item xs={12} md={5}>
-                    <MDBox display="flex" flexDirection="column" alignItems="center">
-                      {/* Image Preview */}
-                      <img
-                        src={product.image}
-                        alt={product.name}
+                {/* Info user */}
+                <Card style={{ marginTop: "20px" }}>
+                  <Grid p={2}>
+                    <div style={{ fontWeight: "500", fontSize: "0.8em" }}>Infor receiver</div>
+                    <div>
+                      <button
                         style={{
-                          width: "100%",
-                          maxWidth: "20rem",
-                          height: "20rem",
-                          borderRadius: "8px",
-                          marginBottom: "16px",
-                        }}
-                      />
-
-                      {/* Update Image Button */}
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        style={{
-                          color: "white",
-                          backgroundColor: "#02adf1",
+                          fontWeight: "500",
+                          borderRadius: "5px",
+                          padding: "5px 10px",
+                          color: "#ffaa00",
+                          backgroundColor: "lightyellow",
+                          border: "1px solid gray",
+                          cursor: "pointer",
                         }}
                       >
-                        Update Image
-                      </Button>
-                    </MDBox>
-                  </Grid>
-
-                  {/* Right Section: Product Info */}
-                  <Grid item xs={12} md={7}>
-                    <form>
-                      {/* Product Name */}
-                      <TextField
-                        fullWidth
-                        label="Product Name"
-                        value={product.name}
-                        onChange={(e) => handleChange("name", e.target.value)}
-                        margin="normal"
-                      />
-
-                      {/* Category */}
-                      <TextField
-                        fullWidth
-                        label="Category"
-                        value={product.category}
-                        onChange={(e) => handleChange("category", e.target.value)}
-                        margin="normal"
-                      />
-
-                      {/* Quantity */}
-                      <TextField
-                        fullWidth
-                        type="number"
-                        label="Quantity"
-                        value={product.quantity}
-                        onChange={(e) => handleChange("quantity", e.target.value)}
-                        margin="normal"
-                      />
-
-                      {/* Description */}
-                      <TextField
-                        fullWidth
-                        label="Description"
-                        value={product.description}
-                        onChange={(e) => handleChange("description", e.target.value)}
-                        margin="normal"
-                        multiline
-                        rows={8}
-                        variant="outlined"
-                        InputProps={{
-                          inputProps: {
-                            spellCheck: "true",
-                            "data-gramm": "true",
-                          },
+                        BANKING
+                      </button>
+                    </div>
+                    <div style={{ display: "flex", marginTop: "15px" }}>
+                      <div
+                        style={{
+                          fontSize: "0.6em",
+                          width: "12%",
+                          fontWeight: "500",
                         }}
-                      />
-
-                      <Grid container spacing={2} mt={1}>
-                        {/* Manufacturing Date */}
-                        <Grid item xs={12} sm={6}>
-                          <TextField
-                            fullWidth
-                            label="Manufacturing Date"
-                            type="date"
-                            value={product.manufacturingDate}
-                            onChange={(e) => handleChange("manufacturingDate", e.target.value)}
-                            InputLabelProps={{
-                              shrink: true,
-                            }}
-                          />
-                        </Grid>
-
-                        {/* Expiry Date */}
-                        <Grid item xs={12} sm={6}>
-                          <TextField
-                            fullWidth
-                            label="Expiry Date"
-                            type="date"
-                            value={product.expiryDate}
-                            onChange={(e) => handleChange("expiryDate", e.target.value)}
-                            InputLabelProps={{
-                              shrink: true,
-                            }}
-                          />
-                        </Grid>
-                      </Grid>
-
-                      {/* Action Buttons */}
-                      <MDBox mt={3} display="flex" justifyContent="space-between">
-                        <Button
-                          variant="outlined"
-                          color="success"
-                          style={{
-                            color: "white",
-                            backgroundColor: "#00ca15",
-                            padding: "5px 25px",
-                          }}
-                        >
-                          Save
-                        </Button>
-                        <Button
-                          variant="outlined"
-                          color="error"
-                          style={{
-                            color: "white",
-                            backgroundColor: "#dd0909",
-                            padding: "5px 25px",
-                          }}
-                        >
-                          <Link to="/product" style={{ color: "white" }}>
-                            Cancel
-                          </Link>
-                        </Button>
-                      </MDBox>
-                    </form>
+                      >
+                        Name of receiver:
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.6em",
+                        }}
+                      >
+                        Nguyen Van A
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", marginTop: "15px" }}>
+                      <div
+                        style={{
+                          fontSize: "0.6em",
+                          width: "12%",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Phone number:
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.6em",
+                        }}
+                      >
+                        099999999999
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", marginTop: "15px" }}>
+                      <div
+                        style={{
+                          fontSize: "0.6em",
+                          width: "12%",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Address:
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.6em",
+                        }}
+                      >
+                        Kyoto
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", marginTop: "15px" }}>
+                      <div
+                        style={{
+                          fontSize: "0.6em",
+                          width: "12%",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Note from receiver:
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.6em",
+                        }}
+                      >
+                        Kyoto
+                      </div>
+                    </div>
                   </Grid>
-                </Grid>
+                </Card>
+                {/* Order summary */}
+                <Card style={{ marginTop: "20px" }}>
+                  <Grid p={2}>
+                    <div style={{ fontWeight: "500", fontSize: "0.8em" }}>Order summary</div>
+                    <div style={{ display: "flex", marginTop: "15px" }}>
+                      <div
+                        style={{
+                          fontSize: "0.6em",
+                          width: "50%",
+                        }}
+                      >
+                        Subtotal:
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.6em",
+                          width: "25%",
+                        }}
+                      >
+                        1 item
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.6em",
+                          width: "25%",
+                        }}
+                      >
+                        $1500
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", marginTop: "15px" }}>
+                      <div
+                        style={{
+                          fontSize: "0.6em",
+                          width: "50%",
+                        }}
+                      >
+                        Coupon:
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.6em",
+                          width: "25%",
+                        }}
+                      >
+                        Nguyen Van A
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.6em",
+                          width: "25%",
+                          marginLeft: "-7px",
+                        }}
+                      >
+                        - $1500
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", marginTop: "15px" }}>
+                      <div
+                        style={{
+                          fontSize: "0.6em",
+                          width: "50%",
+                        }}
+                      >
+                        Shipping:
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.6em",
+                          width: "25%",
+                        }}
+                      >
+                        Free shipping
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.6em",
+                          width: "25%",
+                        }}
+                      >
+                        $0
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", margin: "15px 0px" }}>
+                      <div
+                        style={{
+                          fontSize: "0.7em",
+                          width: "50%",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Total:
+                      </div>
+                      <div
+                        style={{
+                          width: "25%",
+                        }}
+                      ></div>
+                      <div
+                        style={{
+                          fontSize: "0.7em",
+                          width: "25%",
+                          fontWeight: "500",
+                        }}
+                      >
+                        $77777
+                      </div>
+                    </div>
+                    <div style={{ borderBottom: "1px solid #cfcfcf" }}></div>
+                    <div style={{ display: "flex", margin: "15px 0px" }}>
+                      <div
+                        style={{
+                          fontSize: "0.6em",
+                          width: "50%",
+                        }}
+                      >
+                        Paid by customer:
+                      </div>
+                      <div
+                        style={{
+                          width: "25%",
+                        }}
+                      ></div>
+                      <div
+                        style={{
+                          fontSize: "0.6em",
+                          width: "25%",
+                        }}
+                      >
+                        $77777
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", margin: "15px 0px" }}>
+                      <div
+                        style={{
+                          fontSize: "0.6em",
+                          width: "50%",
+                        }}
+                      >
+                        Payment:
+                      </div>
+                      <div
+                        style={{
+                          width: "25%",
+                        }}
+                      ></div>
+                      <div
+                        style={{
+                          fontSize: "0.6em",
+                          width: "25%",
+                        }}
+                      >
+                        Banking ( Paypal )
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "flex-end",
+                      }}
+                    >
+                      <Button
+                        style={{
+                          border: "1px solid green",
+                          padding: "10px",
+                          backgroundColor: "green",
+                          color: "white",
+                          borderRadius: "5px",
+                          fontSize: "0.6em",
+                        }}
+                      >
+                        ON PROCESSING
+                      </Button>
+                    </div>
+                  </Grid>
+                </Card>
               </MDBox>
             </Card>
           </Grid>

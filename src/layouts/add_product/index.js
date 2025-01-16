@@ -6,7 +6,7 @@ import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link } from "react-router-dom";
 
-function ProductDetail() {
+function AddProduct() {
   const [product, setProduct] = useState({
     id: 1,
     image:
@@ -42,7 +42,7 @@ function ProductDetail() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Edit Product
+                  Add Product
                 </MDTypography>
               </MDBox>
 
@@ -84,7 +84,7 @@ function ProductDetail() {
                           },
                         }}
                       >
-                        Update Image
+                        Add Image
                       </Button>
                     </MDBox>
                   </Grid>
@@ -179,7 +179,7 @@ function ProductDetail() {
                             padding: "5px 25px",
                           }}
                         >
-                          Save
+                          Add
                         </Button>
                         <Button
                           variant="outlined"
@@ -207,4 +207,4 @@ function ProductDetail() {
   );
 }
 
-export default ProductDetail;
+export default AddProduct;

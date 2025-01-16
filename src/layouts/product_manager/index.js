@@ -8,6 +8,7 @@ import DataTable from "examples/Tables/DataTable";
 import authorsTableData from "layouts/product_manager/data/authorsTableData";
 import projectsTableData from "layouts/product_manager/data/projectsTableData";
 import { Icon } from "@mui/material";
+import { Link } from "react-router-dom";
 
 function Product() {
   const { columns, rows } = authorsTableData();
@@ -74,26 +75,28 @@ function Product() {
           </Grid>
         </Grid>
       </MDBox>
-      <MDBox
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        width="3.25rem"
-        height="3.25rem"
-        bgColor="white"
-        shadow="sm"
-        borderRadius="50%"
-        position="fixed"
-        right="2rem"
-        bottom="2rem"
-        zIndex={99}
-        color="dark"
-        sx={{ cursor: "pointer" }}
-      >
-        <Icon fontSize="small" color="inherit">
-          add
-        </Icon>
-      </MDBox>
+      <Link to="/add_product">
+        <MDBox
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          width="3.25rem"
+          height="3.25rem"
+          bgColor="white"
+          shadow="sm"
+          borderRadius="50%"
+          position="fixed"
+          right="2rem"
+          bottom="2rem"
+          zIndex={99}
+          color="dark"
+          sx={{ cursor: "pointer" }}
+        >
+          <Icon fontSize="small" color="inherit">
+            add
+          </Icon>
+        </MDBox>
+      </Link>
     </DashboardLayout>
   );
 }

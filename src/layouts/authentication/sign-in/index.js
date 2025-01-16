@@ -1,33 +1,109 @@
 import { useState } from "react";
-
-// react-router-dom components
 import { Link } from "react-router-dom";
-
-// @mui material components
 import Card from "@mui/material/Card";
-import Switch from "@mui/material/Switch";
-import Grid from "@mui/material/Grid";
-import MuiLink from "@mui/material/Link";
-
-// @mui icons
-import FacebookIcon from "@mui/icons-material/Facebook";
-import GitHubIcon from "@mui/icons-material/GitHub";
-import GoogleIcon from "@mui/icons-material/Google";
-
-// Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDInput from "components/MDInput";
 import MDButton from "components/MDButton";
-
-// Authentication layout components
 import BasicLayout from "layouts/authentication/components/BasicLayout";
-
-// Images
 import bgImage from "assets/images/bg-sign-in-basic.jpeg";
 
 function Basic() {
-  const [rememberMe, setRememberMe] = useState(false);
+  const [username, setUserName] = useState("");
+  const [userNameError, setUserNameError] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [loginError, setLoginError] = useState("");
+  const [account, setAccount] = useState({
+    username: "",
+    password: "",
+  });
+
+  // Receives username
+  const userNameChange = (e) => {
+    const value = e.target.value;
+    setUserName(value);
+    setAccount((preState) => ({ ...preState, username: value }));
+  };
+
+  // Check full name
+  const userNameBlur = () => {
+    if (username.trim() === "") {
+      setUserNameError("Please enter your username");
+    } else if (username.length < 4) {
+      setUserNameError("The full name must be at least 4 characters");
+    } else if (username.length > 100) {
+      setUserNameError("The full name must be less than 100 characters");
+    } else {
+      setUserNameError("");
+    }
+  };
+
+  /* Receive password */
+  const PasswordChange = (e) => {
+    const value = e.target.value;
+    setPassword(value);
+    setAccount((preState) => ({ ...preState, password: value }));
+  };
+
+  // Check password
+  const PasswordBlur = () => {
+    const enteredPassword = password.trim();
+    if (enteredPassword === "") {
+      setPasswordError("Please enter your password");
+    } else if (enteredPassword.length < 6) {
+      setPasswordError("Password must be longer than 6 characters");
+    } else if (enteredPassword.length > 30) {
+      setPasswordError("Password must be shorter than 30 characters");
+    } else {
+      setPasswordError("");
+    }
+  };
+
+  const validateForm = async () => {
+    setLoginError("");
+    userNameBlur();
+    PasswordBlur();
+    if (!userNameError && !passwordError && username && password) {
+      try {
+        const response = await AccountService.signin(account);
+        console.log("Login successful", response);
+        setFormSubmitted(true);
+        setLoginError("");
+        setTimeout(() => {
+          onLoginSuccess();
+          window.location.reload();
+          console.log("Response data:", response);
+        }, 1000);
+      } catch (error) {
+        console.error(
+          "Error when logging in:",
+          error.response ? error.response.data : error.message
+        );
+        if (error.response) {
+          switch (error.response.status) {
+            case 404:
+              setUserNameError("Account does not exist.");
+              break;
+            case 401:
+              setLoginError("Invalid username or password.");
+              break;
+            case 500:
+              setPasswordError("Password is incorrect.");
+              break;
+            default:
+              setLoginError("User name does not exist.");
+          }
+        } else {
+          setLoginError("Network error. Please check your connection.");
+        }
+        setFormSubmitted(false);
+      }
+    } else {
+      setLoginError("Please fill in all fields correctly before submitting.");
+    }
+  };
   return (
     <BasicLayout image={bgImage}>
       <Card>
@@ -49,13 +125,51 @@ function Basic() {
         <MDBox pt={4} pb={3} px={3}>
           <MDBox component="form" role="form">
             <MDBox mb={2}>
-              <MDInput type="email" label="Email" fullWidth />
+              <MDInput
+                label="Username"
+                type="text"
+                name="username"
+                value={username}
+                onChange={userNameChange}
+                onBlur={userNameBlur}
+                fullWidth
+              />
+              {userNameError && (
+                <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px", marginTop: "3px" }}>
+                  {userNameError}
+                </p>
+              )}
             </MDBox>
-            <MDBox mb={2}>
-              <MDInput type="password" label="Password" fullWidth />
+            <MDBox>
+              <MDInput
+                type="password"
+                label="Password"
+                name="password"
+                value={password}
+                onChange={PasswordChange}
+                onBlur={PasswordBlur}
+                fullWidth
+              />
             </MDBox>
-            <MDBox mt={4} mb={1}>
-              <MDButton variant="gradient" color="info" fullWidth>
+            {passwordError && (
+              <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px", marginTop: "3px" }}>
+                {passwordError}
+              </p>
+            )}
+            <MDBox mt={2} mb={1}>
+              {formSubmitted && !loginError && (
+                <p
+                  style={{ color: "green", fontSize: "0.6em", marginLeft: "5px", marginTop: "3px" }}
+                >
+                  Login successful
+                </p>
+              )}
+              {loginError && (
+                <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px", marginTop: "3px" }}>
+                  {loginError}
+                </p>
+              )}
+              <MDButton variant="gradient" color="info" fullWidth onClick={validateForm}>
                 sign in
               </MDButton>
             </MDBox>

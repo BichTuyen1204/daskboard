@@ -8,6 +8,7 @@ import MDInput from "components/MDInput";
 import MDButton from "components/MDButton";
 import CoverLayout from "layouts/authentication/components/CoverLayout";
 import bgImage from "assets/images/bg-sign-up-cover.jpeg";
+import AccountService from "api/AccountService";
 
 function Cover() {
   const [username, setUserName] = useState("");

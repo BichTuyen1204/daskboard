@@ -1,27 +1,23 @@
 import axios from "axios";
-const API_BASE_URL = "http://localhost:8000";
+const API_BASE_URL = "http://localhost:8000/api/auth";
 
 class AccountService {
-  async register(account) {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/dev/create`, account);
-      return response.data;
-    } catch (error) {
-      console.error("Registration failed: ", error.response ? error.response.data : error.message);
-      throw error;
-    }
-  }
-
   async signin(account) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, account);
-      const jwtToken = response.data.accessToken;
+      const headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+      };
+      const response = await axios.post(`${API_BASE_URL}/login`, account, { headers });
+      console.log("Response", response.data);
+
+      const jwtToken = response.data.access_token;
       sessionStorage.setItem("jwtToken", jwtToken);
-      console.log("Info account: ", response);
+      console.log("Đăng nhập thành công: ", response.data);
     } catch (error) {
-      console.error("Login failed: ", error.response ? error.response.data : error.message);
+      console.error("Login failed: ", error.response?.data || error.message);
       throw error;
     }
   }
 }
+
 export default new AccountService();

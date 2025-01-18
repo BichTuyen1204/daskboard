@@ -16,6 +16,9 @@ import View_Coupon from "layouts/view_coupon";
 import View_Staff from "layouts/view_staff";
 import Add_Staff from "layouts/add_staff";
 import Add_Product from "layouts/add_product";
+import Logout from "layouts/logout";
+
+const token = sessionStorage.getItem("jwtToken");
 
 const routes = [
   {
@@ -50,14 +53,6 @@ const routes = [
     route: "/customer",
     component: <Customer />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Manager customer",
-  //   key: "Customer",
-  //   icon: <Icon fontSize="small">receipt_long</Icon>,
-  //   route: "/Customer",
-  //   component: <Customer />,
-  // },
   {
     type: "collapse",
     name: "Coupon Management",
@@ -74,37 +69,17 @@ const routes = [
     route: "/staff",
     component: <Staff />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Blog Management",
-  //   key: "notifications",
-  //   icon: <Icon fontSize="small">notifications</Icon>,
-  //   route: "/notifications",
-  //   component: <Notifications />,
-  // },
   {
-    type: "collapse",
-    name: "Profile",
-    key: "profile",
-    icon: <Icon fontSize="small">person</Icon>,
     route: "/profile",
     component: <Profile />,
   },
   {
     type: "collapse",
-    name: "Sign In",
+    name: token ? "Logout" : "Sign In",
     key: "sign-in",
-    icon: <Icon fontSize="small">login</Icon>,
-    route: "/authentication/sign-in",
-    component: <SignIn />,
-  },
-  {
-    type: "collapse",
-    name: "Sign Up",
-    key: "sign-up",
-    icon: <Icon fontSize="small">assignment</Icon>,
-    route: "/authentication/sign-up",
-    component: <SignUp />,
+    icon: <Icon fontSize="small">{token ? "logout" : "login"}</Icon>,
+    route: token ? "/logout" : "/sign-in",
+    component: token ? <Logout /> : <SignIn />,
   },
   {
     route: "/product_detail",

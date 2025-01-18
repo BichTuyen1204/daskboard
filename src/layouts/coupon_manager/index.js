@@ -7,9 +7,19 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
 import authorsTableData from "layouts/coupon_manager/data/authorsTableData";
 import { Icon } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 function Coupon() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("jwtToken");
+    if (!token) {
+      navigate("/sign-in", { replace: true });
+    }
+  }, [navigate]);
+
   const { columns, rows } = authorsTableData();
 
   return (

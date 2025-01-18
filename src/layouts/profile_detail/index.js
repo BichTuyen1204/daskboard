@@ -4,8 +4,19 @@ import MDBox from "components/MDBox";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import ProfileInfoCard from "examples/Cards/InfoCards/ProfileInfoCard";
 import Header from "layouts/profile_detail/data/Header";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 function ProfileDetail() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("jwtToken");
+    if (!token) {
+      navigate("/sign-in", { replace: true });
+    }
+  }, [navigate]);
+
   return (
     <DashboardLayout>
       <MDBox mb={2} />

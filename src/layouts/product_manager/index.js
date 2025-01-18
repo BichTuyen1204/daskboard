@@ -8,9 +8,19 @@ import DataTable from "examples/Tables/DataTable";
 import authorsTableData from "layouts/product_manager/data/authorsTableData";
 import projectsTableData from "layouts/product_manager/data/projectsTableData";
 import { Icon } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 function Product() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("jwtToken");
+    if (!token) {
+      navigate("/sign-in", { replace: true });
+    }
+  }, [navigate]);
+
   const { columns, rows } = authorsTableData();
   const { columns: pColumns, rows: pRows } = projectsTableData();
 

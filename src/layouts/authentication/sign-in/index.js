@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import Card from "@mui/material/Card";
 import MDBox from "components/MDBox";
@@ -10,15 +11,22 @@ import bgImage from "assets/images/bg-sign-in-basic.jpeg";
 import AccountService from "api/AccountService";
 
 function Basic() {
+  const navigate = useNavigate();
   const [username, setUserName] = useState("");
   const [userNameError, setUserNameError] = useState("");
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [loginError, setLoginError] = useState("");
+  const [jwtToken, setJwtToken] = useState(sessionStorage.getItem("jwtToken"));
+
   const [account, setAccount] = useState({
+    grant_type: "password",
     username: "",
     password: "",
+    scope: "",
+    client_id: "",
+    client_secret: "",
   });
 
   // Receives username
@@ -73,10 +81,9 @@ function Basic() {
         setFormSubmitted(true);
         setLoginError("");
         setTimeout(() => {
-          onLoginSuccess();
+          navigate("/dashboard");
           window.location.reload();
-          console.log("Response data:", response);
-        }, 1000);
+        }, 1500);
       } catch (error) {
         console.error(
           "Error when logging in:",
@@ -94,7 +101,8 @@ function Basic() {
               setPasswordError("Password is incorrect.");
               break;
             default:
-              setLoginError("User name does not exist.");
+              console.log("Account payload:", account);
+              setLoginError("User name does not exist.", error.response.status);
           }
         } else {
           setLoginError("Network error. Please check your connection.");

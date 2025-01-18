@@ -8,8 +8,19 @@ import DataTable from "examples/Tables/DataTable";
 import authorsTableData from "layouts/order_manager/data/authorsTableData";
 import confirmOrder from "layouts/order_manager/data/confirmOrder";
 import cancelOrder from "layouts/order_manager/data/cancelOrder";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 function Order() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("jwtToken");
+    if (!token) {
+      navigate("/sign-in", { replace: true });
+    }
+  }, [navigate]);
+
   const { columns, rows } = authorsTableData();
   const { columns: pColumns, rows: pRows } = confirmOrder();
   const { columns: cancelColumns, rows: cancelRows } = cancelOrder();

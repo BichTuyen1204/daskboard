@@ -5,23 +5,92 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link } from "react-router-dom";
+import CouponService from "api/CouponService";
 
 function AddCoupon() {
-  const [product, setProduct] = useState({
-    id: 1,
-    image:
-      "https://assets.epicurious.com/photos/62f16ed5fe4be95d5a460eed/1:1/w_4318,h_4318,c_limit/RoastChicken_RECIPE_080420_37993.jpg",
-    name: "Product A",
-    category: "Category 1",
-    quantity: 10,
-    description: 10,
+  const [addSuccess, setAddSuccess] = useState(false);
+  const [idError, setIdError] = useState("");
+  const [coupon, setCoupon] = useState({
+    id: "",
+    usage_amount: "",
+    expire_date: "",
+    sale_percent: "",
   });
 
-  const handleChange = (field, value) => {
-    setProduct((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+  const [errors, setErrors] = useState({
+    id: "",
+    usage_amount: "",
+    expire_date: "",
+    sale_percent: "",
+  });
+
+  const validateField = (name, value) => {
+    let errorMessage = "";
+
+    switch (name) {
+      case "id":
+        if (!value) errorMessage = "Please enter the coupon ID";
+        else if (value.length < 2) errorMessage = "The ID must be at least 2 characters";
+        else if (value.length > 100) errorMessage = "The ID must be less than 100 characters";
+        break;
+
+      case "usage_amount":
+        if (!value) errorMessage = "Please enter the usage amount";
+        else if (value <= 0) errorMessage = "The usage amount must be greater than 0";
+        else if (value > 100) errorMessage = "The usage amount must be less than 100";
+        break;
+
+      case "sale_percent":
+        if (!value) errorMessage = "Please enter the sale percentage";
+        else if (value <= 0) errorMessage = "The sale percentage must be greater than 0";
+        else if (value > 100)
+          errorMessage = "The sale percentage must be less than or equal to 100";
+        break;
+
+      case "expire_date":
+        if (!value) errorMessage = "Please enter the expiration date";
+        break;
+
+      default:
+        break;
+    }
+
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
+    return errorMessage === "";
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "id") {
+      setIdError("");
+    }
+
+    setCoupon((prevCoupon) => ({ ...prevCoupon, [name]: value }));
+
+    validateField(name, value);
+  };
+
+  const handleSubmit = async () => {
+    const isValid = Object.keys(errors).every((key) => validateField(key, coupon[key]));
+
+    if (isValid) {
+      try {
+        const response = await CouponService.addCoupon(coupon); // Gọi service
+        console.log("Full response from API:", response); // Xem tất cả dữ liệu trả về
+        setAddSuccess(true);
+      } catch (error) {
+        console.error("Error when adding coupon:", error);
+
+        // Kiểm tra lỗi 500 và hiển thị thông báo lỗi tùy chỉnh
+        if (error.response && error.response.status === 500) {
+          setIdError("The coupon ID already exists");
+        } else {
+          setIdError("The coupon ID already exists");
+        }
+
+        setAddSuccess(false);
+      }
+    }
   };
 
   return (
@@ -42,77 +111,90 @@ function AddCoupon() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Add coupon
+                  Add Coupon
                 </MDTypography>
               </MDBox>
 
               {/* Content */}
               <MDBox p={3}>
                 <Grid container spacing={3}>
-                  {/* Right Section: Product Info */}
                   <Grid item xs={12} md={12}>
                     <form>
-                      {/* Product Name */}
+                      {/* Coupon ID */}
                       <TextField
                         fullWidth
-                        label="Name of coupon"
-                        value={product.name}
-                        onChange={(e) => handleChange("name", e.target.value)}
+                        name="id"
+                        label="Coupon ID"
+                        value={coupon.id}
+                        onChange={handleChange}
+                        error={!!errors.id}
+                        helperText={errors.id}
+                        margin="normal"
+                      />
+                      <p style={{ color: "red", fontSize: "0.6em", marginTop: "0px" }}>{idError}</p>
+
+                      {/* Usage Amount */}
+                      <TextField
+                        fullWidth
+                        name="usage_amount"
+                        label="Usage Amount"
+                        type="number"
+                        value={coupon.usage_amount}
+                        onChange={handleChange}
+                        error={!!errors.usage_amount}
+                        helperText={errors.usage_amount}
                         margin="normal"
                       />
 
-                      <Grid container spacing={2} mt={1}>
-                        {/* Manufacturing Date */}
-                        <Grid item xs={12} sm={6}>
-                          <TextField
-                            fullWidth
-                            label="Expiration date"
-                            type="date"
-                            value={product.manufacturingDate}
-                            onChange={(e) => handleChange("expirationDate", e.target.value)}
-                            InputLabelProps={{
-                              shrink: true,
-                            }}
-                          />
-                        </Grid>
-
-                        {/* Expiry Date */}
-                        <Grid item xs={12} sm={6}>
-                          <TextField
-                            fullWidth
-                            label="Creation date"
-                            type="date"
-                            value={product.expiryDate}
-                            onChange={(e) => handleChange("creationDate", e.target.value)}
-                            InputLabelProps={{
-                              shrink: true,
-                            }}
-                          />
-                        </Grid>
-                      </Grid>
-
-                      {/* Discount */}
+                      {/* Expiration Date */}
                       <TextField
                         fullWidth
-                        label="Discount percentage"
-                        value={product.description}
-                        onChange={(e) => handleChange("description", e.target.value)}
-                        margin="normal"
-                        multiline
-                        variant="outlined"
-                        InputProps={{
-                          inputProps: {
-                            spellCheck: "true",
-                            "data-gramm": "true",
-                          },
+                        name="expire_date"
+                        label="Expiration Date"
+                        type="date"
+                        value={coupon.expire_date}
+                        onChange={handleChange}
+                        error={!!errors.expire_date}
+                        helperText={errors.expire_date}
+                        InputLabelProps={{
+                          shrink: true,
                         }}
+                        margin="normal"
                       />
+
+                      {/* Sale Percentage */}
+                      <TextField
+                        fullWidth
+                        name="sale_percent"
+                        label="Sale Percentage"
+                        type="number"
+                        value={coupon.sale_percent}
+                        onChange={handleChange}
+                        error={!!errors.sale_percent}
+                        helperText={errors.sale_percent}
+                        margin="normal"
+                      />
+
+                      {addSuccess && (
+                        <p
+                          style={{
+                            color: "green",
+                            fontSize: "0.6em",
+                            marginLeft: "5px",
+                            marginTop: "15px",
+                            marginBottom: "-20px",
+                          }}
+                        >
+                          Add coupon successful
+                        </p>
+                      )}
 
                       {/* Action Buttons */}
                       <MDBox mt={3} display="flex" justifyContent="space-between">
                         <Button
-                          variant="outlined"
+                          variant="contained"
                           color="success"
+                          onClick={handleSubmit}
                           style={{
                             color: "white",
                             backgroundColor: "#00ca15",
@@ -130,7 +212,7 @@ function AddCoupon() {
                             padding: "5px 25px",
                           }}
                         >
-                          <Link to="/coupon" style={{ color: "white" }}>
+                          <Link to="/coupon" style={{ color: "white", textDecoration: "none" }}>
                             Cancel
                           </Link>
                         </Button>

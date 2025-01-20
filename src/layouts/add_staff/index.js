@@ -177,12 +177,23 @@ function AddStaff() {
                       key={field.name}
                       error={!!errors[field.name]}
                       helperText={errors[field.name]}
+                      sx={{
+                        "& .MuiInputLabel-root": {
+                          fontSize: "0.7em",
+                        },
+                        "& .MuiFormHelperText-root": {
+                          fontSize: "0.6em",
+                          marginLeft: "10px",
+                          marginTop: "7px",
+                          marginBottom: "-15px",
+                          fontWeight: "500",
+                        },
+                      }}
                     />
                   ))}
 
                   <TextField
                     fullWidth
-                    sx={{ marginTop: "20px" }}
                     label="Date of Birth"
                     type="date"
                     name="dob"
@@ -192,6 +203,19 @@ function AddStaff() {
                     InputLabelProps={{ shrink: true }}
                     error={!!errors.dob}
                     helperText={errors.dob}
+                    sx={{
+                      marginTop: "20px",
+                      "& .MuiInputLabel-root": {
+                        fontSize: "0.7em",
+                      },
+                      "& .MuiFormHelperText-root": {
+                        fontSize: "0.6em",
+                        marginLeft: "10px",
+                        marginTop: "7px",
+                        marginBottom: "-15px",
+                        fontWeight: "500",
+                      },
+                    }}
                   />
 
                   {addSuccess && (
@@ -220,19 +244,6 @@ function AddStaff() {
                       onClick={handleSubmit}
                     >
                       Save
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      style={{
-                        color: "white",
-                        backgroundColor: "#dd0909",
-                        padding: "5px 25px",
-                      }}
-                    >
-                      <Link to="/staff" style={{ color: "white" }}>
-                        Cancel
-                      </Link>
                     </Button>
                   </MDBox>
                 </form>

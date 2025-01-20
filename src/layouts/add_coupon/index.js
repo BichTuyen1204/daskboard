@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Card from "@mui/material/Card";
-import { Grid, TextField, Button } from "@mui/material";
+import { Grid, TextField, Button, Icon } from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -119,6 +119,11 @@ function AddCoupon() {
               <MDBox p={3}>
                 <Grid container spacing={3}>
                   <Grid item xs={12} md={12}>
+                    <Link to="/coupon">
+                      <Icon sx={{ cursor: "pointer", "&:hover": { color: "gray" } }}>
+                        arrow_back
+                      </Icon>
+                    </Link>
                     <form>
                       {/* Coupon ID */}
                       <TextField
@@ -130,6 +135,18 @@ function AddCoupon() {
                         error={!!errors.id}
                         helperText={errors.id}
                         margin="normal"
+                        sx={{
+                          "& .MuiInputLabel-root": {
+                            fontSize: "0.7em",
+                          },
+                          "& .MuiFormHelperText-root": {
+                            fontSize: "0.6em",
+                            marginLeft: "10px",
+                            marginTop: "7px",
+                            marginBottom: "-15px",
+                            fontWeight: "500",
+                          },
+                        }}
                       />
                       <p style={{ color: "red", fontSize: "0.6em", marginTop: "0px" }}>{idError}</p>
 
@@ -144,8 +161,19 @@ function AddCoupon() {
                         error={!!errors.usage_amount}
                         helperText={errors.usage_amount}
                         margin="normal"
+                        sx={{
+                          "& .MuiInputLabel-root": {
+                            fontSize: "0.7em",
+                          },
+                          "& .MuiFormHelperText-root": {
+                            fontSize: "0.6em",
+                            marginLeft: "10px",
+                            marginTop: "7px",
+                            marginBottom: "-15px",
+                            fontWeight: "500",
+                          },
+                        }}
                       />
-
                       {/* Expiration Date */}
                       <TextField
                         fullWidth
@@ -160,8 +188,19 @@ function AddCoupon() {
                           shrink: true,
                         }}
                         margin="normal"
+                        sx={{
+                          "& .MuiInputLabel-root": {
+                            fontSize: "0.7em",
+                          },
+                          "& .MuiFormHelperText-root": {
+                            fontSize: "0.6em",
+                            marginLeft: "10px",
+                            marginTop: "7px",
+                            marginBottom: "-15px",
+                            fontWeight: "500",
+                          },
+                        }}
                       />
-
                       {/* Sale Percentage */}
                       <TextField
                         fullWidth
@@ -173,8 +212,19 @@ function AddCoupon() {
                         error={!!errors.sale_percent}
                         helperText={errors.sale_percent}
                         margin="normal"
+                        sx={{
+                          "& .MuiInputLabel-root": {
+                            fontSize: "0.7em",
+                          },
+                          "& .MuiFormHelperText-root": {
+                            fontSize: "0.6em",
+                            marginLeft: "10px",
+                            marginTop: "7px",
+                            marginBottom: "-15px",
+                            fontWeight: "500",
+                          },
+                        }}
                       />
-
                       {addSuccess && (
                         <p
                           style={{
@@ -188,7 +238,6 @@ function AddCoupon() {
                           Add coupon successful
                         </p>
                       )}
-
                       {/* Action Buttons */}
                       <MDBox mt={3} display="flex" justifyContent="space-between">
                         <Button
@@ -202,19 +251,6 @@ function AddCoupon() {
                           }}
                         >
                           Save
-                        </Button>
-                        <Button
-                          variant="outlined"
-                          color="error"
-                          style={{
-                            color: "white",
-                            backgroundColor: "#dd0909",
-                            padding: "5px 25px",
-                          }}
-                        >
-                          <Link to="/coupon" style={{ color: "white", textDecoration: "none" }}>
-                            Cancel
-                          </Link>
                         </Button>
                       </MDBox>
                     </form>

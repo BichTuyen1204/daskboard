@@ -74,6 +74,7 @@ function Basic() {
     setLoginError("");
     userNameBlur();
     PasswordBlur();
+
     if (!userNameError && !passwordError && username && password) {
       try {
         const response = await AccountService.signin(account);
@@ -89,20 +90,24 @@ function Basic() {
           "Error when logging in:",
           error.response ? error.response.data : error.message
         );
+
         if (error.response) {
-          switch (error.response.status) {
-            case 404:
+          if (error.response.status === 400) {
+            const detail = error.response.data.detail;
+            if (detail === "No such account with username") {
               setUserNameError("Account does not exist.");
-              break;
-            case 401:
-              setLoginError("Invalid username or password.");
-              break;
-            case 500:
+            } else if (detail === "Password incorrect") {
               setPasswordError("Password is incorrect.");
-              break;
-            default:
-              console.log("Account payload:", account);
-              setLoginError("User name does not exist.", error.response.status);
+            } else {
+              setLoginError("Unknown error occurred. Please try again.");
+            }
+          } else if (error.response.status === 401) {
+            setLoginError("Invalid username or password.");
+          } else if (error.response.status === 500) {
+            setPasswordError("Server error. Please try again later.");
+          } else {
+            console.log("Account payload:", account);
+            setLoginError(`Error: ${error.response.status}`);
           }
         } else {
           setLoginError("Network error. Please check your connection.");
@@ -113,6 +118,7 @@ function Basic() {
       setLoginError("Please fill in all fields correctly before submitting.");
     }
   };
+
   return (
     <BasicLayout image={bgImage}>
       <Card>

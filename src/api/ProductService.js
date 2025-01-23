@@ -1,5 +1,6 @@
 import axios from "axios";
 const API_BASE_URL = "http://localhost:8000/api/staff/product";
+const API_BASE_URL_2 = "http://localhost:8000/api/general/product";
 
 class ProductService {
   async createProduct(formData) {
@@ -8,7 +9,7 @@ class ProductService {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.post(`${API_BASE_URL}/create`, formData, {
         headers: {
-          "Content-Type": "multipart/form-data", // Quan trọng: Sử dụng multipart/form-data
+          "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
       });
@@ -25,6 +26,104 @@ class ProductService {
       } else {
         console.error("Unexpected error:", error.message);
       }
+      throw error;
+    }
+  }
+
+  async allProduct() {
+    try {
+      const response = await axios.get(`${API_BASE_URL_2}/fetch_all`);
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error during API calls:",
+        error.response ? error.response.data : error.message
+      );
+      throw error;
+    }
+  }
+
+  async getProductDetail(prod_id) {
+    try {
+      const response = await axios.get(`${API_BASE_URL_2}/fetch`, {
+        params: {
+          prod_id: prod_id,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error during API calls:",
+        error.response ? error.response.data : error.message
+      );
+      throw error;
+    }
+  }
+
+  async updateProductInfo(prod_id) {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/update/info/prod`, {
+        params: {
+          prod_id: prod_id,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error during API calls:",
+        error.response ? error.response.data : error.message
+      );
+      throw error;
+    }
+  }
+
+  async updateProductStatus(prod_id) {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/update/status`, {
+        params: {
+          prod_id: prod_id,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error during API calls:",
+        error.response ? error.response.data : error.message
+      );
+      throw error;
+    }
+  }
+
+  async updateProductQuantity(prod_id) {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/update/quantity`, {
+        params: {
+          prod_id: prod_id,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error during API calls:",
+        error.response ? error.response.data : error.message
+      );
+      throw error;
+    }
+  }
+
+  async updateProductPrice(prod_id) {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/update/price`, {
+        params: {
+          prod_id: prod_id,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error during API calls:",
+        error.response ? error.response.data : error.message
+      );
       throw error;
     }
   }

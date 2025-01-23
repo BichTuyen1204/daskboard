@@ -1,24 +1,54 @@
 /* eslint-disable react/prop-types */
+import React, { useEffect, useState } from "react";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDAvatar from "components/MDAvatar";
-import beef from "assets/images/beef.jpg";
 import { Icon } from "@mui/material";
 import { Link } from "react-router-dom";
+import ProductService from "api/ProductService";
 
-export default function data() {
-  const Author = ({ image }) => (
-    <MDBox display="flex" alignItems="center" lineHeight={1}>
-      <MDAvatar src={image} size="sm" />
-    </MDBox>
-  );
+export default function DataTable() {
+  const [product, setProduct] = useState([]);
+  const jwtToken = sessionStorage.getItem("jwtToken");
 
-  const CostPrice = ({ title, description }) => (
+  useEffect(() => {
+    const getAllProduct = async () => {
+      if (jwtToken) {
+        try {
+          const response = await ProductService.allProduct(jwtToken);
+          setProduct(response);
+        } catch (error) {
+          console.error("Can't access the server", error);
+        }
+      }
+    };
+
+    getAllProduct();
+  }, [jwtToken]);
+
+  const mapTypeToLabel = (type) => {
+    const typeMap = {
+      VEG: "Vegetable",
+      MEAT: "Meat",
+      MK: "Mealkit",
+      SS: "Season",
+    };
+    return typeMap[type] || type;
+  };
+
+  const mapStatus = (typeStatus) => {
+    const typeMapStatus = {
+      IN_STOCK: "In stock",
+      OUT_OF_STOCK: "Out of stock",
+      NO_LONGER_IN_SALE: "No longer in sale",
+    };
+    return typeMapStatus[typeStatus] || typeStatus;
+  };
+  const CostPrice = ({ title }) => (
     <MDBox lineHeight={1} textAlign="left" fontSize="0.8em">
       <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
         {title}
       </MDTypography>
-      <MDTypography variant="caption">{description}</MDTypography>
     </MDBox>
   );
 
@@ -30,127 +60,88 @@ export default function data() {
     </MDBox>
   );
 
-  return {
-    columns: [
-      { Header: "image", accessor: "image", width: "5%", align: "left" },
-      { Header: "name of product", accessor: "name", width: "25%", align: "left" },
-      { Header: "cost price", accessor: "cost_price", align: "center" },
-      { Header: "selling price", accessor: "selling_price", align: "center" },
-      { Header: "quantity", accessor: "status", align: "center" },
-      { Header: "expiry date", accessor: "expiry_date", align: "center" },
-      { Header: "action", accessor: "action", align: "center" },
-    ],
+  const columns = [
+    { Header: "image", accessor: "image", width: "5%", align: "left" },
+    { Header: "name of product", accessor: "name", width: "25%", align: "left" },
+    { Header: "cost price", accessor: "cost_price", align: "center" },
+    { Header: "quantity", accessor: "quantity", align: "center" },
+    { Header: "type", accessor: "type", align: "center" },
+    { Header: "status", accessor: "status", align: "center" },
+    { Header: "action", accessor: "action", align: "center" },
+  ];
 
-    rows: [
-      {
-        image: <Author image={beef} />,
-        name: <Name name="Beef 500g" />,
-        cost_price: <CostPrice title="Manager" />,
-        status: (
-          // <MDBox ml={-1}>
-          //   <MDBadge badgeContent="online" color="success" variant="gradient" size="sm" />
-          // </MDBox>
+  const rows = product.map((item) => ({
+    image: (
+      <MDBox display="flex" alignItems="center" lineHeight={1}>
+        <Link to={`/product_detail/${item.id}`}>
+          <MDAvatar style={{ cursor: "pointer" }} src={item.image_url} size="sm" />
+        </Link>
+      </MDBox>
+    ),
+    name: <Name name={item.name} />,
+    cost_price: <CostPrice title={`$${item.price}`} />,
+    type: (
+      <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
+        {mapTypeToLabel(item.type)}
+      </MDTypography>
+    ),
+    status: (
+      <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
+        {mapStatus(item.status)}
+      </MDTypography>
+    ),
+    quantity: (
+      <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
+        {item.available_quantity}
+      </MDTypography>
+    ),
+    action: (
+      <MDBox display="flex" justifyContent="center" gap={1}>
+        <Link to={`/edit_product/${item.id}`} style={{ textDecoration: "none" }}>
           <MDTypography
-            component="a"
-            href="#"
+            component="button"
             variant="caption"
-            color="text"
             fontWeight="medium"
             style={{
+              backgroundColor: "white",
+              color: "#1976d2",
               fontSize: "0.8em",
+              border: "none",
+              padding: "5px 10px",
+              cursor: "pointer",
+              transition: "all 0.3s ease",
             }}
+            onMouseEnter={(e) => (e.target.style.backgroundColor = "#f0f4ff")}
+            onMouseLeave={(e) => (e.target.style.backgroundColor = "white")}
           >
-            255
+            <Icon fontSize="small" style={{ marginRight: "5px" }}>
+              edit
+            </Icon>
           </MDTypography>
-        ),
-        expiry_date: (
-          <MDTypography
-            component="a"
-            href="#"
-            variant="caption"
-            color="text"
-            fontWeight="medium"
-            style={{
-              fontSize: "0.8em",
-            }}
-          >
-            23/04/18
-          </MDTypography>
-        ),
-        selling_price: (
-          <MDTypography
-            component="a"
-            href="#"
-            variant="caption"
-            color="text"
-            fontWeight="medium"
-            style={{
-              fontSize: "0.8em",
-            }}
-          >
-            $500
-          </MDTypography>
-        ),
-        action: (
-          <MDBox display="flex" justifyContent="center" gap={1}>
-            {/* Nút Edit */}
-            <Link
-              to="/product_detail"
-              style={{
-                textDecoration: "none",
-              }}
-            >
-              <MDTypography
-                component="button"
-                variant="caption"
-                fontWeight="medium"
-                style={{
-                  backgroundColor: "white",
-                  color: "#1976d2",
-                  fontSize: "0.8em",
-                  border: "none",
-                  padding: "5px 10px",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transition: "all 0.3s ease",
-                }}
-                onMouseEnter={(e) => (e.target.style.backgroundColor = "#f0f4ff")}
-                onMouseLeave={(e) => (e.target.style.backgroundColor = "white")}
-              >
-                <Icon fontSize="small" color="inherit" style={{ marginRight: "5px" }}>
-                  edit
-                </Icon>
-              </MDTypography>
-            </Link>
-            {/* Nút Delete */}
-            <MDTypography
-              component="button"
-              variant="caption"
-              fontWeight="medium"
-              style={{
-                backgroundColor: "white",
-                color: "#d32f2f",
-                fontSize: "0.8em",
-                border: "none",
-                padding: "5px 10px",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                transition: "all 0.3s ease",
-              }}
-              onMouseEnter={(e) => (e.target.style.backgroundColor = "#ffe6e6")}
-              onMouseLeave={(e) => (e.target.style.backgroundColor = "white")}
-            >
-              <Icon fontSize="small" color="inherit" style={{ marginRight: "5px" }}>
-                delete
-              </Icon>
-            </MDTypography>
-          </MDBox>
-        ),
-      },
-    ],
-  };
+        </Link>
+        {/* <MDTypography
+          component="button"
+          variant="caption"
+          fontWeight="medium"
+          style={{
+            backgroundColor: "white",
+            color: "#d32f2f",
+            fontSize: "0.8em",
+            border: "none",
+            padding: "5px 10px",
+            cursor: "pointer",
+            transition: "all 0.3s ease",
+          }}
+          onMouseEnter={(e) => (e.target.style.backgroundColor = "#ffe6e6")}
+          onMouseLeave={(e) => (e.target.style.backgroundColor = "white")}
+        >
+          <Icon fontSize="small" style={{ marginRight: "5px" }}>
+            delete
+          </Icon>
+        </MDTypography> */}
+      </MDBox>
+    ),
+  }));
+
+  return { columns, rows };
 }

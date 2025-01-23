@@ -5,13 +5,26 @@ import MDAvatar from "components/MDAvatar";
 import MDBadge from "components/MDBadge";
 import v from "assets/images/v.jpg";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import AccountService from "api/AccountService";
 
 export default function data() {
-  const Image = ({ image }) => (
-    <MDBox display="flex" alignItems="center" lineHeight={1}>
-      <MDAvatar src={image} size="sm" />
-    </MDBox>
-  );
+  const [staff, setStaff] = useState([]);
+  const jwtToken = sessionStorage.getItem("jwtToken");
+
+  useEffect(() => {
+    const getAllStaff = async () => {
+      if (jwtToken) {
+        try {
+          const response = await AccountService.getAllStaff(jwtToken);
+          setStaff(response);
+        } catch (error) {
+          console.error("Can't access the server", error);
+        }
+      }
+    };
+    getAllStaff();
+  }, [jwtToken]);
 
   const Email = ({ email }) => (
     <MDBox lineHeight={1} textAlign="center">
@@ -21,10 +34,10 @@ export default function data() {
     </MDBox>
   );
 
-  const Name = ({ name }) => (
+  const ID = ({ id }) => (
     <MDBox lineHeight={1} textAlign="left">
       <MDTypography display="block" variant="button" fontWeight="medium" fontSize="0.8em">
-        {name}
+        {id}
       </MDTypography>
     </MDBox>
   );
@@ -37,43 +50,42 @@ export default function data() {
     </MDBox>
   );
 
-  return {
-    columns: [
-      { Header: "image", accessor: "image", width: "10%", align: "left" },
-      { Header: "name of customer", accessor: "name", width: "25%", align: "left" },
-      { Header: "email", accessor: "email", align: "center" },
-      { Header: "phone number", accessor: "phone_number", align: "center" },
-      { Header: "View detail", accessor: "action", align: "center" },
-    ],
+  const columns = [
+    { Header: "ID", accessor: "id", width: "25%", align: "left" },
+    { Header: "email", accessor: "email", align: "center" },
+    { Header: "phone number", accessor: "phone_number", align: "center" },
+    { Header: "View detail", accessor: "action", align: "center" },
+  ];
 
-    rows: [
-      {
-        image: <Image image={v} />,
-        name: <Name name="Kim Teahyung" />,
-        email: <Email email="abc@gmail.com" />,
-        phone_number: <Phone phone_number="0999999999" />,
-        action: (
-          <MDBox display="flex" justifyContent="center">
-            <MDTypography
-              component="button"
-              variant="caption"
-              fontWeight="medium"
-              style={{
-                backgroundColor: "#1976d2",
-                fontSize: "0.8em",
-                border: "none",
-                borderRadius: "2px",
-                padding: "5px 10px",
-                cursor: "pointer",
-              }}
-            >
-              <Link style={{ color: "white" }} to="/profile_detail">
-                View
-              </Link>
-            </MDTypography>
-          </MDBox>
-        ),
-      },
-    ],
-  };
+  const rows = staff.map((item) => ({
+    id: <ID id={item.id} />,
+    email: <Email email="abc@gmail.com" />,
+    phone_number: <Phone phone_number="0999999999" />,
+    action: (
+      <MDBox display="flex" justifyContent="center">
+        <MDTypography
+          component="button"
+          variant="caption"
+          fontWeight="medium"
+          style={{
+            backgroundColor: "#1976d2",
+            fontSize: "0.8em",
+            border: "none",
+            borderRadius: "2px",
+            padding: "5px 10px",
+            cursor: "pointer",
+          }}
+        >
+          <Link style={{ color: "white" }} to="/profile_detail">
+            View
+          </Link>
+        </MDTypography>
+      </MDBox>
+    ),
+  }));
+
+  return;
+  {
+    columns, rows;
+  }
 }

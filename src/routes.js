@@ -17,6 +17,7 @@ import View_Staff from "layouts/view_staff";
 import Add_Staff from "layouts/add_staff";
 import Add_Product from "layouts/add_product";
 import Logout from "layouts/logout";
+import Edit_Product from "layouts/edit_product";
 
 const token = sessionStorage.getItem("jwtToken");
 
@@ -37,22 +38,22 @@ const routes = [
     route: "/product",
     component: <Product />,
   },
-  {
-    type: "collapse",
-    name: "Order Management",
-    key: "Order",
-    icon: <Icon fontSize="small">list_alt</Icon>,
-    route: "/Order",
-    component: <Order />,
-  },
-  {
-    type: "collapse",
-    name: "Customer Management",
-    key: "customer",
-    icon: <Icon fontSize="small">group</Icon>,
-    route: "/customer",
-    component: <Customer />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Order Management",
+  //   key: "Order",
+  //   icon: <Icon fontSize="small">list_alt</Icon>,
+  //   route: "/Order",
+  //   component: <Order />,
+  // },
+  // {
+  //   type: "collapse",
+  //   name: "Customer Management",
+  //   key: "customer",
+  //   icon: <Icon fontSize="small">group</Icon>,
+  //   route: "/customer",
+  //   component: <Customer />,
+  // },
   {
     type: "collapse",
     name: "Coupon Management",
@@ -69,6 +70,14 @@ const routes = [
     route: "/staff",
     component: <Staff />,
   },
+  // {
+  //   type: "collapse",
+  //   name: "Blog Management",
+  //   key: "blog",
+  //   icon: <Icon fontSize="small">article_shortcut</Icon>,
+  //   route: "/blog",
+  //   component: <Blog />,
+  // },
   {
     route: "/profile",
     component: <Profile />,
@@ -82,15 +91,19 @@ const routes = [
     component: token ? <Logout /> : <SignIn />,
   },
   {
-    route: "/product_detail",
+    route: "/product_detail/:prod_id",
     component: <Product_Detail />,
+  },
+  {
+    route: "/edit_product/:prod_id",
+    component: <Edit_Product />,
   },
   {
     route: "/order_detail",
     component: <Order_Detail />,
   },
   {
-    route: "/profile_detail",
+    route: "/profile_detail/:id",
     component: <Profile_Detail />,
   },
   {
@@ -98,7 +111,7 @@ const routes = [
     component: <Add_Coupon />,
   },
   {
-    route: "/view_coupon",
+    route: "/view_coupon/:id",
     component: <View_Coupon />,
   },
   {

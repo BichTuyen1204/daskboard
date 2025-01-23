@@ -12,7 +12,7 @@ function AddStaff() {
   const [staff, setStaff] = useState({
     username: "",
     password: "",
-    type: 2, // mặc định
+    type: 2,
     employee_info: {
       ssn: "",
       phonenumber: "",
@@ -155,7 +155,7 @@ function AddStaff() {
                   </Link>
 
                   {[
-                    { label: "Name of Staff", name: "username", value: staff.username },
+                    { label: "Username", name: "username", value: staff.username },
                     { label: "Password", name: "password", value: staff.password },
                     { label: "SSN", name: "ssn", value: staff.employee_info.ssn },
                     {

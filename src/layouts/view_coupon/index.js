@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import Card from "@mui/material/Card";
-import { Grid, TextField, Button } from "@mui/material";
+import { Grid, TextField, Button, Icon } from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import CouponService from "api/CouponService";
 
 function ViewCoupon() {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const [coupon, setCoupon] = useState("");
+  const jwtToken = sessionStorage.getItem("jwtToken");
 
   useEffect(() => {
     const token = sessionStorage.getItem("jwtToken");
@@ -16,22 +20,19 @@ function ViewCoupon() {
     }
   }, [navigate]);
 
-  const [product, setProduct] = useState({
-    id: 1,
-    image:
-      "https://assets.epicurious.com/photos/62f16ed5fe4be95d5a460eed/1:1/w_4318,h_4318,c_limit/RoastChicken_RECIPE_080420_37993.jpg",
-    name: "Product A",
-    category: "Category 1",
-    quantity: 10,
-    description: 10,
-  });
-
-  const handleChange = (field, value) => {
-    setProduct((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  useEffect(() => {
+    const getCouponDetail = async () => {
+      if (jwtToken) {
+        try {
+          const response = await CouponService.getCouponDetail(id);
+          setCoupon(response);
+        } catch (error) {
+          console.error("Can't access the server", error);
+        }
+      }
+    };
+    getCouponDetail();
+  }, [id, jwtToken]);
 
   return (
     <DashboardLayout>
@@ -51,7 +52,7 @@ function ViewCoupon() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Add coupon
+                  View coupon
                 </MDTypography>
               </MDBox>
 
@@ -60,91 +61,59 @@ function ViewCoupon() {
                 <Grid container spacing={3}>
                   {/* Right Section: Product Info */}
                   <Grid item xs={12} md={12}>
+                    <Link to="/coupon">
+                      <Icon sx={{ cursor: "pointer", "&:hover": { color: "gray" } }}>
+                        arrow_back
+                      </Icon>
+                    </Link>
                     <form>
-                      <TextField fullWidth label="ID" value={product.name} margin="normal" />
-                      {/* Coupon Name */}
                       <TextField
                         fullWidth
-                        label="Name of coupon"
-                        value={product.name}
-                        onChange={(e) => handleChange("name", e.target.value)}
+                        label="ID"
+                        value={coupon.id || ""}
                         margin="normal"
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                      />
+                      {/* Usage left */}
+                      <TextField
+                        fullWidth
+                        label="Usage left"
+                        type="text"
+                        value={coupon.usage_left || ""}
+                        margin="normal"
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                      />
+
+                      {/* Usage left */}
+                      <TextField
+                        fullWidth
+                        label="Usage left"
+                        type="text"
+                        value={`${coupon.usage_left || ""}%`}
+                        margin="normal"
+                        InputProps={{
+                          readOnly: true,
+                        }}
                       />
 
                       <Grid container spacing={2} mt={1}>
-                        {/* Manufacturing Date */}
-                        <Grid item xs={12} sm={6}>
+                        {/* Expiration date */}
+                        <Grid item xs={12} sm={12}>
                           <TextField
                             fullWidth
                             label="Expiration date"
                             type="date"
-                            value={product.manufacturingDate}
-                            onChange={(e) => handleChange("expirationDate", e.target.value)}
-                            InputLabelProps={{
-                              shrink: true,
-                            }}
-                          />
-                        </Grid>
-
-                        {/* Expiry Date */}
-                        <Grid item xs={12} sm={6}>
-                          <TextField
-                            fullWidth
-                            label="Creation date"
-                            type="date"
-                            value={product.expiryDate}
-                            onChange={(e) => handleChange("creationDate", e.target.value)}
-                            InputLabelProps={{
-                              shrink: true,
+                            value={coupon.expire_time || ""}
+                            InputProps={{
+                              readOnly: true,
                             }}
                           />
                         </Grid>
                       </Grid>
-
-                      {/* Discount */}
-                      <TextField
-                        fullWidth
-                        label="Discount percentage"
-                        value={product.description}
-                        onChange={(e) => handleChange("description", e.target.value)}
-                        margin="normal"
-                        multiline
-                        variant="outlined"
-                        InputProps={{
-                          inputProps: {
-                            spellCheck: "true",
-                            "data-gramm": "true",
-                          },
-                        }}
-                      />
-
-                      {/* Action Buttons */}
-                      <MDBox mt={3} display="flex" justifyContent="space-between">
-                        <Button
-                          variant="outlined"
-                          color="success"
-                          style={{
-                            color: "white",
-                            backgroundColor: "#00ca15",
-                            padding: "5px 25px",
-                          }}
-                        >
-                          Save
-                        </Button>
-                        <Button
-                          variant="outlined"
-                          color="error"
-                          style={{
-                            color: "white",
-                            backgroundColor: "#dd0909",
-                            padding: "5px 25px",
-                          }}
-                        >
-                          <Link to="/coupon" style={{ color: "white" }}>
-                            Cancel
-                          </Link>
-                        </Button>
-                      </MDBox>
                     </form>
                   </Grid>
                 </Grid>

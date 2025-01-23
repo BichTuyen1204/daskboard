@@ -2,20 +2,34 @@ import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
-import AppBar from "@mui/material/AppBar";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import Icon from "@mui/material/Icon";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDAvatar from "components/MDAvatar";
 import breakpoints from "assets/theme/base/breakpoints";
 import img_profile from "assets/images/img_profile.jpg";
 import backgroundImage from "assets/images/bg-profile-detail.jpg";
+import AccountService from "api/AccountService";
+import { useParams } from "react-router-dom";
 
 function Header({ children }) {
   const [tabsOrientation, setTabsOrientation] = useState("horizontal");
-  const [tabValue, setTabValue] = useState(0);
+  const { id } = useParams();
+  const jwtToken = sessionStorage.getItem("jwtToken");
+  const [staff, setStaff] = useState("");
+
+  useEffect(() => {
+    const getStaffDetail = async () => {
+      if (jwtToken) {
+        try {
+          const response = await AccountService.getStaffDetail(id);
+          setStaff(response);
+        } catch (error) {
+          console.error("Can't access the server", error);
+        }
+      }
+    };
+    getStaffDetail();
+  }, [id, jwtToken]);
 
   useEffect(() => {
     function handleTabsOrientation() {
@@ -23,16 +37,8 @@ function Header({ children }) {
         ? setTabsOrientation("vertical")
         : setTabsOrientation("horizontal");
     }
-
-    /** 
-     The event listener that's calling the handleTabsOrientation function when resizing the window.
-    */
     window.addEventListener("resize", handleTabsOrientation);
-
-    // Call the handleTabsOrientation function to set the state with the initial value.
     handleTabsOrientation();
-
-    // Remove event listener on cleanup
     return () => window.removeEventListener("resize", handleTabsOrientation);
   }, [tabsOrientation]);
 
@@ -69,10 +75,10 @@ function Header({ children }) {
           <Grid item>
             <MDBox height="100%" mt={0.5} lineHeight={1}>
               <MDTypography variant="h5" fontWeight="medium">
-                Jack 97
+                {staff.username}
               </MDTypography>
               <MDTypography variant="button" color="text" fontWeight="regular">
-                CEO / Co-Founder
+                {staff.type}
               </MDTypography>
             </MDBox>
           </Grid>

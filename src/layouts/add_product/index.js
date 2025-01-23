@@ -22,7 +22,7 @@ function AddProduct() {
     price: 0,
     product_type: "",
     sale_percent: 0,
-    day_before_expiry: 0,
+    day_before_expiry: "",
     product_name: "",
     description: "",
   });
@@ -118,8 +118,8 @@ function AddProduct() {
       setAvailableQuantityError("Available Quantity is required and must be greater than 0.");
       return false;
     }
-    if (!day_before_expiry || day_before_expiry <= 0) {
-      setDayBeforeExpiryError("Day Before Expiry is required and must be greater than 0.");
+    if (!day_before_expiry) {
+      setDayBeforeExpiryError("Day Before Expiry is required");
       return false;
     }
     if (!sale_percent || sale_percent < 0 || sale_percent > 100) {
@@ -148,10 +148,6 @@ function AddProduct() {
     }
     if (!infos.storage_instructions.trim()) {
       setStorageInstructionsError("Additional Prop 1 is required.");
-      return false;
-    }
-    if (!infos.note.trim()) {
-      setNoteError("Additional Prop 1 is required.");
       return false;
     }
     if (!infos.made_in.trim()) {
@@ -208,7 +204,14 @@ function AddProduct() {
               <MDBox p={3}>
                 <Grid container spacing={3}>
                   <Grid item xs={12} md={5}>
-                    <Link to="/product">
+                    <Link
+                      to="/product"
+                      onClick={() => {
+                        setTimeout(() => {
+                          window.location.reload();
+                        }, 0);
+                      }}
+                    >
                       <Icon sx={{ cursor: "pointer", "&:hover": { color: "gray" } }}>
                         arrow_back
                       </Icon>
@@ -242,7 +245,7 @@ function AddProduct() {
                             style={{
                               width: "100%",
                               height: "100%",
-                              objectFit: "cover",
+                              objectFit: "contain",
                             }}
                           />
                         ) : (
@@ -427,7 +430,7 @@ function AddProduct() {
                       <TextField
                         fullWidth
                         label="Day Before Expiry"
-                        type="number"
+                        type="text"
                         value={product.day_before_expiry}
                         onChange={(e) => handleChange("day_before_expiry", e.target.value)}
                         margin="normal"

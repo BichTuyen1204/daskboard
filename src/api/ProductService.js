@@ -5,7 +5,6 @@ const API_BASE_URL_2 = "http://localhost:8000/api/general/product";
 class ProductService {
   async createProduct(formData) {
     try {
-      console.log(formData);
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.post(`${API_BASE_URL}/product/create`, formData, {
         headers: {

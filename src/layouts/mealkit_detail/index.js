@@ -248,7 +248,7 @@ function MealkitDetail() {
                       {/* Description */}
                       <TextField
                         fullWidth
-                        label="Weight"
+                        label="Description"
                         value={product.article || ""}
                         margin="normal"
                         multiline
@@ -277,7 +277,7 @@ function MealkitDetail() {
                       {/* Production date */}
                       <TextField
                         fullWidth
-                        label="Production Date"
+                        label="Production date"
                         value={
                           product.price_list && product.price_list[0]?.date
                             ? new Date(product.price_list[0]?.date).toLocaleString("en-US", {
@@ -299,8 +299,8 @@ function MealkitDetail() {
                       {/* Date before expiry*/}
                       <TextField
                         fullWidth
-                        label="Production Date"
-                        value={product.day_before_expiry}
+                        label="Day before expiry"
+                        value={product.day_before_expiry || 0}
                         margin="normal"
                         InputProps={{
                           readOnly: true,

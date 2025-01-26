@@ -5,7 +5,7 @@ import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
-import authorsTableData from "layouts/coupon_manager/data/authorsTableData";
+import data from "layouts/blog_manager/data/data";
 import { Icon } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
@@ -20,7 +20,7 @@ function Coupon() {
     }
   }, [navigate]);
 
-  const { columns, rows } = authorsTableData();
+  const { columns, rows } = data();
 
   return (
     <DashboardLayout>
@@ -40,7 +40,7 @@ function Coupon() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Coupon list
+                  Blog list
                 </MDTypography>
               </MDBox>
               <MDBox pt={3}>
@@ -56,7 +56,7 @@ function Coupon() {
           </Grid>
         </Grid>
       </MDBox>
-      <Link to="/add_coupon">
+      <Link to="/add_blog">
         <MDBox
           display="flex"
           justifyContent="center"

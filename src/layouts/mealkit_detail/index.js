@@ -7,7 +7,7 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import ProductService from "api/ProductService";
 
-function ProductDetail() {
+function MealkitDetail() {
   const navigate = useNavigate();
   const { prod_id } = useParams();
   const [product, setProduct] = useState("");
@@ -98,7 +98,6 @@ function ProductDetail() {
   }, [prod_id, jwtToken]);
 
   useEffect(() => {
-    // Reset lại ảnh đầu tiên khi product thay đổi
     if (images.length > 0) {
       setCurrentImageIndex(0);
     }
@@ -139,7 +138,7 @@ function ProductDetail() {
                   {/* Left Section: Image */}
                   <Grid item xs={12} md={5}>
                     {/* Link Quay Lại */}
-                    <Link to="/product">
+                    <Link to="/mealkit">
                       <Icon sx={{ cursor: "pointer", "&:hover": { color: "gray" } }}>
                         arrow_back
                       </Icon>
@@ -289,7 +288,7 @@ function ProductDetail() {
                                 hour: "2-digit",
                                 minute: "2-digit",
                               })
-                            : 0
+                            : "N/A"
                         }
                         margin="normal"
                         InputProps={{
@@ -300,8 +299,8 @@ function ProductDetail() {
                       {/* Date before expiry*/}
                       <TextField
                         fullWidth
-                        label="Date before expiry"
-                        value={product.day_before_expiry || 0}
+                        label="Production Date"
+                        value={product.day_before_expiry}
                         margin="normal"
                         InputProps={{
                           readOnly: true,
@@ -363,4 +362,4 @@ function ProductDetail() {
   );
 }
 
-export default ProductDetail;
+export default MealkitDetail;

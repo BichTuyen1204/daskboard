@@ -5,8 +5,8 @@ import Order from "layouts/order_manager";
 import Coupon from "layouts/coupon_manager";
 import Staff from "layouts/staff_manager";
 import Profile from "layouts/profile";
+import Blog from "layouts/blog_manager";
 import SignIn from "layouts/authentication/sign-in";
-import SignUp from "layouts/authentication/sign-up";
 import Icon from "@mui/material/Icon";
 import Product_Detail from "layouts/product_detail";
 import Order_Detail from "layouts/order_detail";
@@ -18,6 +18,10 @@ import Add_Staff from "layouts/add_staff";
 import Add_Product from "layouts/add_product";
 import Logout from "layouts/logout";
 import Edit_Product from "layouts/edit_product";
+import Mealkit from "layouts/mealkit_manager";
+import Add_Mealkit from "layouts/add_mealkit";
+import Edit_Profile from "layouts/edit_profile";
+import Mealkit_Detail from "layouts/mealkit_detail";
 
 const token = sessionStorage.getItem("jwtToken");
 
@@ -38,6 +42,14 @@ const routes = [
     route: "/product",
     component: <Product />,
   },
+  {
+    type: "collapse",
+    name: "Mealkit Management",
+    key: "mealkit",
+    icon: <Icon fontSize="small">soup_kitchen</Icon>,
+    route: "/mealkit",
+    component: <Mealkit />,
+  },
   // {
   //   type: "collapse",
   //   name: "Order Management",
@@ -46,14 +58,14 @@ const routes = [
   //   route: "/Order",
   //   component: <Order />,
   // },
-  // {
-  //   type: "collapse",
-  //   name: "Customer Management",
-  //   key: "customer",
-  //   icon: <Icon fontSize="small">group</Icon>,
-  //   route: "/customer",
-  //   component: <Customer />,
-  // },
+  {
+    type: "collapse",
+    name: "Customer Management",
+    key: "customer",
+    icon: <Icon fontSize="small">group</Icon>,
+    route: "/customer",
+    component: <Customer />,
+  },
   {
     type: "collapse",
     name: "Coupon Management",
@@ -70,14 +82,14 @@ const routes = [
     route: "/staff",
     component: <Staff />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Blog Management",
-  //   key: "blog",
-  //   icon: <Icon fontSize="small">article_shortcut</Icon>,
-  //   route: "/blog",
-  //   component: <Blog />,
-  // },
+  {
+    type: "collapse",
+    name: "Blog Management",
+    key: "blog",
+    icon: <Icon fontSize="small">article_shortcut</Icon>,
+    route: "/blog",
+    component: <Blog />,
+  },
   {
     route: "/profile",
     component: <Profile />,
@@ -95,8 +107,16 @@ const routes = [
     component: <Product_Detail />,
   },
   {
+    route: "/mealkit_detail/:prod_id",
+    component: <Mealkit_Detail />,
+  },
+  {
     route: "/edit_product/:prod_id",
     component: <Edit_Product />,
+  },
+  {
+    route: "/edit_profile/:id",
+    component: <Edit_Profile />,
   },
   {
     route: "/order_detail",
@@ -125,6 +145,10 @@ const routes = [
   {
     route: "/add_product",
     component: <Add_Product />,
+  },
+  {
+    route: "/add_mealkit",
+    component: <Add_Mealkit />,
   },
 ];
 

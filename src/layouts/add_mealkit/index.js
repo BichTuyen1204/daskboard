@@ -7,17 +7,19 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link } from "react-router-dom";
 import ProductService from "api/ProductService";
 
-function AddProduct() {
+function AddMealkit() {
   const [product, setProduct] = useState({
     article_md: "",
     available_quantity: 0,
+    ingredients: [],
     infos: {
       weight: "",
-      storage_instructions: "",
       made_in: "",
+      storage_instructions: "",
     },
+    instructions: [],
     price: 0,
-    product_type: "",
+    product_type: "MK",
     sale_percent: 0,
     day_before_expiry: "",
     product_name: "",
@@ -25,8 +27,8 @@ function AddProduct() {
   });
 
   const [mainImage, setMainImage] = useState(null);
-  const [mainImagePreview, setMainImagePreview] = useState("");
   const [mainImageError, setMainImageError] = useState("");
+  const [mainImagePreview, setMainImagePreview] = useState("");
   const [additionalImages, setAdditionalImages] = useState([]);
   const [additionalImagePreviews, setAdditionalImagePreviews] = useState([]);
   const [additionalImagesError, setAdditionalImagesError] = useState("");
@@ -36,11 +38,12 @@ function AddProduct() {
   const [articleMDError, setArticleMDError] = useState("");
   const [availableQuantityError, setAvailableQuantityError] = useState("");
   const [priceError, setPriceError] = useState("");
-  const [productTypeError, setProductTypeError] = useState("");
   const [salePercentError, setSalePercentError] = useState("");
   const [dayBeforeExpiryError, setDayBeforeExpiryError] = useState("");
   const [descriptionError, setDescriptionError] = useState("");
   const [weightError, setWeightError] = useState("");
+  const [ingredientsError, setIngredientsError] = useState("");
+  const [instructionsError, setInstructionsError] = useState("");
   const [storageInstructionsError, setStorageInstructionsError] = useState("");
   const [madeInError, setMadeInError] = useState("");
 
@@ -50,13 +53,6 @@ function AddProduct() {
       [field]: value,
     }));
     switch (field) {
-      case "product_type":
-        if (!value.trim()) {
-          setProductTypeError("Product type is required.");
-        } else {
-          setProductNameError("");
-        }
-        break;
       case "product_name":
         if (!value.trim()) {
           setProductNameError("Product name is required.");
@@ -114,6 +110,20 @@ function AddProduct() {
           setDescriptionError("");
         }
         break;
+      case "ingredients":
+        if (!value || value.length === 0 || value.some((item) => item.trim() === "")) {
+          setIngredientsError("Ingredients cannot be empty values.");
+        } else {
+          setIngredientsError("");
+        }
+        break;
+      case "instructions":
+        if (!value || value.length === 0 || value.some((item) => item.trim() === "")) {
+          setInstructionsError("Instructions cannot be empty values.");
+        } else {
+          setInstructionsError("");
+        }
+        break;
       default:
         break;
     }
@@ -129,7 +139,7 @@ function AddProduct() {
         [nestedField]: value,
       },
     }));
-    if (field === "infors") {
+    if (field === "infos") {
       switch (nestedField) {
         case "weight":
           if (!value.trim()) {
@@ -184,57 +194,62 @@ function AddProduct() {
     const {
       product_name,
       article_md,
+      ingredients,
+      instructions,
       price,
       available_quantity,
       day_before_expiry,
       sale_percent,
-      product_type,
       description,
       infos,
     } = product;
 
     if (!product_name.trim()) {
-      setProductNameError("Product name is required.");
+      setProductNameError("The mealkit name is required.");
       return false;
     }
     if (!article_md.trim()) {
-      setArticleMDError("Article MD is required.");
+      setArticleMDError("The article MD is required.");
       return false;
     }
     if (!price || price <= 0) {
-      setPriceError("Price is required and must be greater than 0.");
+      setPriceError("The rice is required and must be greater than 0.");
       return false;
     }
     if (!available_quantity || available_quantity <= 0) {
-      setAvailableQuantityError("Available Quantity is required and must be greater than 0.");
+      setAvailableQuantityError("The quantity is required and must be greater than 0.");
       return false;
     }
     if (!day_before_expiry) {
-      setDayBeforeExpiryError("Day Before Expiry is required");
+      setDayBeforeExpiryError("The day before expiry is required");
       return false;
     }
     if (!sale_percent || sale_percent < 0 || sale_percent > 100) {
-      setSalePercentError("Sale Percent must be between 0 and 100.");
-      return false;
-    }
-    if (!product_type.trim()) {
-      setProductTypeError("Product Type is required.");
+      setSalePercentError("The sale percent must be between 0 and 100.");
       return false;
     }
     if (!description.trim()) {
-      setDescriptionError("Description is required.");
+      setDescriptionError("The description is required.");
       return false;
     }
     if (!infos.weight.trim()) {
-      setWeightError("Additional Prop 1 is required.");
+      setWeightError("The weight is required.");
+      return false;
+    }
+    if (!ingredients.length) {
+      setIngredientsError("The ingredients is required.");
+      return false;
+    }
+    if (!instructions.length) {
+      setInstructionsError("The instructions is required.");
       return false;
     }
     if (!infos.storage_instructions.trim()) {
-      setStorageInstructionsError("Additional Prop 1 is required.");
+      setStorageInstructionsError("The storage instructions is required.");
       return false;
     }
     if (!infos.made_in.trim()) {
-      setMadeInError("Additional Prop 1 is required.");
+      setMadeInError("The made in is required.");
       return false;
     }
     if (!mainImage) {
@@ -257,8 +272,8 @@ function AddProduct() {
     });
     formData.append("product_detail", JSON.stringify(product));
     try {
-      const response = await ProductService.createProduct(formData);
-      setSuccessMessage("Product added successfully!");
+      const response = await ProductService.createMealkit(formData);
+      setSuccessMessage("Mealkit added successfully!");
     } catch (error) {
       if (error.response) {
         if (error.response.status === 401) {
@@ -293,7 +308,7 @@ function AddProduct() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Add Product
+                  Add Mealkit
                 </MDTypography>
               </MDBox>
 
@@ -302,7 +317,7 @@ function AddProduct() {
                 <Grid container spacing={3}>
                   <Grid item xs={12} md={5}>
                     <Link
-                      to="/product"
+                      to="/mealkit"
                       onClick={() => {
                         setTimeout(() => {
                           window.location.reload();
@@ -361,6 +376,7 @@ function AddProduct() {
                       >
                         {mainImageError}
                       </p>
+
                       <Button
                         variant="outlined"
                         component="label"
@@ -476,7 +492,7 @@ function AddProduct() {
                     <form>
                       <TextField
                         fullWidth
-                        label="Product Name"
+                        label="Mealkit name"
                         value={product.product_name}
                         onChange={(e) => handleChange("product_name", e.target.value)}
                         margin="normal"
@@ -582,33 +598,6 @@ function AddProduct() {
                       </p>
                       <TextField
                         fullWidth
-                        select
-                        label="Product Type"
-                        value={product.product_type}
-                        onChange={(e) => handleChange("product_type", e.target.value)}
-                        margin="normal"
-                        sx={{ height: "45px", ".MuiInputBase-root": { height: "45px" } }}
-                      >
-                        <MenuItem value="" disabled>
-                          ---- Select ----
-                        </MenuItem>
-                        <MenuItem value="MEAT">Meat</MenuItem>
-                        <MenuItem value="VEG">Vegetable</MenuItem>
-                        <MenuItem value="SS">Season</MenuItem>
-                      </TextField>
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {productTypeError}
-                      </p>
-
-                      <TextField
-                        fullWidth
                         label="Description"
                         value={product.description}
                         onChange={(e) => handleChange("description", e.target.value)}
@@ -626,6 +615,7 @@ function AddProduct() {
                       >
                         {descriptionError}
                       </p>
+
                       <TextField
                         fullWidth
                         type="number"
@@ -646,6 +636,56 @@ function AddProduct() {
                       </p>
                       <TextField
                         fullWidth
+                        label="Ingredients"
+                        value={
+                          Array.isArray(product.ingredients) ? product.ingredients.join(", ") : ""
+                        }
+                        onChange={(e) =>
+                          handleChange(
+                            "ingredients",
+                            e.target.value.split(",").map((item) => item.trim())
+                          )
+                        }
+                        margin="normal"
+                      />
+
+                      <p
+                        style={{
+                          color: "red",
+                          fontSize: "0.6em",
+                          fontWeight: "450",
+                          marginLeft: "5px",
+                        }}
+                      >
+                        {ingredientsError}
+                      </p>
+                      <TextField
+                        fullWidth
+                        label="Cooking Instructions"
+                        value={
+                          Array.isArray(product.instructions) ? product.instructions.join(", ") : ""
+                        }
+                        onChange={(e) =>
+                          handleChange(
+                            "instructions",
+                            e.target.value.split(",").map((item) => item.trim())
+                          )
+                        }
+                        margin="normal"
+                      />
+
+                      <p
+                        style={{
+                          color: "red",
+                          fontSize: "0.6em",
+                          fontWeight: "450",
+                          marginLeft: "5px",
+                        }}
+                      >
+                        {instructionsError}
+                      </p>
+                      <TextField
+                        fullWidth
                         label="Storage Instructions"
                         value={product.infos.storage_instructions}
                         onChange={(e) =>
@@ -663,7 +703,6 @@ function AddProduct() {
                       >
                         {storageInstructionsError}
                       </p>
-
                       <TextField
                         fullWidth
                         label="Made in"
@@ -687,6 +726,7 @@ function AddProduct() {
                           fontSize: "0.6em",
                           fontWeight: "450",
                           marginLeft: "5px",
+                          marginTop: "15px",
                         }}
                       >
                         {successMessage}
@@ -708,7 +748,7 @@ function AddProduct() {
                           onClick={handleSubmit}
                           style={{ backgroundColor: "green", color: "white" }}
                         >
-                          Add Product
+                          Add Mealit
                         </Button>
                       </MDBox>
                     </form>
@@ -723,4 +763,4 @@ function AddProduct() {
   );
 }
 
-export default AddProduct;
+export default AddMealkit;

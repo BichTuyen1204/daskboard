@@ -8,22 +8,22 @@ import { Link } from "react-router-dom";
 import ProductService from "api/ProductService";
 
 export default function DataTable() {
-  const [product, setProduct] = useState([]);
+  const [mealkit, setMealkit] = useState([]);
   const jwtToken = sessionStorage.getItem("jwtToken");
 
   useEffect(() => {
-    const getAllProduct = async () => {
+    const getAllMealkit = async () => {
       if (jwtToken) {
         try {
           const response = await ProductService.allProduct(jwtToken);
-          setProduct(response);
+          setMealkit(response);
         } catch (error) {
           console.error("Can't access the server", error);
         }
       }
     };
 
-    getAllProduct();
+    getAllMealkit();
   }, [jwtToken]);
 
   const mapTypeToLabel = (type) => {
@@ -70,10 +70,10 @@ export default function DataTable() {
     { Header: "action", accessor: "action", align: "center" },
   ];
 
-  const rows = product.map((item) => ({
+  const rows = mealkit.map((item) => ({
     image: (
       <MDBox display="flex" alignItems="center" lineHeight={1}>
-        <Link to={`/product_detail/${item.id}`}>
+        <Link to={`/mealkit_detail/${item.id}`}>
           <MDAvatar style={{ cursor: "pointer" }} src={item.image_url} size="sm" />
         </Link>
       </MDBox>

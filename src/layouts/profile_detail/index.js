@@ -3,9 +3,10 @@ import Divider from "@mui/material/Divider";
 import MDBox from "components/MDBox";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import Header from "layouts/profile_detail/data/Header";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import AccountService from "api/AccountService";
+import { Icon } from "@mui/material";
 
 function ProfileDetail() {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ function ProfileDetail() {
       if (jwtToken) {
         try {
           const response = await AccountService.getStaffDetail(id);
-          setStaff(response); // Giả sử response trả về là object chứa thông tin staff
+          setStaff(response);
         } catch (error) {
           console.error("Can't access the server", error);
         }
@@ -52,16 +53,28 @@ function ProfileDetail() {
                     width: "100%",
                   }}
                 >
-                  <h2
+                  <div
                     style={{
-                      fontSize: "0.8em",
-                      fontWeight: "bold",
-                      marginBottom: "15px",
-                      color: "#333",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
                     }}
                   >
-                    Profile Information
-                  </h2>
+                    <h2
+                      style={{
+                        fontSize: "0.8em",
+                        fontWeight: "bold",
+                        marginBottom: "15px",
+                        color: "#333",
+                      }}
+                    >
+                      Profile Information
+                    </h2>
+                    <Link to={`/edit_profile/${staff.id}`}>
+                      <Icon style={{ cursor: "pointer" }}>edit</Icon>
+                    </Link>
+                  </div>
+
                   <div style={{ marginLeft: "15px" }}>
                     {[
                       { label: "Full name", value: staff.realname || "N/A" },

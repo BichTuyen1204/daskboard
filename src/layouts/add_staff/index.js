@@ -58,7 +58,7 @@ function AddStaff() {
         break;
 
       case "phonenumber":
-        if (!value) errorMessage = "Please enter your phone number";
+        if (!value) errorMessage = "Please enter the phone number";
         else if (value.length !== 10) errorMessage = "Your phone number must be 10 digits";
         else if (!/^\d+$/.test(value)) errorMessage = "Your phone number must contain only numbers";
         else if (!/^0/.test(value)) errorMessage = "Phone number must start with 0";

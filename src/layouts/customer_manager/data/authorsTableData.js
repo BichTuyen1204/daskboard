@@ -1,9 +1,6 @@
 /* eslint-disable react/prop-types */
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
-import MDAvatar from "components/MDAvatar";
-import MDBadge from "components/MDBadge";
-import v from "assets/images/v.jpg";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import AccountService from "api/AccountService";
@@ -12,19 +9,19 @@ export default function data() {
   const [staff, setStaff] = useState([]);
   const jwtToken = sessionStorage.getItem("jwtToken");
 
-  useEffect(() => {
-    const getAllStaff = async () => {
-      if (jwtToken) {
-        try {
-          const response = await AccountService.getAllStaff(jwtToken);
-          setStaff(response);
-        } catch (error) {
-          console.error("Can't access the server", error);
-        }
-      }
-    };
-    getAllStaff();
-  }, [jwtToken]);
+  // useEffect(() => {
+  //   const getAllStaff = async () => {
+  //     if (jwtToken) {
+  //       try {
+  //         const response = await AccountService.getAllStaff(jwtToken);
+  //         setStaff(response);
+  //       } catch (error) {
+  //         console.error("Can't access the server", error);
+  //       }
+  //     }
+  //   };
+  //   getAllStaff();
+  // }, [jwtToken]);
 
   const Email = ({ email }) => (
     <MDBox lineHeight={1} textAlign="center">
@@ -84,8 +81,5 @@ export default function data() {
     ),
   }));
 
-  return;
-  {
-    columns, rows;
-  }
+  return { columns, rows };
 }

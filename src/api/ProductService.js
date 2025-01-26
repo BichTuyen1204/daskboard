@@ -1,5 +1,5 @@
 import axios from "axios";
-const API_BASE_URL = "http://localhost:8000/api/staff/product";
+const API_BASE_URL = "http://localhost:8000/api/staff";
 const API_BASE_URL_2 = "http://localhost:8000/api/general/product";
 
 class ProductService {
@@ -7,7 +7,7 @@ class ProductService {
     try {
       console.log(formData);
       const token = sessionStorage.getItem("jwtToken");
-      const response = await axios.post(`${API_BASE_URL}/create`, formData, {
+      const response = await axios.post(`${API_BASE_URL}/product/create`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
@@ -15,17 +15,31 @@ class ProductService {
       });
       return response.data;
     } catch (error) {
-      // Xử lý lỗi
-      if (error.response) {
-        console.error("Error when adding product:", error.response.data);
-        if (error.response.data.message) {
-          console.log("API Error Message:", error.response.data.message);
-        }
-      } else if (error.request) {
-        console.error("No response from server:", error.request);
-      } else {
-        console.error("Unexpected error:", error.message);
+      console.error(
+        "Error during API calls:",
+        error.response ? error.response.data : error.message
+      );
+      throw error;
+    }
+  }
+
+  async createMealkit(formData) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      if (!token) {
+        throw new Error("No JWT token found. Please login.");
       }
+
+      const response = await axios.post(`${API_BASE_URL}/mealkit/create`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log("Data mealkit", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error during API call:", error.response ? error.response.data : error.message);
       throw error;
     }
   }
@@ -77,11 +91,16 @@ class ProductService {
     }
   }
 
-  async updateProductStatus(prod_id) {
+  async updateProductStatus(prod_id, status) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/update/status`, {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.patch(`${API_BASE_URL}/update/status`, null, {
         params: {
           prod_id: prod_id,
+          status: status,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
       });
       return response.data;
@@ -94,11 +113,16 @@ class ProductService {
     }
   }
 
-  async updateProductQuantity(prod_id) {
+  async updateProductQuantity(prod_id, quantity) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/update/quantity`, {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.patch(`${API_BASE_URL}/update/quantity`, null, {
         params: {
           prod_id: prod_id,
+          quantity: quantity,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
       });
       return response.data;
@@ -111,13 +135,23 @@ class ProductService {
     }
   }
 
-  async updateProductPrice(prod_id) {
+  async updateProductPrice(product_id, price, sale_percent) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/update/price`, {
-        params: {
-          prod_id: prod_id,
-        },
-      });
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.put(
+        `${API_BASE_URL}/update/price`,
+        null, // Không gửi body
+        {
+          params: {
+            product_id: product_id,
+            price: price,
+            sale_percent: sale_percent,
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       console.error(

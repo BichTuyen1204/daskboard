@@ -40,7 +40,7 @@ function Mealkit() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Produst list
+                  Mealkit list
                 </MDTypography>
               </MDBox>
               <MDBox pt={3}>

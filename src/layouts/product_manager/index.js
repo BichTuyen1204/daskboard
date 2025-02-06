@@ -42,7 +42,7 @@ function Product() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Produst list
+                  Ingredient list
                 </MDTypography>
               </MDBox>
               <MDBox pt={3}>
@@ -69,7 +69,7 @@ function Product() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Top selling products
+                  Top selling ingredients
                 </MDTypography>
               </MDBox>
               <MDBox pt={3}>

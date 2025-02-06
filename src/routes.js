@@ -25,6 +25,8 @@ import Edit_Profile from "layouts/edit_profile";
 import Mealkit_Detail from "layouts/mealkit_detail";
 import Add_Blog from "layouts/add_blog";
 import View_Blog from "layouts/view_blog";
+import View_Customer from "layouts/view_customer";
+import Edit_Customer from "layouts/edit_customer";
 
 const token = sessionStorage.getItem("jwtToken");
 
@@ -39,10 +41,10 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Product Management",
-    key: "product",
+    name: "Ingredient Management",
+    key: "ingredient",
     icon: <Icon fontSize="small">table_view</Icon>,
-    route: "/product",
+    route: "/ingredient",
     component: <Product />,
   },
   {
@@ -61,14 +63,14 @@ const routes = [
   //   route: "/Order",
   //   component: <Order />,
   // },
-  // {
-  //   type: "collapse",
-  //   name: "Customer Management",
-  //   key: "customer",
-  //   icon: <Icon fontSize="small">group</Icon>,
-  //   route: "/customer",
-  //   component: <Customer />,
-  // },
+  {
+    type: "collapse",
+    name: "Customer Management",
+    key: "customer",
+    icon: <Icon fontSize="small">group</Icon>,
+    route: "/customer",
+    component: <Customer />,
+  },
   {
     type: "collapse",
     name: "Coupon Management",
@@ -118,6 +120,10 @@ const routes = [
     component: <Edit_Product />,
   },
   {
+    route: "/edit_customer/:id",
+    component: <Edit_Customer />,
+  },
+  {
     route: "/edit_profile/:id",
     component: <Edit_Profile />,
   },
@@ -144,6 +150,10 @@ const routes = [
   {
     route: "/view_blog/:id",
     component: <View_Blog />,
+  },
+  {
+    route: "/view_customer/:id",
+    component: <View_Customer />,
   },
   {
     route: "/view_staff",

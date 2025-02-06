@@ -73,19 +73,22 @@ class ProductService {
     }
   }
 
-  async updateProductInfo(prod_id) {
+  async updateProductInfo(prod_id, data) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/update/info/prod`, {
-        params: {
-          prod_id: prod_id,
-        },
-      });
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.post(
+        `${API_BASE_URL}/product/update/info/prod?prod_id=${prod_id}`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
       return response.data;
     } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
+      console.error("Error during API calls:", error.response?.data || error.message);
       throw error;
     }
   }
@@ -93,7 +96,7 @@ class ProductService {
   async updateProductStatus(prod_id, status) {
     try {
       const token = sessionStorage.getItem("jwtToken");
-      const response = await axios.patch(`${API_BASE_URL}/update/status`, null, {
+      const response = await axios.patch(`${API_BASE_URL}/product/update/status`, null, {
         params: {
           prod_id: prod_id,
           status: status,
@@ -115,7 +118,7 @@ class ProductService {
   async updateProductQuantity(prod_id, quantity) {
     try {
       const token = sessionStorage.getItem("jwtToken");
-      const response = await axios.patch(`${API_BASE_URL}/update/quantity`, null, {
+      const response = await axios.patch(`${API_BASE_URL}/product/update/quantity`, null, {
         params: {
           prod_id: prod_id,
           quantity: quantity,
@@ -138,7 +141,7 @@ class ProductService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.put(
-        `${API_BASE_URL}/update/price`,
+        `${API_BASE_URL}/product/update/price`,
         null, // Không gửi body
         {
           params: {

@@ -101,7 +101,7 @@ function AddProduct() {
       case "sale_percent":
         if (!value) {
           setSalePercentError("Sale percent is required.");
-        } else if (value <= 0) {
+        } else if (value < 0 || value > 100) {
           setSalePercentError("Sale percent must be between 0 and 100.");
         } else {
           setSalePercentError("");
@@ -302,7 +302,7 @@ function AddProduct() {
                 <Grid container spacing={3}>
                   <Grid item xs={12} md={5}>
                     <Link
-                      to="/product"
+                      to="/ingredient"
                       onClick={() => {
                         setTimeout(() => {
                           window.location.reload();

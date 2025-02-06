@@ -23,13 +23,30 @@ function EditProduct() {
   const [sale_percent, setSale] = useState("");
   const [saleError, setSaleError] = useState("");
   const [updatePriceSuccess, setUpdatePriceSuccess] = useState("");
+  const [dayBeforeExpiry, setDayBeforeExpiry] = useState("");
+  const [dayBeforeExpiryError, setDayBeforeExpiryError] = useState("");
+  const [description, setDescription] = useState("");
+  const [descriptionError, setDescriptionError] = useState("");
+  const [articleMd, setArticleMd] = useState("");
+  const [articleMdError, setArticleMdError] = useState("");
+  const [weight, setWeight] = useState("");
+  const [weightError, setWeightError] = useState("");
+  const [instructions, setInstructions] = useState("");
+  const [instructionsError, setInstructionsError] = useState("");
+  const [madeIn, setMadeIn] = useState("");
+  const [madeInError, setMadeInError] = useState("");
+  const [updateInfomationSuccess, setUpdateInfomationSuccess] = useState("");
 
   // State for Producst Data
   const [productInfo, setProductInfo] = useState({
-    day_before_expiry: "",
+    day_before_expiry: 0,
     description: "",
     article_md: "",
-    infos: { weight: "" },
+    infos: {
+      weight: "",
+      storage_instructions: "",
+      made_in: "",
+    },
   });
 
   const [productStatus, setProductStatus] = useState({ status: "" });
@@ -46,17 +63,53 @@ function EditProduct() {
     try {
       const response = await ProductService.getProductDetail(prod_id);
       console.log("nice", response);
+
       setProduct(response);
+
       setQuantity(response.available_quantity);
       setStatus(response.product_status);
       setSale(response.price_list?.[0]?.sale_percent);
       setPrice(response.price_list?.[0]?.price);
+      setDayBeforeExpiry(response.day_before_expiry || 0);
+      setArticleMd(response.article || "");
+      setWeight(response.info?.weight || "");
+      setInstructions(response.info?.storage_instructions || "");
+      setMadeIn(response.info?.made_in || "");
+
+      // Đặt productInfo ban đầu
+      setProductInfo({
+        day_before_expiry: response.day_before_expiry || 0,
+        description: response.description || "",
+        article_md: response.article || "",
+        infos: {
+          weight: response.info?.weight || "",
+          storage_instructions: response.info?.storage_instructions || "",
+          made_in: response.info?.made_in || "",
+        },
+      });
     } catch (error) {
       console.error(
         "Error during API calls:",
         error.response ? error.response.data : error.message
       );
     }
+  };
+
+  const updateField = (field, value) => {
+    setProductInfo((prevState) => ({
+      ...prevState,
+      [field]: value !== undefined && value !== null ? value : prevState[field],
+    }));
+  };
+
+  const updateInfoField = (field, value) => {
+    setProductInfo((prevState) => ({
+      ...prevState,
+      infos: {
+        ...prevState.infos,
+        [field]: value !== undefined && value !== null ? value : prevState.infos[field],
+      },
+    }));
   };
 
   const updateQuantity = async (e) => {
@@ -110,6 +163,40 @@ function EditProduct() {
         );
         console.log("Update price and sale percent successful", response);
         setUpdatePriceSuccess("Price and sale percent updated successfully.");
+      } catch (error) {
+        console.error(
+          "Error during API calls:",
+          error.response ? error.response.data : error.message
+        );
+      }
+    }
+  };
+
+  const updateInfos = async (e) => {
+    e.preventDefault();
+    DayBeforeExpiryBlur();
+    DescriptionBlur();
+    ArticleMdBlur();
+    WeightBlur();
+    InstructionsBlur();
+    MadeInBlur();
+    if (
+      !prod_id ||
+      isNaN(dayBeforeExpiry) ||
+      !weight.trim() ||
+      !description.trim() ||
+      !articleMd.trim() ||
+      !instructions.trim() ||
+      !madeIn.trim()
+    ) {
+      console.error("Invalid input data");
+      return;
+    } else {
+      try {
+        // console.log("Price", price, "Sale percent", sale_percent);
+        const response = await ProductService.updateProductInfo(prod_id, productInfo);
+        console.log("Update infos successful", response);
+        setUpdateInfomationSuccess("Infor of ingredients updated successfully.");
       } catch (error) {
         console.error(
           "Error during API calls:",
@@ -187,6 +274,98 @@ function EditProduct() {
     }
   };
 
+  const DayBeforeExpiryChange = (e) => {
+    const { value } = e.target;
+    setDayBeforeExpiry(value);
+    updateField("day_before_expiry", value);
+    setUpdateInfomationSuccess(false);
+  };
+
+  const DayBeforeExpiryBlur = () => {
+    if (dayBeforeExpiry === "") {
+      setDayBeforeExpiryError("Please enter a day before expiry");
+    } else if (sale_percent < 0) {
+      setDayBeforeExpiryError("Please enter a day before expiry greater than 0");
+    } else {
+      setSaleError("");
+    }
+  };
+
+  const DescriptionChange = (e) => {
+    const { value } = e.target;
+    setDescription(value);
+    updateField("description", value);
+    setUpdateInfomationSuccess(false);
+  };
+
+  const DescriptionBlur = () => {
+    if (description === "") {
+      setDescriptionError("Please enter a description");
+    } else {
+      setDescriptionError("");
+    }
+  };
+
+  const ArticleMdChange = (e) => {
+    const { value } = e.target;
+    setArticleMd(value);
+    updateField("article_md", value);
+    setUpdateInfomationSuccess(false);
+  };
+
+  const ArticleMdBlur = () => {
+    if (articleMd === "") {
+      setArticleMdError("Please enter a article");
+    } else {
+      setArticleMdError("");
+    }
+  };
+
+  const WeightChange = (e) => {
+    const { value } = e.target;
+    setWeight(value);
+    updateInfoField("weight", value);
+    setUpdateInfomationSuccess(false);
+  };
+
+  const WeightBlur = () => {
+    if (weight === "") {
+      setWeightError("Please enter a weight");
+    } else {
+      setWeightError("");
+    }
+  };
+
+  const InstructionsChange = (e) => {
+    const { value } = e.target;
+    setInstructions(value);
+    updateInfoField("storage_instructions", value);
+    setUpdateInfomationSuccess(false);
+  };
+
+  const InstructionsBlur = () => {
+    if (instructions === "") {
+      setInstructionsError("Please enter a instruction");
+    } else {
+      setInstructionsError("");
+    }
+  };
+
+  const MadeInChange = (e) => {
+    const { value } = e.target;
+    setMadeIn(value);
+    updateInfoField("made_in", value);
+    setUpdateInfomationSuccess(false);
+  };
+
+  const MadeInBlur = () => {
+    if (madeIn === "") {
+      setMadeInError("Please enter a made in");
+    } else {
+      setMadeInError("");
+    }
+  };
+
   // Load product details when component mounts
   useEffect(() => {
     getProductDetail(prod_id);
@@ -210,7 +389,7 @@ function EditProduct() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Edit Product
+                  Edit Ingredient
                 </MDTypography>
               </MDBox>
 
@@ -220,7 +399,7 @@ function EditProduct() {
                   {/* Product Info */}
                   <Grid item xs={12}>
                     <Link
-                      to="/product"
+                      to="/ingredient"
                       onClick={() => {
                         setTimeout(() => {
                           window.location.reload();
@@ -231,8 +410,20 @@ function EditProduct() {
                         arrow_back
                       </Icon>
                     </Link>
-                    <p>{product.product_name}</p>
+                    <p style={{ fontSize: "0.8em" }}>
+                      INGREDIENT NAME: <strong>{product.product_name}</strong>
+                    </p>
                     <div>
+                      <p
+                        style={{
+                          fontWeight: "700",
+                          fontSize: "0.6em",
+                          marginTop: "15px",
+                          marginBottom: "-5px",
+                        }}
+                      >
+                        UPDATE QUANTITY
+                      </p>
                       {/* Quantity */}
                       <TextField
                         fullWidth
@@ -249,33 +440,61 @@ function EditProduct() {
                         </p>
                       )}
                       {updateQuantitySuccess && (
-                        <p style={{ color: "green", fontSize: "0.6em", marginLeft: "5px" }}>
+                        <p
+                          style={{
+                            color: "green",
+                            fontSize: "0.6em",
+                            fontWeight: "600",
+                            marginLeft: "5px",
+                            marginBottom: "5px",
+                          }}
+                        >
                           {updateQuantitySuccess}
                         </p>
                       )}
                       <Button
                         variant="contained"
                         color="success"
+                        fullWidth
                         onClick={updateQuantity}
                         style={{
-                          backgroundColor: "green",
+                          backgroundColor: "#00C1FF",
                           color: "white",
                           padding: "5px 10px",
                           fontSize: "0.6em",
                         }}
                       >
-                        Save Quantity
+                        Save
                       </Button>
+                      <hr style={{ marginTop: "40px" }} />
                     </div>
 
+                    <p
+                      style={{
+                        fontWeight: "700",
+                        fontSize: "0.6em",
+                        marginTop: "40px",
+                        marginBottom: "-5px",
+                      }}
+                    >
+                      UPDATE INFORMATION
+                    </p>
                     <TextField
                       fullWidth
+                      type="text"
                       label="Description"
-                      value={product.article || ""}
+                      value={description || ""}
+                      onChange={DescriptionChange}
+                      onBlur={DescriptionBlur}
                       margin="normal"
                       multiline
                       rows={4}
                     />
+                    {descriptionError && (
+                      <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                        {descriptionError}
+                      </p>
+                    )}
 
                     <TextField
                       fullWidth
@@ -300,22 +519,118 @@ function EditProduct() {
 
                     <TextField
                       fullWidth
+                      type="text"
                       label="Day before expiry"
-                      value={
-                        product.price_list && product.price_list[0]?.date
-                          ? new Date(product.price_list[0]?.date).toLocaleString("en-US", {
-                              weekday: "long",
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })
-                          : "N/A"
-                      }
+                      value={dayBeforeExpiry || ""}
+                      onChange={DayBeforeExpiryChange}
+                      onBlur={DayBeforeExpiryBlur}
                       margin="normal"
                     />
+                    {dayBeforeExpiryError && (
+                      <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                        {dayBeforeExpiryError}
+                      </p>
+                    )}
 
+                    <TextField
+                      fullWidth
+                      type="text"
+                      label="Article"
+                      value={articleMd || ""}
+                      onChange={ArticleMdChange}
+                      onBlur={ArticleMdBlur}
+                      margin="normal"
+                    />
+                    {articleMdError && (
+                      <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                        {articleMdError}
+                      </p>
+                    )}
+
+                    <TextField
+                      fullWidth
+                      type="text"
+                      label="Weight"
+                      value={weight || ""}
+                      onChange={WeightChange}
+                      onBlur={WeightBlur}
+                      margin="normal"
+                    />
+                    {weightError && (
+                      <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                        {weightError}
+                      </p>
+                    )}
+
+                    <TextField
+                      fullWidth
+                      type="text"
+                      label="Storage instructions"
+                      value={instructions || ""}
+                      onChange={InstructionsChange}
+                      onBlur={InstructionsBlur}
+                      margin="normal"
+                    />
+                    {instructionsError && (
+                      <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                        {instructionsError}
+                      </p>
+                    )}
+
+                    <TextField
+                      fullWidth
+                      type="text"
+                      label="Made in"
+                      value={madeIn || ""}
+                      onChange={MadeInChange}
+                      onBlur={MadeInBlur}
+                      margin="normal"
+                    />
+                    {madeInError && (
+                      <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                        {madeInError}
+                      </p>
+                    )}
+                    {updateInfomationSuccess && (
+                      <p
+                        style={{
+                          color: "green",
+                          fontSize: "0.6em",
+                          fontWeight: "600",
+                          marginLeft: "5px",
+                          marginBottom: "5px",
+                        }}
+                      >
+                        {updateInfomationSuccess}
+                      </p>
+                    )}
+
+                    <Button
+                      variant="contained"
+                      color="success"
+                      fullWidth
+                      onClick={updateInfos}
+                      style={{
+                        backgroundColor: "#00C1FF",
+                        color: "white",
+                        padding: "5px 10px",
+                        fontSize: "0.6em",
+                      }}
+                    >
+                      Save
+                    </Button>
+                    <hr style={{ marginTop: "40px" }} />
+
+                    <p
+                      style={{
+                        fontWeight: "700",
+                        fontSize: "0.6em",
+                        marginTop: "40px",
+                        marginBottom: "-5px",
+                      }}
+                    >
+                      UPDATE STATUS
+                    </p>
                     {/* Product Status */}
                     <Grid item xs={12}>
                       <TextField
@@ -338,25 +653,45 @@ function EditProduct() {
                         </p>
                       )}
                       {updateStatusSuccess && (
-                        <p style={{ color: "green", fontSize: "0.6em", marginLeft: "5px" }}>
+                        <p
+                          style={{
+                            color: "green",
+                            fontSize: "0.6em",
+                            fontWeight: "600",
+                            marginLeft: "5px",
+                            marginBottom: "5px",
+                          }}
+                        >
                           {updateStatusSuccess}
                         </p>
                       )}
                       <Button
                         variant="contained"
                         color="success"
+                        fullWidth
                         onClick={updateStatus}
                         style={{
-                          backgroundColor: "green",
+                          backgroundColor: "#00C1FF",
                           color: "white",
                           padding: "5px 10px",
                           fontSize: "0.6em",
                         }}
                       >
-                        Save Status
+                        Save
                       </Button>
+                      <hr style={{ marginTop: "40px" }} />
                     </Grid>
 
+                    <p
+                      style={{
+                        fontWeight: "700",
+                        fontSize: "0.6em",
+                        marginTop: "40px",
+                        marginBottom: "-5px",
+                      }}
+                    >
+                      UPDATE PRICE AND SALE PERCENT
+                    </p>
                     <TextField
                       fullWidth
                       label="Price"
@@ -387,22 +722,31 @@ function EditProduct() {
                       </p>
                     )}
                     {updatePriceSuccess && (
-                      <p style={{ color: "green", fontSize: "0.6em", marginLeft: "5px" }}>
+                      <p
+                        style={{
+                          color: "green",
+                          fontSize: "0.6em",
+                          fontWeight: "600",
+                          marginLeft: "5px",
+                          marginBottom: "5px",
+                        }}
+                      >
                         {updatePriceSuccess}
                       </p>
                     )}
                     <Button
+                      fullWidth
                       variant="contained"
                       color="success"
                       onClick={updatePrice}
                       style={{
-                        backgroundColor: "green",
+                        backgroundColor: "#00C1FF",
                         color: "white",
                         padding: "5px 10px",
                         fontSize: "0.6em",
                       }}
                     >
-                      Save Price and Sale Percent
+                      Save
                     </Button>
                   </Grid>
 

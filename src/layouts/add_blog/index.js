@@ -261,7 +261,7 @@ function AddBlog() {
 
                       <TextField
                         fullWidth
-                        label="Description"
+                        label="Content"
                         value={blog.description}
                         onChange={(e) => handleChange("description", e.target.value)}
                         margin="normal"

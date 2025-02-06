@@ -62,7 +62,7 @@ export default function DataTable() {
 
   const columns = [
     { Header: "image", accessor: "image", width: "5%", align: "left" },
-    { Header: "name of product", accessor: "name", width: "25%", align: "left" },
+    { Header: "name of mealkit", accessor: "name", width: "25%", align: "left" },
     { Header: "cost price", accessor: "cost_price", align: "center" },
     { Header: "quantity", accessor: "quantity", align: "center" },
     { Header: "type", accessor: "type", align: "center" },

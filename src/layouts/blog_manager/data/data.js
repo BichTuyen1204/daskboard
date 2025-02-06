@@ -32,7 +32,17 @@ export default function data() {
   }, [jwtToken]);
 
   const Description = ({ description }) => (
-    <MDBox lineHeight={1} textAlign="left" fontSize="0.8em">
+    <MDBox
+      lineHeight={1}
+      textAlign="left"
+      fontSize="0.8em"
+      sx={{
+        width: "200px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      }}
+    >
       <MDTypography variant="caption" fontWeight="medium">
         {description}
       </MDTypography>

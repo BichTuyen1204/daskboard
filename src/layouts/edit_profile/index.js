@@ -175,8 +175,40 @@ function EditProfile() {
                       {/* SSN */}
                       <TextField
                         fullWidth
+                        type="text"
+                        value="Nguyen Van A"
+                        onChange={SsnChange}
+                        onBlur={SSnBlur}
+                        label="Username"
+                        margin="normal"
+                      />
+                      {ssnError && (
+                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                          {ssnError}
+                        </p>
+                      )}
+
+                      {/* SSN */}
+                      <TextField
+                        fullWidth
                         type="number"
-                        value={ssn || ""}
+                        value={123456}
+                        onChange={SsnChange}
+                        onBlur={SSnBlur}
+                        label="Password"
+                        margin="normal"
+                      />
+                      {ssnError && (
+                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                          {ssnError}
+                        </p>
+                      )}
+
+                      {/* SSN */}
+                      <TextField
+                        fullWidth
+                        type="number"
+                        value="0999999999999"
                         onChange={SsnChange}
                         onBlur={SSnBlur}
                         label="SSN"
@@ -192,7 +224,7 @@ function EditProfile() {
                       <TextField
                         fullWidth
                         type="number"
-                        value={phoneNumber || ""}
+                        value="0999999999"
                         onChange={PhoneChange}
                         onBlur={phoneNumberError}
                         label="Phone number"
@@ -209,9 +241,39 @@ function EditProfile() {
                         fullWidth
                         type="text"
                         value={realName || ""}
-                        onChange={RealNameChange}
                         onBlur={RealNameBlur}
                         label="Real name"
+                        margin="normal"
+                      />
+                      {realNameError && (
+                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                          {realNameError}
+                        </p>
+                      )}
+
+                      {/* Real name */}
+                      <TextField
+                        fullWidth
+                        type="text"
+                        value="nguyenvana@gmail.com"
+                        onBlur={RealNameBlur}
+                        label="Email"
+                        margin="normal"
+                      />
+                      {realNameError && (
+                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                          {realNameError}
+                        </p>
+                      )}
+
+                      <TextField
+                        fullWidth
+                        type="date"
+                        value={realName}
+                        onChange={RealNameChange}
+                        onBlur={RealNameBlur}
+                        label="Dob"
+                        InputLabelProps={{ shrink: true }}
                         margin="normal"
                       />
                       {realNameError && (
@@ -227,7 +289,7 @@ function EditProfile() {
                         value={realName || ""}
                         onChange={RealNameChange}
                         onBlur={RealNameBlur}
-                        label="Real name"
+                        label="Status"
                         margin="normal"
                       />
                       {realNameError && (

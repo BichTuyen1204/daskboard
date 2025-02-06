@@ -32,30 +32,13 @@ function Profile() {
               <Divider orientation="vertical" sx={{ ml: -2, mr: 1 }} />
               <ProfileInfoCard
                 title="profile information"
-                description="Hi, I’m Alec Thompson,"
+                description="Hi, I’m An"
                 info={{
-                  fullName: "Trinh Tran Phuong Tuan",
-                  mobile: "0999999999",
-                  email: "j97@mail.com",
+                  fullName: "Nguyen An",
+                  mobile: "0999999998",
+                  email: "nguyenan@mail.com",
                   location: "Viet Nam",
                 }}
-                social={[
-                  {
-                    link: "https://www.facebook.com/CreativeTim/",
-                    icon: <FacebookIcon />,
-                    color: "facebook",
-                  },
-                  {
-                    link: "https://twitter.com/creativetim",
-                    icon: <TwitterIcon />,
-                    color: "twitter",
-                  },
-                  {
-                    link: "https://www.instagram.com/creativetimofficial/",
-                    icon: <InstagramIcon />,
-                    color: "instagram",
-                  },
-                ]}
                 action={{ route: "", tooltip: "Edit Profile" }}
                 shadow={false}
               />

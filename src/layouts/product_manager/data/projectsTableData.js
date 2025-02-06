@@ -85,7 +85,7 @@ export default function data() {
         ),
         quantity_left: (
           <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            90090999909999
+            900
           </MDTypography>
         ),
         profit: (

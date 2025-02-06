@@ -97,8 +97,13 @@ function ProductDetail() {
     getProductDetail();
   }, [prod_id, jwtToken]);
 
+  const latestPrice = product?.price_list?.length
+    ? product.price_list.reduce((prev, current) =>
+        new Date(prev.date) > new Date(current.date) ? prev : current
+      )
+    : null;
+
   useEffect(() => {
-    // Reset lại ảnh đầu tiên khi product thay đổi
     if (images.length > 0) {
       setCurrentImageIndex(0);
     }
@@ -139,7 +144,7 @@ function ProductDetail() {
                   {/* Left Section: Image */}
                   <Grid item xs={12} md={5}>
                     {/* Link Quay Lại */}
-                    <Link to="/product">
+                    <Link to="/ingredient">
                       <Icon sx={{ cursor: "pointer", "&:hover": { color: "gray" } }}>
                         arrow_back
                       </Icon>
@@ -205,22 +210,18 @@ function ProductDetail() {
                       <TextField
                         fullWidth
                         label="Product Name"
-                        value={product.product_name || ""}
+                        value={product?.product_name || ""}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
                       {/* Category */}
                       <TextField
                         fullWidth
-                        label="Product type"
-                        value={product.product_type || ""}
+                        label="Product Type"
+                        value={product?.product_type || ""}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
                       {/* Quantity */}
@@ -228,60 +229,51 @@ function ProductDetail() {
                         fullWidth
                         type="number"
                         label="Quantity"
-                        value={product.available_quantity || ""}
+                        value={product?.available_quantity || 0}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
                       {/* Status */}
                       <TextField
                         fullWidth
-                        label="Product status"
-                        value={product.product_status || ""}
+                        label="Product Status"
+                        value={product?.product_status || ""}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
                       {/* Description */}
                       <TextField
                         fullWidth
-                        label="Weight"
-                        value={product.article || ""}
+                        label="Description"
+                        value={product?.article || ""}
                         margin="normal"
                         multiline
                         rows={8}
                         variant="outlined"
                         InputProps={{
                           readOnly: true,
-                          inputProps: {
-                            spellCheck: "true",
-                            "data-gramm": "true",
-                          },
+                          inputProps: { spellCheck: "true", "data-gramm": "true" },
                         }}
                       />
 
-                      {/* Price */}
+                      {/* Price - Lấy giá mới nhất */}
                       <TextField
                         fullWidth
                         label="Price"
-                        value={`$${product.price_list ? product.price_list[0]?.price : 0}`}
+                        value={`$${latestPrice ? latestPrice.price : 0}`}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
-                      {/* Production date */}
+                      {/* Production Date - Lấy ngày từ giá mới nhất */}
                       <TextField
                         fullWidth
                         label="Production Date"
                         value={
-                          product.price_list && product.price_list[0]?.date
-                            ? new Date(product.price_list[0]?.date).toLocaleString("en-US", {
+                          latestPrice?.date
+                            ? new Date(latestPrice.date).toLocaleString("en-US", {
                                 weekday: "long",
                                 year: "numeric",
                                 month: "long",
@@ -289,67 +281,55 @@ function ProductDetail() {
                                 hour: "2-digit",
                                 minute: "2-digit",
                               })
-                            : 0
+                            : "N/A"
                         }
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
-                      {/* Date before expiry*/}
+                      {/* Date before expiry */}
                       <TextField
                         fullWidth
                         label="Date before expiry"
-                        value={product.day_before_expiry || 0}
+                        value={product?.day_before_expiry || 0}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
-                      {/* Sale Percent */}
+                      {/* Sale Percent - Lấy % giảm giá mới nhất */}
                       <TextField
                         fullWidth
                         label="Sale Percent"
-                        value={`${product.price_list ? product.price_list[0]?.sale_percent : 0}%`}
+                        value={`${latestPrice ? latestPrice.sale_percent : 0}%`}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
                       {/* Weight */}
                       <TextField
                         fullWidth
                         label="Weight"
-                        value={product.info?.weight || 0}
+                        value={product?.info?.weight || "N/A"}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
                       {/* Storage instructions */}
                       <TextField
                         fullWidth
-                        label="Storage instructions"
-                        value={product.info?.storage_instructions || 0}
+                        label="Storage Instructions"
+                        value={product?.info?.storage_instructions || "N/A"}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
                       {/* Made in */}
                       <TextField
                         fullWidth
                         label="Made in"
-                        value={product.info?.made_in || ""}
+                        value={product?.info?.made_in || "N/A"}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
                     </form>
                   </Grid>

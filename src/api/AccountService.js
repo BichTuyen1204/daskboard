@@ -2,6 +2,8 @@ import axios from "axios";
 const API_BASE_URL = "http://localhost:8000/api/auth";
 const API_BASE_URL_2 = "http://localhost:8000/api/manager/create";
 const API_BASE_URL_3 = "http://localhost:8000/api/manager/staff/fetch";
+const API_BASE_URL_4 = "http://localhost:8000/api/staff/customer/fetch";
+const API_BASE_URL_5 = "http://localhost:8000/api/staff/customer/edit";
 
 class AccountService {
   async signin(account) {
@@ -50,6 +52,36 @@ class AccountService {
     }
   }
 
+  async getAllCustomer() {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.get(`${API_BASE_URL_4}/all`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error when API calls:", error.message);
+    }
+  }
+
+  async getCustomerDetail(id) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.get(`${API_BASE_URL_4}/id/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error when API calls:", error.message);
+    }
+  }
+
   async getStaffDetail(id) {
     try {
       const token = sessionStorage.getItem("jwtToken");
@@ -62,6 +94,24 @@ class AccountService {
       return response.data;
     } catch (error) {
       console.error("Error when API calls:", error.message);
+    }
+  }
+
+  async updateAccount(id, data) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.patch(`${API_BASE_URL_5}/account?id=${id}`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error during API calls:",
+        error.response ? error.response.data : error.message
+      );
+      throw error;
     }
   }
 }

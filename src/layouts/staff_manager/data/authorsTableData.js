@@ -4,6 +4,7 @@ import MDTypography from "components/MDTypography";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import AccountService from "api/AccountService";
+import { Icon } from "@mui/material";
 
 export default function data() {
   const [staff, setStaff] = useState([]);
@@ -70,23 +71,48 @@ export default function data() {
     status: <Status status={item.status} />,
     action: (
       <MDBox display="flex" justifyContent="center">
-        <MDTypography
-          component="button"
-          variant="caption"
-          fontWeight="medium"
-          style={{
-            backgroundColor: "#1976d2",
-            fontSize: "0.8em",
-            border: "none",
-            borderRadius: "2px",
-            padding: "5px 10px",
-            cursor: "pointer",
-          }}
-        >
-          <Link style={{ color: "white" }} to={`/profile_detail/${item.id}`}>
-            View
+        <>
+          <Link to={`/view_blog/${item.id}`}>
+            <MDTypography
+              component="button"
+              variant="caption"
+              color="white"
+              fontWeight="medium"
+              style={{
+                backgroundColor: "#1976d2",
+                fontSize: "0.8em",
+                border: "none",
+                borderRadius: "2px",
+                padding: "5px 10px",
+                cursor: "pointer",
+              }}
+            >
+              View
+            </MDTypography>
           </Link>
-        </MDTypography>
+          <Link to={`/edit_/${item.id}`} style={{ textDecoration: "none", marginLeft: "15px" }}>
+            <MDTypography
+              component="button"
+              variant="caption"
+              fontWeight="medium"
+              style={{
+                backgroundColor: "white",
+                color: "#1976d2",
+                fontSize: "0.8em",
+                border: "none",
+                padding: "5px 10px",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+              }}
+              onMouseEnter={(e) => (e.target.style.backgroundColor = "#f0f4ff")}
+              onMouseLeave={(e) => (e.target.style.backgroundColor = "white")}
+            >
+              <Icon fontSize="small" style={{ marginRight: "5px" }}>
+                edit
+              </Icon>
+            </MDTypography>
+          </Link>
+        </>
       </MDBox>
     ),
   }));

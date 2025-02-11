@@ -193,7 +193,6 @@ function EditProduct() {
       return;
     } else {
       try {
-        // console.log("Price", price, "Sale percent", sale_percent);
         const response = await ProductService.updateProductInfo(prod_id, productInfo);
         console.log("Update infos successful", response);
         setUpdateInfomationSuccess("Infor of ingredients updated successfully.");

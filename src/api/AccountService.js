@@ -114,6 +114,50 @@ class AccountService {
       throw error;
     }
   }
+
+  async updateInfor(id, data) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.patch(
+        `http://localhost:8000/api/staff/customer/edit/info?id=${id}`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error during API calls:",
+        error.response ? error.response.data : error.message
+      );
+      throw error;
+    }
+  }
+
+  async updateAccountStatus(id, status) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.patch(
+        `${API_BASE_URL_5}/status?id=${id}&status=${status}`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error during API calls:",
+        error.response ? error.response.data : error.message
+      );
+      throw error;
+    }
+  }
 }
 
 export default new AccountService();

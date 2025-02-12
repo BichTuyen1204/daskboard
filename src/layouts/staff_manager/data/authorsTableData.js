@@ -72,7 +72,7 @@ export default function data() {
     action: (
       <MDBox display="flex" justifyContent="center">
         <>
-          <Link to={`/view_blog/${item.id}`}>
+          <Link to={`/view_staff/${item.id}`}>
             <MDTypography
               component="button"
               variant="caption"
@@ -90,7 +90,10 @@ export default function data() {
               View
             </MDTypography>
           </Link>
-          <Link to={`/edit_/${item.id}`} style={{ textDecoration: "none", marginLeft: "15px" }}>
+          <Link
+            to={`/edit_staff/${item.id}`}
+            style={{ textDecoration: "none", marginLeft: "15px" }}
+          >
             <MDTypography
               component="button"
               variant="caption"

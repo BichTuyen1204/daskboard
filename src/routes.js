@@ -1,7 +1,6 @@
 import Dashboard from "layouts/dashboard";
 import Product from "layouts/product_manager";
 import Customer from "layouts/customer_manager";
-import Order from "layouts/order_manager";
 import Coupon from "layouts/coupon_manager";
 import Staff from "layouts/staff_manager";
 import Profile from "layouts/profile";
@@ -27,6 +26,7 @@ import Add_Blog from "layouts/add_blog";
 import View_Blog from "layouts/view_blog";
 import View_Customer from "layouts/view_customer";
 import Edit_Customer from "layouts/edit_customer";
+import Edit_Staff from "layouts/edit_staff";
 
 const token = sessionStorage.getItem("jwtToken");
 
@@ -132,6 +132,10 @@ const routes = [
     component: <Edit_Blog />,
   },
   {
+    route: "/edit_staff/:id",
+    component: <Edit_Staff />,
+  },
+  {
     route: "/order_detail",
     component: <Order_Detail />,
   },
@@ -156,7 +160,7 @@ const routes = [
     component: <View_Customer />,
   },
   {
-    route: "/view_staff",
+    route: "/view_staff/:id",
     component: <View_Staff />,
   },
   {

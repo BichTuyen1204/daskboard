@@ -6,11 +6,11 @@ import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import AccountService from "api/AccountService";
 
-function EditCustomer() {
+function EditStaff() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [jwtToken, setJwtToken] = useState(sessionStorage.getItem("jwtToken"));
-  const [customer, setCustomer] = useState("");
+  const [staff, setStaff] = useState("");
   const [userName, setUserName] = useState("");
   const [userNameError, setUserNameError] = useState("");
   const [password, setPassword] = useState("");
@@ -21,53 +21,65 @@ function EditCustomer() {
   const [updateStatusSuccess, setUpdateStatusSuccess] = useState("");
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
-  const [address, setAddress] = useState("");
-  const [addressError, setAddressError] = useState("");
+  const [ssn, setSsn] = useState("");
+  const [ssnError, setSsnError] = useState("");
   const [phone, setPhone] = useState("");
-  const [profile_description, setProfile_description] = useState("");
-  const [profileDescriptionError, setProfileDescriptionError] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [realName, setRealName] = useState("");
+  const [realNameError, setRealNameError] = useState("");
+  const [dob, setDob] = useState("");
+  const [dobError, setDobError] = useState("");
   const [updateInforSuccess, setUpdateInforSuccess] = useState("");
 
-  const [customerInfo, setCustomerInfo] = useState({
+  const [staffAccount, setStaffAccount] = useState({
     username: "",
     password: "",
   });
 
-  const [customerStatus, setCustomerStatus] = useState({
+  const [staffStatus, setStaffStatus] = useState({
     status: "",
   });
 
-  const [customerInfor, setCustomerInfor] = useState({
+  const [staffInfor, setStaffInfor] = useState({
+    ssn: "",
+    phonenumber: "",
+    realname: "",
     email: "",
-    address: "",
-    phone: "",
-    profile_description: "",
+    dob: "",
   });
 
   useEffect(() => {
     if (!jwtToken) navigate("/sign-in", { replace: true });
   }, [navigate, jwtToken]);
 
-  const getCustomerDetail = async () => {
+  const getStaffDetail = async () => {
     try {
-      const response = await AccountService.getCustomerDetail(id);
+      const response = await AccountService.getStaffDetail(id);
       console.log("nice", response);
-      setCustomer(response);
+      setStaff(response);
       setUserName(response.username);
+      setStatus(response.status);
+      setSsn(response.ssn);
       setEmail(response.email || "");
-      setAddress(response.address || "");
-      setPhone(response.phone || "");
+      setRealName(response.realname || "");
+      setPhone(response.phonenumber || "");
+      setDob(response.dob || "");
 
-      setCustomerInfor({
+      setStaffInfor({
+        ssn: response.ssn || "",
         email: response.email || "",
-        phone: response.phone || "",
-        address: response.address || "",
+        realname: response.realname || "",
+        phonenumber: response.phonenumber || "",
+        dob: response.dob || "",
       });
     } catch (error) {
       console.error("Can't access the server", error);
     }
   };
+
+  useEffect(() => {
+    getStaffDetail(id);
+  }, [id]);
 
   const updateAccount = async (e) => {
     e.preventDefault();
@@ -75,7 +87,7 @@ function EditCustomer() {
     PasswordBlur();
     if (!userNameError && userName && !passwordError && password) {
       try {
-        const response = await AccountService.updateAccountCustomer(id, customerInfo);
+        const response = await AccountService.updateAccountStaff(id, staffAccount);
         console.log("Update account successful", response);
         setUpdateAccountSuccess("Username and password updated successfully.");
         setUserNameError("");
@@ -87,10 +99,10 @@ function EditCustomer() {
 
         if (error.response) {
           if (error.response.status === 500) {
-            setUserNameError("Account already exists.");
+            setUserNameError("Username already exists.");
           }
         } else {
-          setUserNameError("Account already exists.");
+          setUserNameError("Username already exists.");
         }
       }
     }
@@ -101,7 +113,7 @@ function EditCustomer() {
     StatusBlur();
     if (!statusError && status) {
       try {
-        const response = await AccountService.updateStatusCustomer(id, status);
+        const response = await AccountService.updateStatusStaff(id, status);
         console.log("Update status successful", response);
         setUpdateStatusSuccess("Status updated successfully.");
       } catch (error) {
@@ -115,13 +127,26 @@ function EditCustomer() {
 
   const updateInfo = async (e) => {
     e.preventDefault();
+    SsnBlur();
+    RealNameBlur();
+    DobBlur();
     EmailBlur();
     PhoneBlur();
-    AddressBlur();
-    console.log("Data before submit:", customerInfor);
-    if (!emailError && email && !phoneError && phone && !addressError && address) {
+    console.log("Data before submit:", staffInfor);
+    if (
+      !emailError &&
+      email &&
+      !phoneError &&
+      phone &&
+      !ssnError &&
+      ssn &&
+      !realNameError &&
+      realName &&
+      !dobError &&
+      dob
+    ) {
       try {
-        const response = await AccountService.updateInforCustomer(id, customerInfor);
+        const response = await AccountService.updateInforStaff(id, staffInfor);
         console.log("Update Info successful", response);
         setUpdateInforSuccess("Info updated successfully.");
       } catch (error) {
@@ -134,7 +159,7 @@ function EditCustomer() {
   };
 
   const updateField = (field, value) => {
-    setCustomerInfor((prevState) => ({
+    setStaffInfor((prevState) => ({
       ...prevState,
       [field]: value !== undefined && value !== null ? value : prevState[field],
     }));
@@ -143,8 +168,7 @@ function EditCustomer() {
   const UserNameChange = (e) => {
     const { value } = e.target;
     setUserName(value);
-    setUserNameError(false);
-    setCustomerInfo((preState) => ({ ...preState, username: value }));
+    setStaffAccount((preState) => ({ ...preState, username: value }));
     setUpdateAccountSuccess(false);
   };
 
@@ -159,7 +183,7 @@ function EditCustomer() {
   const PasswordChange = (e) => {
     const { value } = e.target;
     setPassword(value);
-    setCustomerInfo((preState) => ({ ...preState, password: value }));
+    setStaffAccount((preState) => ({ ...preState, password: value }));
     setUpdateAccountSuccess(false);
   };
 
@@ -174,8 +198,8 @@ function EditCustomer() {
   const StatusChange = (e) => {
     const { value } = e.target;
     setStatus(value);
-    setCustomerStatus((preState) => ({ ...preState, status: value }));
-    setUserNameError(false);
+    setStaffStatus((preState) => ({ ...preState, status: value }));
+    setStatusError(false);
     setUpdateStatusSuccess(false);
   };
 
@@ -184,6 +208,46 @@ function EditCustomer() {
       setStatusError("Please enter a status");
     } else {
       setStatusError("");
+    }
+  };
+
+  const SsnChange = (e) => {
+    const { value } = e.target;
+    setSsn(value);
+    setSsnError(false);
+    updateField("ssn", value);
+    setUpdateInforSuccess(false);
+  };
+
+  const SsnBlur = () => {
+    if (ssn.trim() === "") {
+      setSsnError("Please enter the ssn");
+    } else if (ssn.length !== 12) {
+      setSsnError("SSN must be 12 digits");
+    } else if (!/^\d+$/.test(ssn)) {
+      setSsnError("The SSN must be a number");
+    } else if (!/^0/.test(ssn)) {
+      setSsnError("The SSN must start with 0");
+    } else {
+      setSsnError("");
+    }
+  };
+
+  const RealNameChange = (e) => {
+    const { value } = e.target;
+    setRealName(value);
+    setRealNameError(false);
+    updateField("realname", value);
+    setUpdateInforSuccess(false);
+  };
+
+  const RealNameBlur = () => {
+    if (realName.trim() === "") {
+      setRealNameError("Please enter the real name");
+    } else if (!/^[A-Za-z\s]+$/.test(realName)) {
+      setRealNameError("Real name must contain only letters");
+    } else {
+      setRealNameError("");
     }
   };
 
@@ -224,7 +288,7 @@ function EditCustomer() {
     const { value } = e.target;
     setPhone(value);
     setPhoneError(false);
-    updateField("phone", value);
+    updateField("phonenumber", value);
     setUpdateInforSuccess(false);
   };
 
@@ -243,41 +307,21 @@ function EditCustomer() {
     }
   };
 
-  const AddressChange = (e) => {
+  const DobChange = (e) => {
     const { value } = e.target;
-    setAddress(value);
-    setAddressError(false);
-    updateField("address", value);
+    setDob(value);
+    setDobError(false);
+    updateField("dob", value);
     setUpdateInforSuccess(false);
   };
 
-  const AddressBlur = () => {
-    if (address === "") {
-      setAddressError("Please enter a address");
+  const DobBlur = () => {
+    if (dob === "") {
+      setDobError("Please enter the dob");
     } else {
-      setAddressError("");
+      setDobError("");
     }
   };
-
-  const ProfileDescriptionChange = (e) => {
-    const { value } = e.target;
-    setProfile_description(value);
-    setProfileDescriptionError(false);
-    updateField("profile_description", value);
-    setUpdateInforSuccess(false);
-  };
-
-  const ProfileDescriptionBlur = () => {
-    if (address === "") {
-      setProfileDescriptionError("Please enter a profile");
-    } else {
-      setProfileDescriptionError("");
-    }
-  };
-
-  useEffect(() => {
-    getCustomerDetail(id);
-  }, [id]);
 
   return (
     <DashboardLayout>
@@ -297,7 +341,7 @@ function EditCustomer() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Edit User
+                  Edit Staff
                 </MDTypography>
               </MDBox>
 
@@ -307,7 +351,7 @@ function EditCustomer() {
                   {/* Account */}
                   <Grid item xs={12}>
                     <Link
-                      to="/customer"
+                      to="/staff"
                       onClick={() => {
                         setTimeout(() => {
                           window.location.reload();
@@ -414,10 +458,8 @@ function EditCustomer() {
                           sx={{ height: "45px", ".MuiInputBase-root": { height: "45px" } }}
                           margin="normal"
                         >
-                          <MenuItem value="NON_ACTIVE">NON ACTIVE</MenuItem>
-                          <MenuItem value="NORMAL">NORMAL</MenuItem>
-                          <MenuItem value="BANNED">BANNED</MenuItem>
-                          <MenuItem value="DEACTIVATE">DEACTIVATE</MenuItem>
+                          <MenuItem value="ACTIVE">ACTIVE</MenuItem>
+                          <MenuItem value="DISABLE">DISABLE</MenuItem>
                         </TextField>
                         {statusError && (
                           <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
@@ -500,35 +542,51 @@ function EditCustomer() {
                           </p>
                         )}
 
-                        {/* Profile */}
+                        {/* Real name */}
                         <TextField
                           fullWidth
                           type="text"
-                          value={profile_description || ""}
-                          onChange={ProfileDescriptionChange}
-                          onBlur={ProfileDescriptionBlur}
-                          label="Profile description"
+                          value={realName || ""}
+                          onChange={RealNameChange}
+                          onBlur={RealNameBlur}
+                          label="Real name"
                           margin="normal"
                         />
-                        {profileDescriptionError && (
+                        {realNameError && (
                           <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
-                            {profileDescriptionError}
+                            {realNameError}
                           </p>
                         )}
 
-                        {/* Address */}
+                        {/* SSN */}
                         <TextField
                           fullWidth
                           type="text"
-                          value={address || ""}
-                          onChange={AddressChange}
-                          onBlur={AddressBlur}
-                          label="Address"
+                          value={ssn || ""}
+                          onChange={SsnChange}
+                          onBlur={SsnBlur}
+                          label="SSN (Social Security Number)"
                           margin="normal"
                         />
-                        {addressError && (
+                        {ssnError && (
                           <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
-                            {addressError}
+                            {ssnError}
+                          </p>
+                        )}
+
+                        {/* DOB */}
+                        <TextField
+                          fullWidth
+                          type="text"
+                          value={dob || ""}
+                          onChange={DobChange}
+                          onBlur={DobBlur}
+                          label="DOB (Date of birth)"
+                          margin="normal"
+                        />
+                        {dobError && (
+                          <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                            {dobError}
                           </p>
                         )}
                         {updateInforSuccess && (
@@ -572,4 +630,4 @@ function EditCustomer() {
   );
 }
 
-export default EditCustomer;
+export default EditStaff;

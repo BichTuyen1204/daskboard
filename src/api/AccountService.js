@@ -97,7 +97,7 @@ class AccountService {
     }
   }
 
-  async updateAccount(id, data) {
+  async updateAccountCustomer(id, data) {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.patch(`${API_BASE_URL_5}/account?id=${id}`, data, {
@@ -115,7 +115,29 @@ class AccountService {
     }
   }
 
-  async updateInfor(id, data) {
+  async updateAccountStaff(id, data) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.post(
+        `http://localhost:8000/api/manager/staff/edit/account?id=${id}`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error during API calls:",
+        error.response ? error.response.data : error.message
+      );
+      throw error;
+    }
+  }
+
+  async updateInforCustomer(id, data) {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.patch(
@@ -137,7 +159,29 @@ class AccountService {
     }
   }
 
-  async updateAccountStatus(id, status) {
+  async updateInforStaff(id, data) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.post(
+        `http://localhost:8000/api/manager/staff/edit/info?id=${id}`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error during API calls:",
+        error.response ? error.response.data : error.message
+      );
+      throw error;
+    }
+  }
+
+  async updateStatusCustomer(id, status) {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.patch(
@@ -158,6 +202,27 @@ class AccountService {
       throw error;
     }
   }
-}
 
+  async updateStatusStaff(id, status) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.post(
+        `http://localhost:8000/api/manager/staff/edit/status?id=${id}&status=${status}`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error during API calls:",
+        error.response ? error.response.data : error.message
+      );
+      throw error;
+    }
+  }
+}
 export default new AccountService();

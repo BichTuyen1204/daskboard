@@ -4,10 +4,14 @@ import { Grid, TextField, Button, Icon } from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import AccountService from "api/AccountService";
 
 function ViewStaff() {
+  const jwtToken = sessionStorage.getItem("jwtToken");
   const navigate = useNavigate();
+  const [staff, setStaff] = useState("");
+  const { id } = useParams();
 
   useEffect(() => {
     const token = sessionStorage.getItem("jwtToken");
@@ -16,22 +20,21 @@ function ViewStaff() {
     }
   }, [navigate]);
 
-  const [product, setProduct] = useState({
-    id: 1,
-    image:
-      "https://assets.epicurious.com/photos/62f16ed5fe4be95d5a460eed/1:1/w_4318,h_4318,c_limit/RoastChicken_RECIPE_080420_37993.jpg",
-    name: "Product A",
-    category: "Category 1",
-    quantity: 10,
-    description: 10,
-  });
-
-  const handleChange = (field, value) => {
-    setProduct((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  useEffect(() => {
+    const getStaffDetail = async () => {
+      if (!jwtToken) return;
+      try {
+        const response = await AccountService.getStaffDetail(id);
+        if (response) {
+          console.log(response);
+          setStaff(response);
+        }
+      } catch (error) {
+        console.error("Can't access the server", error);
+      }
+    };
+    getStaffDetail();
+  }, [id, jwtToken]);
 
   return (
     <DashboardLayout>
@@ -58,7 +61,6 @@ function ViewStaff() {
               {/* Content */}
               <MDBox p={3}>
                 <Grid container spacing={3}>
-                  {/* Right Section: Product Info */}
                   <Grid item xs={12} md={12}>
                     <form>
                       <Link to="/staff">
@@ -71,7 +73,7 @@ function ViewStaff() {
                       <TextField
                         fullWidth
                         label="ID"
-                        value={product.name}
+                        value={staff.id || ""}
                         margin="normal"
                         InputProps={{
                           readOnly: true,
@@ -80,28 +82,68 @@ function ViewStaff() {
                       {/* Name of staff */}
                       <TextField
                         fullWidth
-                        label="Name of staff"
-                        value={product.name}
+                        label="Username of staff"
+                        value={staff.username || ""}
                         margin="normal"
                         InputProps={{
                           readOnly: true,
                         }}
                       />
-                      {/* Citizen Identification Card */}
+                      {/* Type */}
                       <TextField
                         fullWidth
-                        label="Citizen Identification Card"
-                        value={product.name}
+                        label="Type"
+                        value={staff.type || ""}
                         margin="normal"
                         InputProps={{
                           readOnly: true,
                         }}
                       />
-                      {/* Phone number */}
+                      {/* Status */}
                       <TextField
                         fullWidth
-                        label="Number phone"
-                        value={product.name}
+                        label="Status"
+                        value={staff.status || ""}
+                        margin="normal"
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                      />
+                      {/* SSN */}
+                      <TextField
+                        fullWidth
+                        label="SSN (Social Security Number)"
+                        value={staff.ssn || ""}
+                        margin="normal"
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                      />
+                      {/* Phone */}
+                      <TextField
+                        fullWidth
+                        label="Phone number"
+                        value={staff.phonenumber || ""}
+                        margin="normal"
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                      />
+                      {/* Real name */}
+                      <TextField
+                        fullWidth
+                        label="Real name"
+                        value={staff.realname || ""}
+                        margin="normal"
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                      />
+                      {/* Email */}
+                      <TextField
+                        fullWidth
+                        label="Email"
+                        value={staff.email || ""}
                         margin="normal"
                         InputProps={{
                           readOnly: true,
@@ -109,14 +151,13 @@ function ViewStaff() {
                       />
 
                       <Grid container spacing={2} mt={1}>
-                        {/* Date of start */}
+                        {/* Date of birth */}
                         <Grid item xs={12} sm={12}>
                           <TextField
                             fullWidth
-                            label="Date of start"
+                            label="DOB (Date of birth)"
                             type="date"
-                            value={product.manufacturingDate}
-                            onChange={(e) => handleChange("dateOfStart", e.target.value)}
+                            value={staff.dob || ""}
                             InputLabelProps={{
                               shrink: true,
                             }}

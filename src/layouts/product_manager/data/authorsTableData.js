@@ -62,11 +62,12 @@ export default function DataTable() {
 
   const columns = [
     { Header: "image", accessor: "image", width: "5%", align: "left" },
-    { Header: "name of product", accessor: "name", width: "25%", align: "left" },
+    { Header: "name of product", accessor: "name", width: "20%", align: "left" },
     { Header: "cost price", accessor: "cost_price", align: "center" },
     { Header: "quantity", accessor: "quantity", align: "center" },
     { Header: "type", accessor: "type", align: "center" },
     { Header: "status", accessor: "status", align: "center" },
+    { Header: "history", accessor: "history", align: "center" },
     { Header: "action", accessor: "action", align: "center" },
   ];
 
@@ -95,6 +96,28 @@ export default function DataTable() {
       quantity: (
         <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
           {item.available_quantity}
+        </MDTypography>
+      ),
+      history: (
+        <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
+          <Link to={`/history_product/${item.id}`}>
+            <MDTypography
+              component="button"
+              variant="caption"
+              color="white"
+              fontWeight="medium"
+              style={{
+                backgroundColor: "#1976d2",
+                fontSize: "0.9em",
+                border: "none",
+                borderRadius: "2px",
+                padding: "5px 10px",
+                cursor: "pointer",
+              }}
+            >
+              View history
+            </MDTypography>
+          </Link>
         </MDTypography>
       ),
       action: (

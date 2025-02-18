@@ -198,8 +198,9 @@ class ProductService {
     }
   }
 
-  async getHistoryIngredient(prod_id) {
+  async getHistoryProduct(prod_id) {
     try {
+      const token = sessionStorage.getItem("jwtToken");
       const response = await axios.get(
         `http://localhost:8000/api/staff/product/history/stock?prod_id=${prod_id}`,
         {

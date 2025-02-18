@@ -56,6 +56,19 @@ class ProductService {
     }
   }
 
+  async allMealkit() {
+    try {
+      const response = await axios.get(`http://localhost:8000/api/general/mealkit/fetch_all`);
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error during API calls:",
+        error.response ? error.response.data : error.message
+      );
+      throw error;
+    }
+  }
+
   async getProductDetail(prod_id) {
     try {
       const response = await axios.get(`${API_BASE_URL_2}/fetch`, {
@@ -93,6 +106,26 @@ class ProductService {
     }
   }
 
+  async updateMealkitInfo(prod_id, data) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.post(
+        `http://localhost:8000/api/staff/product/update/info/mealkit?prod_id=${prod_id}`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error during API calls:", error.response?.data || error.message);
+      throw error;
+    }
+  }
+
   async updateProductStatus(prod_id, status) {
     try {
       const token = sessionStorage.getItem("jwtToken");
@@ -115,13 +148,14 @@ class ProductService {
     }
   }
 
-  async updateProductQuantity(prod_id, quantity) {
+  async updateProductQuantity(prod_id, quantity, price) {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.patch(`${API_BASE_URL}/product/update/quantity`, null, {
         params: {
           prod_id: prod_id,
           quantity: quantity,
+          price: price,
         },
         headers: {
           Authorization: `Bearer ${token}`,
@@ -150,6 +184,27 @@ class ProductService {
             sale_percent: sale_percent,
           },
           headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error during API calls:",
+        error.response ? error.response.data : error.message
+      );
+      throw error;
+    }
+  }
+
+  async getHistoryIngredient(prod_id) {
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/api/staff/product/history/stock?prod_id=${prod_id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         }

@@ -15,7 +15,7 @@ function MealkitDetail() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [transitionClass, setTransitionClass] = useState("");
   const images = product?.images_url || [];
-
+  const [latestPrice, setLatestPrice] = useState(null);
   useEffect(() => {
     if (images.length > 0) {
       setCurrentImageIndex(0);
@@ -82,12 +82,21 @@ function MealkitDetail() {
       cursor: "not-allowed",
     },
   };
+
   useEffect(() => {
     const getProductDetail = async () => {
       if (jwtToken) {
         try {
           const response = await ProductService.getProductDetail(prod_id);
           setProduct(response);
+
+          if (response.price_list && response.price_list.length > 0) {
+            const sortedPriceList = response.price_list.sort(
+              (a, b) => new Date(b.date) - new Date(a.date)
+            );
+
+            setLatestPrice(sortedPriceList[0]); // Cập nhật state
+          }
         } catch (error) {
           console.error("Can't access the server", error);
         }
@@ -128,7 +137,7 @@ function MealkitDetail() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  View product detail
+                  View mealkit detail
                 </MDTypography>
               </MDBox>
 
@@ -204,22 +213,18 @@ function MealkitDetail() {
                       <TextField
                         fullWidth
                         label="Product Name"
-                        value={product.product_name || ""}
+                        value={product?.product_name || ""}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
                       {/* Category */}
                       <TextField
                         fullWidth
-                        label="Product type"
-                        value={product.product_type || ""}
+                        label="Product Type"
+                        value={product?.product_type || ""}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
                       {/* Quantity */}
@@ -227,60 +232,59 @@ function MealkitDetail() {
                         fullWidth
                         type="number"
                         label="Quantity"
-                        value={product.available_quantity || ""}
+                        value={product?.available_quantity || 0}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
                       {/* Status */}
                       <TextField
                         fullWidth
-                        label="Product status"
-                        value={product.product_status || ""}
+                        label="Product Status"
+                        value={
+                          product?.product_status === "IN_STOCK"
+                            ? "In stock"
+                            : product?.product_status === "OUT_OF_STOCK"
+                            ? "Out of stock"
+                            : product?.product_status === "NO_LONGER_IN_SALE"
+                            ? "No longer in sale"
+                            : "Unknown"
+                        }
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
                       {/* Description */}
                       <TextField
                         fullWidth
                         label="Description"
-                        value={product.article || ""}
+                        value={product?.article || ""}
                         margin="normal"
                         multiline
                         rows={8}
                         variant="outlined"
                         InputProps={{
                           readOnly: true,
-                          inputProps: {
-                            spellCheck: "true",
-                            "data-gramm": "true",
-                          },
+                          inputProps: { spellCheck: "true", "data-gramm": "true" },
                         }}
                       />
 
-                      {/* Price */}
+                      {/* Price - Lấy giá mới nhất */}
                       <TextField
                         fullWidth
                         label="Price"
-                        value={`$${product.price_list ? product.price_list[0]?.price : 0}`}
+                        value={`$${latestPrice ? latestPrice.price : 0 || ""}`}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
-                      {/* Production date */}
+                      {/* Production Date - Lấy ngày từ giá mới nhất */}
                       <TextField
                         fullWidth
-                        label="Production date"
+                        label="Production Date"
                         value={
-                          product.price_list && product.price_list[0]?.date
-                            ? new Date(product.price_list[0]?.date).toLocaleString("en-US", {
+                          latestPrice?.date
+                            ? new Date(latestPrice.date).toLocaleString("en-US", {
                                 weekday: "long",
                                 year: "numeric",
                                 month: "long",
@@ -291,64 +295,52 @@ function MealkitDetail() {
                             : "N/A"
                         }
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
-                      {/* Date before expiry*/}
+                      {/* Date before expiry */}
                       <TextField
                         fullWidth
-                        label="Day before expiry"
-                        value={product.day_before_expiry || 0}
+                        label="Date before expiry"
+                        value={product?.day_before_expiry || 0}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
-                      {/* Sale Percent */}
+                      {/* Sale Percent - Lấy % giảm giá mới nhất */}
                       <TextField
                         fullWidth
                         label="Sale Percent"
-                        value={`${product.price_list ? product.price_list[0]?.sale_percent : 0}%`}
+                        value={`${latestPrice ? latestPrice.sale_percent : 0}%`}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
                       {/* Weight */}
                       <TextField
                         fullWidth
                         label="Weight"
-                        value={product.info?.weight || 0}
+                        value={product?.info?.weight || "N/A"}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
                       {/* Storage instructions */}
                       <TextField
                         fullWidth
-                        label="Storage instructions"
-                        value={product.info?.storage_instructions || 0}
+                        label="Storage Instructions"
+                        value={product?.info?.storage_instructions || "N/A"}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
                       {/* Made in */}
                       <TextField
                         fullWidth
                         label="Made in"
-                        value={product.info?.made_in || ""}
+                        value={product?.info?.made_in || "N/A"}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
                     </form>
                   </Grid>

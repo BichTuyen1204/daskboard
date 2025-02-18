@@ -27,6 +27,7 @@ import View_Blog from "layouts/view_blog";
 import View_Customer from "layouts/view_customer";
 import Edit_Customer from "layouts/edit_customer";
 import Edit_Staff from "layouts/edit_staff";
+import Edit_Mealkit from "layouts/edit_mealkit";
 
 const token = sessionStorage.getItem("jwtToken");
 
@@ -118,6 +119,10 @@ const routes = [
   {
     route: "/edit_product/:prod_id",
     component: <Edit_Product />,
+  },
+  {
+    route: "/edit_mealkit/:prod_id",
+    component: <Edit_Mealkit />,
   },
   {
     route: "/edit_customer/:id",

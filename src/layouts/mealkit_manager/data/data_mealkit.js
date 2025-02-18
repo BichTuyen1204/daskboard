@@ -15,7 +15,7 @@ export default function DataTable() {
     const getAllMealkit = async () => {
       if (jwtToken) {
         try {
-          const response = await ProductService.allProduct(jwtToken);
+          const response = await ProductService.allMealkit(jwtToken);
           setMealkit(response);
         } catch (error) {
           console.error("Can't access the server", error);
@@ -97,7 +97,7 @@ export default function DataTable() {
     ),
     action: (
       <MDBox display="flex" justifyContent="center" gap={1}>
-        <Link to={`/edit_product/${item.id}`} style={{ textDecoration: "none" }}>
+        <Link to={`/edit_mealkit/${item.id}`} style={{ textDecoration: "none" }}>
           <MDTypography
             component="button"
             variant="caption"

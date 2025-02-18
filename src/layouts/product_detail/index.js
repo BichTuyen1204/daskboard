@@ -15,7 +15,7 @@ function ProductDetail() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [transitionClass, setTransitionClass] = useState("");
   const images = product?.images_url || [];
-
+  const [latestPrice, setLatestPrice] = useState(null);
   useEffect(() => {
     if (images.length > 0) {
       setCurrentImageIndex(0);
@@ -82,12 +82,21 @@ function ProductDetail() {
       cursor: "not-allowed",
     },
   };
+
   useEffect(() => {
     const getProductDetail = async () => {
       if (jwtToken) {
         try {
           const response = await ProductService.getProductDetail(prod_id);
           setProduct(response);
+
+          if (response.price_list && response.price_list.length > 0) {
+            const sortedPriceList = response.price_list.sort(
+              (a, b) => new Date(b.date) - new Date(a.date)
+            );
+
+            setLatestPrice(sortedPriceList[0]);
+          }
         } catch (error) {
           console.error("Can't access the server", error);
         }
@@ -97,11 +106,11 @@ function ProductDetail() {
     getProductDetail();
   }, [prod_id, jwtToken]);
 
-  const latestPrice = product?.price_list?.length
-    ? product.price_list.reduce((prev, current) =>
-        new Date(prev.date) > new Date(current.date) ? prev : current
-      )
-    : null;
+  // const latestPrice = product?.price_list?.length
+  //   ? product.price_list.reduce((prev, current) =>
+  //       new Date(prev.date) > new Date(current.date) ? prev : current
+  //     )
+  //   : null;
 
   useEffect(() => {
     if (images.length > 0) {
@@ -262,7 +271,7 @@ function ProductDetail() {
                       <TextField
                         fullWidth
                         label="Price"
-                        value={`$${latestPrice ? latestPrice.price : 0}`}
+                        value={`$${latestPrice ? latestPrice.price : 0 || ""}`}
                         margin="normal"
                         InputProps={{ readOnly: true }}
                       />

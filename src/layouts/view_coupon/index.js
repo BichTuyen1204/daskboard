@@ -76,6 +76,18 @@ function ViewCoupon() {
                           readOnly: true,
                         }}
                       />
+
+                      {/* Minimum price */}
+                      <TextField
+                        fullWidth
+                        label="Minimum price"
+                        value={coupon.minimum_price || ""}
+                        margin="normal"
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                      />
+
                       {/* Usage left */}
                       <TextField
                         fullWidth
@@ -91,9 +103,9 @@ function ViewCoupon() {
                       {/* Usage left */}
                       <TextField
                         fullWidth
-                        label="Usage left"
+                        label="Sale percent"
                         type="text"
-                        value={`${coupon.usage_left || ""}%`}
+                        value={`${coupon.sale_percent || ""}%`}
                         margin="normal"
                         InputProps={{
                           readOnly: true,

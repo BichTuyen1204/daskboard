@@ -12,13 +12,15 @@ function AddCoupon() {
   const [idError, setIdError] = useState("");
   const [coupon, setCoupon] = useState({
     id: "",
-    usage_amount: "",
+    usage_amount: 0,
     expire_date: "",
-    sale_percent: "",
+    sale_percent: 0,
+    minimum_price: 0,
   });
 
   const [errors, setErrors] = useState({
     id: "",
+    minimum_price: "",
     usage_amount: "",
     expire_date: "",
     sale_percent: "",
@@ -45,6 +47,11 @@ function AddCoupon() {
         else if (value <= 0) errorMessage = "The sale percentage must be greater than 0";
         else if (value > 100)
           errorMessage = "The sale percentage must be less than or equal to 100";
+        break;
+
+      case "minimum_price":
+        if (!value) errorMessage = "Please enter the minimum price";
+        else if (value < 100) errorMessage = "The minimum price must be at least 100";
         break;
 
       case "expire_date":
@@ -75,13 +82,11 @@ function AddCoupon() {
 
     if (isValid) {
       try {
-        const response = await CouponService.addCoupon(coupon); // Gọi service
-        console.log("Full response from API:", response); // Xem tất cả dữ liệu trả về
+        const response = await CouponService.addCoupon(coupon);
+        console.log("Full response from API:", response);
         setAddSuccess(true);
       } catch (error) {
         console.error("Error when adding coupon:", error);
-
-        // Kiểm tra lỗi 500 và hiển thị thông báo lỗi tùy chỉnh
         if (error.response && error.response.status === 500) {
           setIdError("The coupon ID already exists");
         } else {
@@ -148,7 +153,40 @@ function AddCoupon() {
                           },
                         }}
                       />
-                      <p style={{ color: "red", fontSize: "0.6em", marginTop: "0px" }}>{idError}</p>
+                      <p
+                        style={{
+                          color: "red",
+                          fontSize: "0.6em",
+                          marginTop: "0px",
+                          fontWeight: "450",
+                        }}
+                      >
+                        {idError}
+                      </p>
+
+                      {/* Minimum price */}
+                      <TextField
+                        fullWidth
+                        name="minimum_price"
+                        label="Minimum price"
+                        value={coupon.minimum_price}
+                        onChange={handleChange}
+                        error={!!errors.minimum_price}
+                        helperText={errors.minimum_price}
+                        margin="normal"
+                        sx={{
+                          "& .MuiInputLabel-root": {
+                            fontSize: "0.7em",
+                          },
+                          "& .MuiFormHelperText-root": {
+                            fontSize: "0.6em",
+                            marginLeft: "10px",
+                            marginTop: "7px",
+                            marginBottom: "-15px",
+                            fontWeight: "500",
+                          },
+                        }}
+                      />
 
                       {/* Usage Amount */}
                       <TextField
@@ -183,7 +221,6 @@ function AddCoupon() {
                         value={coupon.expire_date}
                         onChange={handleChange}
                         error={!!errors.expire_date}
-                        helperText={errors.expire_date}
                         InputLabelProps={{
                           shrink: true,
                         }}
@@ -230,6 +267,7 @@ function AddCoupon() {
                           style={{
                             color: "green",
                             fontSize: "0.6em",
+                            fontWeight: "500",
                             marginLeft: "5px",
                             marginTop: "15px",
                             marginBottom: "-20px",

@@ -432,7 +432,7 @@ function EditMealkit() {
                   {/* Product Info */}
                   <Grid item xs={12}>
                     <Link
-                      to="/ingredient"
+                      to="/mealkit"
                       onClick={() => {
                         setTimeout(() => {
                           window.location.reload();

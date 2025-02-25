@@ -52,12 +52,11 @@ export default function data() {
     getAllCoupon();
   }, [jwtToken]);
 
-  const Creation_date = ({ title, description }) => (
+  const Expire_date = ({ expire_time }) => (
     <MDBox lineHeight={1} textAlign="left" fontSize="0.8em">
       <MDTypography display="block" variant="caption" fontWeight="medium">
-        {title}
+        {expire_time}
       </MDTypography>
-      <MDTypography variant="caption">{description}</MDTypography>
     </MDBox>
   );
 
@@ -72,7 +71,7 @@ export default function data() {
   const columns = [
     { Header: "id", accessor: "id", width: "5%", align: "left" },
     { Header: "Usage left", accessor: "usage_left", width: "20%", align: "center" },
-    { Header: "creation date", accessor: "creation_date", align: "center" },
+    { Header: "expire date", accessor: "expire_time", align: "center" },
     { Header: "discount percentage", accessor: "discount_percentage", align: "center" },
     { Header: "action", accessor: "action", align: "center" },
   ];
@@ -92,7 +91,7 @@ export default function data() {
       </MDTypography>
     ),
     usage_left: <UsageLeft usage_left={item.usage_left === -1 ? 0 : item.usage_left} />,
-    creation_date: <Creation_date title={item.expire_time} />,
+    expire_time: <Expire_date expire_time={item.expire_time} />,
     discount_percentage: (
       <MDTypography
         component="a"
@@ -103,33 +102,7 @@ export default function data() {
           fontSize: "0.8em",
         }}
       >
-        {item.sale_percent}
-      </MDTypography>
-    ),
-    expiry_date: (
-      <MDTypography
-        component="a"
-        href="#"
-        variant="caption"
-        fontWeight="medium"
-        style={{
-          fontSize: "0.8em",
-        }}
-      >
-        23/04/18
-      </MDTypography>
-    ),
-    discount_percentage: (
-      <MDTypography
-        component="a"
-        href="#"
-        variant="caption"
-        fontWeight="medium"
-        style={{
-          fontSize: "0.8em",
-        }}
-      >
-        15%
+        {item.sale_percent}%
       </MDTypography>
     ),
     action: (

@@ -221,6 +221,7 @@ function EditBlog() {
                         color="primary"
                         onClick={UpdateBlog}
                         sx={{ mt: 2 }}
+                        style={{ color: "white" }}
                       >
                         Update Blog
                       </Button>

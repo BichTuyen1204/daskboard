@@ -129,13 +129,17 @@ function AddProduct() {
         [nestedField]: value,
       },
     }));
-    if (field === "infors") {
+
+    if (field === "infos") {
+      // Sửa "infors" thành "infos"
       switch (nestedField) {
         case "weight":
           if (!value.trim()) {
             setWeightError("Weight is required.");
+          } else if (value < 1) {
+            setWeightError("Weight must be greater than 0.");
           } else {
-            setWeightError("");
+            setWeightError(""); // Xóa lỗi khi nhập đúng
           }
           break;
         case "made_in":
@@ -156,28 +160,35 @@ function AddProduct() {
           break;
       }
     }
+
     setErrorMessage("");
     setSuccessMessage("");
   };
 
   const handleMainImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setMainImage(file);
-      setMainImagePreview(URL.createObjectURL(file));
-      setMainImageError("");
-      setErrorMessage("");
-      setSuccessMessage("");
+    if (file && !["image/jpeg", "image/png"].includes(file.type)) {
+      setMainImageError("Only JPG or PNG files are accepted.");
+      return;
     }
+    setMainImage(file);
+    setMainImagePreview(URL.createObjectURL(file));
+    setMainImageError("");
   };
 
   const handleAdditionalImagesChange = (e) => {
     const files = Array.from(e.target.files);
-    setAdditionalImages((prev) => [...prev, ...files]);
-    const newPreviews = files.map((file) => URL.createObjectURL(file));
+    const validFiles = files.filter((file) => ["image/jpeg", "image/png"].includes(file.type));
+
+    if (validFiles.length !== files.length) {
+      setAdditionalImagesError("Only JPG or PNG files are accepted.");
+      return;
+    }
+
+    setAdditionalImages((prev) => [...prev, ...validFiles]);
+    const newPreviews = validFiles.map((file) => URL.createObjectURL(file));
     setAdditionalImagePreviews((prev) => [...prev, ...newPreviews]);
-    setErrorMessage("");
-    setSuccessMessage("");
+    setAdditionalImagesError("");
   };
 
   const validateForm = () => {
@@ -226,15 +237,19 @@ function AddProduct() {
       return false;
     }
     if (!infos.weight.trim()) {
-      setWeightError("Additional Prop 1 is required.");
+      setWeightError("Weight is required.");
+      return false;
+    }
+    if (infos.weight < 1) {
+      setWeightError("Weight must be greater than 0.");
       return false;
     }
     if (!infos.storage_instructions.trim()) {
-      setStorageInstructionsError("Additional Prop 1 is required.");
+      setStorageInstructionsError("Storage instruction is required.");
       return false;
     }
     if (!infos.made_in.trim()) {
-      setMadeInError("Additional Prop 1 is required.");
+      setMadeInError("Made in is required.");
       return false;
     }
     if (!mainImage) {
@@ -249,7 +264,7 @@ function AddProduct() {
   };
 
   const handleSubmit = async () => {
-    if (!validateForm()) return;
+    if (!validateForm() || additionalImagesError || mainImageError) return;
     const formData = new FormData();
     formData.append("main_image", mainImage);
     additionalImages.forEach((image) => {
@@ -257,7 +272,9 @@ function AddProduct() {
     });
     formData.append("product_detail", JSON.stringify(product));
     try {
-      const response = await ProductService.createProduct(formData);
+      await ProductService.createProduct(formData);
+      setMainImageError(false);
+      setAdditionalImagesError(false);
       setSuccessMessage("Product added successfully!");
     } catch (error) {
       if (error.response) {

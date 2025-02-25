@@ -1,10 +1,21 @@
 import { useEffect, useState } from "react";
-import { Card, Grid, TextField, Button, MenuItem, Icon, Typography } from "@mui/material";
+import {
+  Card,
+  Grid,
+  TextField,
+  Button,
+  MenuItem,
+  Icon,
+  InputAdornment,
+  IconButton,
+} from "@mui/material";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import AccountService from "api/AccountService";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 function EditStaff() {
   const navigate = useNavigate();
@@ -30,6 +41,7 @@ function EditStaff() {
   const [dob, setDob] = useState("");
   const [dobError, setDobError] = useState("");
   const [updateInforSuccess, setUpdateInforSuccess] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [staffAccount, setStaffAccount] = useState({
     username: "",
@@ -64,6 +76,10 @@ function EditStaff() {
       setRealName(response.realname || "");
       setPhone(response.phonenumber || "");
       setDob(response.dob || "");
+
+      setStaffAccount({
+        username: response.username || "",
+      });
 
       setStaffInfor({
         ssn: response.ssn || "",
@@ -187,12 +203,23 @@ function EditStaff() {
     setUpdateAccountSuccess(false);
   };
 
+  // Check password
   const PasswordBlur = () => {
-    if (password === "") {
-      setPasswordError("Please enter a password");
+    const enteredPassword = password.trim();
+    if (enteredPassword === "") {
+      setPasswordError("Please enter your password");
+    } else if (enteredPassword.length < 6) {
+      setPasswordError("Password must be longer than 6 characters");
+    } else if (enteredPassword.length > 30) {
+      setPasswordError("Password must be shorter than 30 characters");
     } else {
       setPasswordError("");
     }
+  };
+
+  // Show and hidden password
+  const PasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const StatusChange = (e) => {
@@ -389,17 +416,29 @@ function EditStaff() {
                           {userNameError}
                         </p>
                       )}
-
                       {/* Password */}
                       <TextField
                         fullWidth
-                        type="text"
+                        type={showPassword ? "text" : "password"}
                         value={password || ""}
                         onChange={PasswordChange}
                         onBlur={PasswordBlur}
                         label="Password"
                         margin="normal"
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton onClick={PasswordVisibility} edge="end">
+                                <FontAwesomeIcon
+                                  style={{ width: "18px", height: "18px" }}
+                                  icon={showPassword ? faEyeSlash : faEye}
+                                />
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        }}
                       />
+
                       {passwordError && (
                         <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
                           {passwordError}
@@ -529,7 +568,7 @@ function EditStaff() {
                         {/* Phone */}
                         <TextField
                           fullWidth
-                          type="text"
+                          type="number"
                           value={phone || ""}
                           onChange={PhoneChange}
                           onBlur={PhoneBlur}
@@ -561,7 +600,7 @@ function EditStaff() {
                         {/* SSN */}
                         <TextField
                           fullWidth
-                          type="text"
+                          type="number"
                           value={ssn || ""}
                           onChange={SsnChange}
                           onBlur={SsnBlur}

@@ -155,8 +155,8 @@ function EditProduct() {
     e.preventDefault();
     PriceBlur();
     SalePersentBlur();
-    if (!prod_id || isNaN(price) || isNaN(sale_percent)) {
-      console.error("Invalid input data");
+    if (!prod_id || priceError || saleError || !price || !sale_percent) {
+      console.error("Cannot proceed: Price or Sale Percent is still blurred.");
       return;
     } else {
       try {
@@ -187,12 +187,18 @@ function EditProduct() {
     MadeInBlur();
     if (
       !prod_id ||
-      isNaN(dayBeforeExpiry) ||
-      !weight.trim() ||
-      !description.trim() ||
-      !articleMd.trim() ||
-      !instructions.trim() ||
-      !madeIn.trim()
+      dayBeforeExpiryError ||
+      weightError ||
+      descriptionError ||
+      articleMdError ||
+      instructionsError ||
+      madeInError ||
+      !dayBeforeExpiry ||
+      !weight ||
+      !description ||
+      !articleMd ||
+      !instructions ||
+      !madeIn
     ) {
       console.error("Invalid input data");
       return;
@@ -252,8 +258,8 @@ function EditProduct() {
   const PriceBlur = () => {
     if (price === "") {
       setPriceError("Please enter a price");
-    } else if (quantity < 1) {
-      setPriceError("Please enter a price greater than 1");
+    } else if (price < 1) {
+      setPriceError("Please enter a price greater than 0");
     } else {
       setPriceError("");
     }
@@ -288,10 +294,10 @@ function EditProduct() {
   const DayBeforeExpiryBlur = () => {
     if (dayBeforeExpiry === "") {
       setDayBeforeExpiryError("Please enter a day before expiry");
-    } else if (sale_percent < 0) {
+    } else if (dayBeforeExpiry < 1) {
       setDayBeforeExpiryError("Please enter a day before expiry greater than 0");
     } else {
-      setSaleError("");
+      setDayBeforeExpiryError("");
     }
   };
 
@@ -335,6 +341,8 @@ function EditProduct() {
   const WeightBlur = () => {
     if (weight === "") {
       setWeightError("Please enter a weight");
+    } else if (weight < 1) {
+      setWeightError("Please enter a weight greater than 0");
     } else {
       setWeightError("");
     }
@@ -606,9 +614,9 @@ function EditProduct() {
 
                     <TextField
                       fullWidth
-                      type="text"
+                      type="number"
                       label="Day before expiry"
-                      value={dayBeforeExpiry || 0}
+                      value={dayBeforeExpiry || ""}
                       onChange={DayBeforeExpiryChange}
                       onBlur={DayBeforeExpiryBlur}
                       margin="normal"
@@ -636,12 +644,13 @@ function EditProduct() {
 
                     <TextField
                       fullWidth
-                      type="text"
-                      label="Weight"
+                      type="number"
+                      label="Weight (gam)"
                       value={weight || ""}
                       onChange={WeightChange}
                       onBlur={WeightBlur}
                       margin="normal"
+                      inputProps={{ min: 0 }}
                     />
                     {weightError && (
                       <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>

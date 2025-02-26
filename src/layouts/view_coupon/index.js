@@ -100,12 +100,12 @@ function ViewCoupon() {
                         }}
                       />
 
-                      {/* Usage left */}
+                      {/* Sale percent */}
                       <TextField
                         fullWidth
                         label="Sale percent"
                         type="text"
-                        value={`${coupon.sale_percent || ""}%`}
+                        value={`${coupon.sale_percent || 0}%`}
                         margin="normal"
                         InputProps={{
                           readOnly: true,

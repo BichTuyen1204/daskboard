@@ -51,15 +51,19 @@ class BlogService {
     }
   }
 
-  async updateBlog(id) {
+  async updateBlog(id, data) {
     try {
       const token = sessionStorage.getItem("jwtToken");
-      const response = await axios.post(`http://localhost:8000/api/staff/blog/edit?id=${id}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.post(
+        `http://localhost:8000/api/staff/blog/edit?id=${id}`,
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       console.error("Error when API calls:", error.message);

@@ -4,8 +4,8 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
-import axios from "axios";
 import ProductService from "api/ProductService";
+import axios from "axios";
 
 function EditProduct() {
   const navigate = useNavigate();
@@ -20,6 +20,8 @@ function EditProduct() {
   const [updateStatusSuccess, setUpdateStatusSuccess] = useState("");
   const [price, setPrice] = useState("");
   const [priceError, setPriceError] = useState("");
+  const [inPrice, setInPrice] = useState("");
+  const [inPriceError, setInPriceError] = useState("");
   const [sale_percent, setSale] = useState("");
   const [saleError, setSaleError] = useState("");
   const [updatePriceSuccess, setUpdatePriceSuccess] = useState("");
@@ -50,7 +52,7 @@ function EditProduct() {
   });
 
   const [productStatus, setProductStatus] = useState({ status: "" });
-  const [productQuantity, setProductQuantity] = useState({ quantity: 0, price: 0 });
+  const [productQuantity, setProductQuantity] = useState({ quantity: 0, in_price: 0 });
   const [productPrice, setProductPrice] = useState({ price: 0, sale_percent: 0 });
 
   // Ensure user is authenticated
@@ -96,6 +98,32 @@ function EditProduct() {
     }
   };
 
+  useEffect(() => {
+    async function fetchPrice() {
+      try {
+        const token = sessionStorage.getItem("jwtToken");
+        const response = await axios.get(
+          `http://localhost:8000/api/staff/product/history/stock?prod_id=${prod_id}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = response.data;
+        if (data.length === 0) return;
+
+        const latestEntry = data.sort((a, b) => new Date(b.in_date) - new Date(a.in_date))[0];
+        setInPrice(latestEntry.in_price);
+        console.log("Updated inPrice:", latestEntry.in_price);
+      } catch (error) {
+        console.error("Error fetching history:", error);
+      }
+    }
+    fetchPrice();
+  }, [prod_id]);
+
   const updateField = (field, value) => {
     setProductInfo((prevState) => ({
       ...prevState,
@@ -116,12 +144,12 @@ function EditProduct() {
   const updateQuantity = async (e) => {
     e.preventDefault();
     QuantityBlur();
-    if (!quantityError && quantity) {
+    if (!quantityError && quantity && !inPriceError && inPrice) {
       try {
         const response = await ProductService.updateProductQuantity(
           prod_id,
           parseInt(quantity),
-          Number(price)
+          Number(inPrice)
         );
         console.log("Update quantity and price successful", response);
         setUpdateQuantitySuccess("Quantity and price updated successfully.");
@@ -166,7 +194,6 @@ function EditProduct() {
           Number(price),
           Number(sale_percent)
         );
-        console.log("Update price and sale percent successful", response);
         setUpdatePriceSuccess("Price and sale percent updated successfully.");
       } catch (error) {
         console.error(
@@ -248,6 +275,23 @@ function EditProduct() {
     }
   };
 
+  const InPriceChange = (e) => {
+    const { value } = e.target;
+    setInPrice(value);
+    setProductQuantity((preState) => ({ ...preState, in_price: value }));
+    setUpdateQuantitySuccess(false);
+  };
+
+  const InPriceBlur = () => {
+    if (inPrice === "") {
+      setInPriceError("Please enter a purchase price");
+    } else if (inPrice < 1) {
+      setInPriceError("Please enter a purchase price greater than 0");
+    } else {
+      setInPriceError("");
+    }
+  };
+
   const PriceChange = (e) => {
     const { value } = e.target;
     setPrice(value);
@@ -275,10 +319,10 @@ function EditProduct() {
   const SalePersentBlur = () => {
     if (sale_percent === "") {
       setSaleError("Please enter a sale percent");
-    } else if (sale_percent < 1) {
-      setSaleError("Please enter a sale persent greater than 1");
+    } else if (sale_percent < 0) {
+      setSaleError("Please enter a sale percent of 0 or greater");
     } else if (sale_percent > 100) {
-      setSaleError("Please enter a sale persent less than 100");
+      setSaleError("Please enter a sale percent less than 100");
     } else {
       setSaleError("");
     }
@@ -454,16 +498,16 @@ function EditProduct() {
 
                       <TextField
                         fullWidth
-                        label="Price"
+                        label="Purchase price"
                         type="number"
-                        value={price}
-                        onChange={PriceChange}
-                        onBlur={PriceBlur}
+                        value={inPrice}
+                        onChange={InPriceChange}
+                        onBlur={InPriceBlur}
                         margin="normal"
                       />
-                      {priceError && (
+                      {inPriceError && (
                         <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
-                          {priceError}
+                          {inPriceError}
                         </p>
                       )}
                       {updateQuantitySuccess && (
@@ -509,7 +553,7 @@ function EditProduct() {
 
                     <TextField
                       fullWidth
-                      label="Price"
+                      label="Selling price"
                       type="number"
                       value={price}
                       onChange={PriceChange}

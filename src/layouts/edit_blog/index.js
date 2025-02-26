@@ -10,15 +10,26 @@ import BlogService from "api/BlogService";
 function EditBlog() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const jwtToken = sessionStorage.getItem("jwtToken");
+  const [jwtToken, setJwtToken] = useState(sessionStorage.getItem("jwtToken"));
+  const [title, setTitle] = useState("");
   const [titleError, setTitleError] = useState("");
+  const [description, setDescription] = useState("");
   const [descriptionError, setDescriptionError] = useState("");
+  const [markdownText, setMarkdownText] = useState("");
   const [markdownTextError, setMarkdownTextError] = useState("");
+  const [serves, setServes] = useState("");
   const [servesError, setServesError] = useState("");
+  const [cookTime, setCookTime] = useState("");
   const [cookTimeError, setCookTimeError] = useState("");
+  const [tags, setTags] = useState("");
   const [tagsError, setTagsError] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+
+  // Ensure user is authenticated
+  useEffect(() => {
+    if (!jwtToken) navigate("/sign-in", { replace: true });
+  }, [navigate, jwtToken]);
 
   const [blog, setBlog] = useState({
     title: "",
@@ -30,91 +41,185 @@ function EditBlog() {
       tags: "",
     },
   });
-  useEffect(() => {
-    const token = sessionStorage.getItem("jwtToken");
-    if (!token) {
-      navigate("/sign-in", { replace: true });
-    }
-  }, [navigate]);
 
-  useEffect(() => {
-    const getBlogDetail = async () => {
-      if (!jwtToken) {
-        return;
-      } else {
-        try {
-          const response = await BlogService.getBlogDetail(id);
-          setBlog(response);
-        } catch (error) {
-          console.error("Can't access the server", error);
-        }
-      }
-    };
-    getBlogDetail();
-  }, [id, jwtToken]);
+  const getBlogDetail = async () => {
+    try {
+      const response = await BlogService.getBlogDetail(id);
+      setBlog(response);
+      setTitle(response.title);
+      setDescription(response.description);
+      setMarkdownText(response.article);
+      setTags(response.infos?.tags);
+      setServes(response.infos?.serves);
+      setCookTime(response.infos?.cook_time);
 
-  const handleChange = (field, value) => {
-    setBlog((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-
-    // Field-specific validation
-    switch (field) {
-      case "title":
-        setTitleError(value.trim() ? "" : "Title is required.");
-        break;
-      case "description":
-        setDescriptionError(value.trim() ? "" : "Description is required.");
-        break;
-      case "markdown_text":
-        setMarkdownTextError(value.trim() ? "" : "Markdown text is required.");
-        break;
-      default:
-        break;
+      setBlog({
+        title: response.title || "",
+        description: response.description || "",
+        markdown_text: response.article || "",
+        infos: {
+          serves: response.infos?.serves || "",
+          cook_time: response.infos?.cook_time || "",
+          tags: response.infos?.tags || "",
+        },
+      });
+    } catch (error) {
+      console.error("Can't access the server", error);
     }
   };
 
-  const handleNestedChange = (field, nestedField, value) => {
-    setBlog((prev) => ({
-      ...prev,
-      [field]: {
-        ...prev[field],
-        [nestedField]: value,
+  useEffect(() => {
+    getBlogDetail(id);
+  }, [id]);
+
+  const updateField = (field, value) => {
+    setBlog((prevState) => ({
+      ...prevState,
+      [field]: value !== undefined && value !== null ? value : prevState[field],
+    }));
+  };
+
+  const updateInfoField = (field, value) => {
+    setBlog((prevState) => ({
+      ...prevState,
+      infos: {
+        ...prevState.infos,
+        [field]: value !== undefined && value !== null ? value : prevState.infos[field],
       },
     }));
+  };
 
-    // Nested field-specific validation
-    if (field === "infos") {
-      switch (nestedField) {
-        case "serves":
-          setServesError(value.trim() ? "" : "Serves is required.");
-          break;
-        case "cook_time":
-          setCookTimeError(value.trim() ? "" : "Cook time is required.");
-          break;
-        case "tags":
-          setTagsError(value.trim() ? "" : "Tags are required.");
-          break;
-        default:
-          break;
-      }
+  const TitleChange = (e) => {
+    const { value } = e.target;
+    setTitle(value);
+    updateField("title", value);
+    setSuccessMessage(false);
+  };
+
+  const TitleBlur = (e) => {
+    if (title === "") {
+      setTitleError("Please input the title");
+    } else {
+      setTitleError("");
     }
   };
 
-  const UpdateBlog = async () => {
-    try {
-      const response = await BlogService.updateBlog(id);
-      setBlog(response.data);
-      setSuccessMessage("Blog updated successfully!");
-      setErrorMessage("");
-    } catch (error) {
-      console.error("API Error:", error.response || error.message);
-      const errorMsg = error.response
-        ? error.response.data.message || error.response.statusText
-        : error.message;
-      setErrorMessage(errorMsg || "An error occurred while updating the blog.");
-      setSuccessMessage("");
+  const DescriptionChange = (e) => {
+    const { value } = e.target;
+    setDescription(value);
+    updateField("description", value);
+    setSuccessMessage(false);
+  };
+
+  const DescriptionBlur = (e) => {
+    if (description === "") {
+      setDescriptionError("Please input the description");
+    } else {
+      setDescriptionError("");
+    }
+  };
+
+  const MarkdownChange = (e) => {
+    const { value } = e.target;
+    setMarkdownText(value);
+    updateField("markdown_text", value);
+    setSuccessMessage(false);
+  };
+
+  const MarkdownBlur = (e) => {
+    if (markdownText === "") {
+      setMarkdownTextError("Please input the markdown text");
+    } else {
+      setMarkdownTextError("");
+    }
+  };
+
+  const ServesChange = (e) => {
+    const { value } = e.target;
+    setServes(value);
+    updateInfoField("serves", value);
+    setSuccessMessage(false);
+  };
+
+  const ServesBlur = (e) => {
+    if (serves === "") {
+      setServesError("Please input the serves");
+    } else if (serves < 1) {
+      setServesError("Please input the cook time greater than 0");
+    } else {
+      setServesError("");
+    }
+  };
+
+  const CookTimeChange = (e) => {
+    const { value } = e.target;
+    setCookTime(value);
+    updateInfoField("cook_time", value);
+    setSuccessMessage(false);
+  };
+
+  const CookTimeBlur = (e) => {
+    if (cookTime === "") {
+      setCookTimeError("Please input the cook time");
+    } else if (cookTime < 1) {
+      setCookTimeError("Please input the cook time greater than 0");
+    } else {
+      setCookTimeError("");
+    }
+  };
+
+  const TagsChange = (e) => {
+    const { value } = e.target;
+    setTags(value);
+    updateInfoField("tags", value);
+    setSuccessMessage(false);
+  };
+
+  const TagsBlur = (e) => {
+    if (tags === "") {
+      setTagsError("Please input the tags");
+    } else {
+      setTagsError("");
+    }
+  };
+
+  const UpdateBlog = async (e) => {
+    e.preventDefault();
+    TitleBlur();
+    DescriptionBlur();
+    MarkdownBlur();
+    ServesBlur();
+    CookTimeBlur();
+    TagsBlur();
+    if (
+      !id ||
+      titleError ||
+      descriptionError ||
+      markdownTextError ||
+      servesError ||
+      cookTimeError ||
+      tagsError ||
+      !title ||
+      !description ||
+      !markdownText ||
+      !serves ||
+      !cookTime ||
+      !tags
+    ) {
+      return;
+    } else {
+      try {
+        await BlogService.updateBlog(id, blog);
+        setSuccessMessage("Blog updated successfully!");
+        setErrorMessage("");
+      } catch (error) {
+        console.error("API Error:", error.response || error.message);
+        const errorMsg = error.response
+          ? error.response.data.message || error.response.statusText
+          : error.message;
+        setErrorMessage(errorMsg || "An error occurred while updating the blog.");
+        setSuccessMessage("");
+      }
     }
   };
 
@@ -157,10 +262,15 @@ function EditBlog() {
                         type="text"
                         value={blog.title || ""}
                         margin="normal"
-                        onChange={(e) => handleChange("title", e.target.value)}
-                        error={!!titleError}
-                        helperText={titleError}
+                        onChange={TitleChange}
+                        onBlur={TitleBlur}
                       />
+                      {titleError && (
+                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                          {titleError}
+                        </p>
+                      )}
+
                       {/* Description */}
                       <TextField
                         fullWidth
@@ -168,10 +278,15 @@ function EditBlog() {
                         type="text"
                         value={blog.description || ""}
                         margin="normal"
-                        onChange={(e) => handleChange("description", e.target.value)}
-                        error={!!descriptionError}
-                        helperText={descriptionError}
+                        onChange={DescriptionChange}
+                        onBlur={DescriptionBlur}
                       />
+                      {descriptionError && (
+                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                          {descriptionError}
+                        </p>
+                      )}
+
                       {/* Markdown Text */}
                       <TextField
                         fullWidth
@@ -179,32 +294,47 @@ function EditBlog() {
                         type="text"
                         value={blog.markdown_text || ""}
                         margin="normal"
-                        onChange={(e) => handleChange("markdown_text", e.target.value)}
-                        error={!!markdownTextError}
-                        helperText={markdownTextError}
+                        onChange={MarkdownChange}
+                        onBlur={MarkdownBlur}
                       />
+                      {markdownTextError && (
+                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                          {markdownTextError}
+                        </p>
+                      )}
+
                       {/* Serves */}
                       <TextField
                         fullWidth
                         label="Serves"
-                        type="text"
+                        type="number"
                         value={blog.infos?.serves || ""}
                         margin="normal"
-                        onChange={(e) => handleNestedChange("infos", "serves", e.target.value)}
-                        error={!!servesError}
-                        helperText={servesError}
+                        onChange={ServesChange}
+                        onBlur={ServesBlur}
                       />
+                      {servesError && (
+                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                          {servesError}
+                        </p>
+                      )}
+
                       {/* Cook Time */}
                       <TextField
                         fullWidth
-                        label="Cook Time"
+                        label="Cook Time (minutes)"
                         type="number"
                         value={blog.infos?.cook_time || ""}
                         margin="normal"
-                        onChange={(e) => handleNestedChange("infos", "cook_time", e.target.value)}
-                        error={!!cookTimeError}
-                        helperText={cookTimeError}
+                        onChange={CookTimeChange}
+                        onBlur={CookTimeBlur}
                       />
+                      {cookTimeError && (
+                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                          {cookTimeError}
+                        </p>
+                      )}
+
                       {/* Tags */}
                       <TextField
                         fullWidth
@@ -212,10 +342,33 @@ function EditBlog() {
                         type="text"
                         value={blog.infos?.tags || ""}
                         margin="normal"
-                        onChange={(e) => handleNestedChange("infos", "tags", e.target.value)}
-                        error={!!tagsError}
-                        helperText={tagsError}
+                        onChange={TagsChange}
+                        onBlur={TagsBlur}
                       />
+                      {tagsError && (
+                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                          {tagsError}
+                        </p>
+                      )}
+                      {/* Messages */}
+                      {errorMessage && (
+                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                          {errorMessage}
+                        </p>
+                      )}
+                      {successMessage && (
+                        <p
+                          style={{
+                            color: "green",
+                            fontSize: "0.6em",
+                            fontWeight: "600",
+                            marginLeft: "5px",
+                            marginBottom: "5px",
+                          }}
+                        >
+                          {successMessage}
+                        </p>
+                      )}
                       <Button
                         variant="contained"
                         color="primary"
@@ -226,17 +379,6 @@ function EditBlog() {
                         Update Blog
                       </Button>
                     </form>
-                    {/* Messages */}
-                    {errorMessage && (
-                      <MDTypography color="error" variant="subtitle2" mt={2}>
-                        {errorMessage}
-                      </MDTypography>
-                    )}
-                    {successMessage && (
-                      <MDTypography color="success" variant="subtitle2" mt={2}>
-                        {successMessage}
-                      </MDTypography>
-                    )}
                   </Grid>
                 </Grid>
               </MDBox>

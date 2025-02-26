@@ -44,7 +44,7 @@ function AddCoupon() {
 
       case "sale_percent":
         if (!value) errorMessage = "Please enter the sale percentage";
-        else if (value <= 0) errorMessage = "The sale percentage must be greater than 0";
+        else if (value < 0) errorMessage = "The sale percentage of 0 or greater";
         else if (value > 100)
           errorMessage = "The sale percentage must be less than or equal to 100";
         break;
@@ -55,7 +55,12 @@ function AddCoupon() {
         break;
 
       case "expire_date":
-        if (!value) errorMessage = "Please enter the expiration date";
+        if (!value) {
+          errorMessage = "Please enter the expiration date";
+        } else {
+          const today = new Date().toISOString().split("T")[0];
+          if (value < today) errorMessage = "Expiration date must be today or in the future";
+        }
         break;
 
       default:
@@ -221,8 +226,12 @@ function AddCoupon() {
                         value={coupon.expire_date}
                         onChange={handleChange}
                         error={!!errors.expire_date}
+                        helperText={errors.expire_date}
                         InputLabelProps={{
                           shrink: true,
+                        }}
+                        inputProps={{
+                          min: new Date().toISOString().split("T")[0], // Chỉ cho phép chọn ngày hôm nay trở đi
                         }}
                         margin="normal"
                         sx={{
@@ -238,6 +247,7 @@ function AddCoupon() {
                           },
                         }}
                       />
+
                       {/* Sale Percentage */}
                       <TextField
                         fullWidth

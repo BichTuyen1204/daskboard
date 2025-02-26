@@ -317,7 +317,7 @@ function ProductDetail() {
                       {/* Weight */}
                       <TextField
                         fullWidth
-                        label="Weight"
+                        label="Weight (gam)"
                         value={product?.info?.weight || "N/A"}
                         margin="normal"
                         InputProps={{ readOnly: true }}

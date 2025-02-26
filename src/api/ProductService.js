@@ -148,14 +148,14 @@ class ProductService {
     }
   }
 
-  async updateProductQuantity(prod_id, quantity, price) {
+  async updateProductQuantity(prod_id, quantity, in_price) {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.patch(`${API_BASE_URL}/product/update/quantity`, null, {
         params: {
           prod_id: prod_id,
           quantity: quantity,
-          price: price,
+          in_price: in_price,
         },
         headers: {
           Authorization: `Bearer ${token}`,

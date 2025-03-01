@@ -30,6 +30,7 @@ import Edit_Staff from "layouts/edit_staff";
 import Edit_Mealkit from "layouts/edit_mealkit";
 import History_Product from "layouts/history_product";
 import History_Mealkit from "layouts/history_mealkit";
+import Chat_box from "layouts/chat_box/ChatBox";
 
 const token = sessionStorage.getItem("jwtToken");
 
@@ -97,6 +98,14 @@ const routes = [
     icon: <Icon fontSize="small">article_shortcut</Icon>,
     route: "/blog",
     component: <Blog />,
+  },
+  {
+    type: "collapse",
+    name: "Chat with customer",
+    key: "chat box",
+    icon: <Icon fontSize="small">chat</Icon>,
+    route: "/chat",
+    component: <Chat_box />,
   },
   {
     route: "/profile",

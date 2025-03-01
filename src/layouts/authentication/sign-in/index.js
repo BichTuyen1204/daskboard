@@ -147,6 +147,7 @@ function Basic() {
                 value={username}
                 onChange={userNameChange}
                 onBlur={userNameBlur}
+                onKeyDown={(e) => e.key === "Enter" && validateForm()}
                 fullWidth
               />
               {userNameError && (
@@ -163,6 +164,7 @@ function Basic() {
                 value={password}
                 onChange={PasswordChange}
                 onBlur={PasswordBlur}
+                onKeyDown={(e) => e.key === "Enter" && validateForm()}
                 fullWidth
               />
             </MDBox>

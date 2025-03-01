@@ -20,6 +20,8 @@ function EditMealkit() {
   const [updateStatusSuccess, setUpdateStatusSuccess] = useState("");
   const [price, setPrice] = useState("");
   const [priceError, setPriceError] = useState("");
+  const [in_price, setInPrice] = useState("");
+  const [in_priceError, setInPriceError] = useState("");
   const [sale_percent, setSale] = useState("");
   const [saleError, setSaleError] = useState("");
   const [updatePriceSuccess, setUpdatePriceSuccess] = useState("");
@@ -53,7 +55,7 @@ function EditMealkit() {
   });
 
   const [productStatus, setProductStatus] = useState({ status: "" });
-  const [productQuantity, setProductQuantity] = useState({ quantity: 0, price: 0 });
+  const [productQuantity, setProductQuantity] = useState({ quantity: 0, in_price: 0 });
   const [productPrice, setProductPrice] = useState({ price: 0, sale_percent: 0 });
 
   // Ensure user is authenticated
@@ -90,8 +92,8 @@ function EditMealkit() {
           weight: response.info?.weight || "",
           made_in: response.info?.made_in || "",
         },
-        instructions: response.instructions || [], // Thêm vào
-        ingredients: response.ingredients || [], // Thêm vào
+        instructions: response.instructions || [],
+        ingredients: response.ingredients || [],
       });
     } catch (error) {
       console.error(
@@ -118,6 +120,32 @@ function EditMealkit() {
     }));
   };
 
+  useEffect(() => {
+    async function fetchPrice() {
+      try {
+        const token = sessionStorage.getItem("jwtToken");
+        const response = await axios.get(
+          `http://localhost:8000/api/staff/product/history/stock?prod_id=${prod_id}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = response.data;
+        if (data.length === 0) return;
+
+        const latestEntry = data.sort((a, b) => new Date(b.in_date) - new Date(a.in_date))[0];
+        setInPrice(latestEntry.in_price);
+        console.log("Updated inPrice:", latestEntry.in_price);
+      } catch (error) {
+        console.error("Error fetching history:", error);
+      }
+    }
+    fetchPrice();
+  }, [prod_id]);
+
   const updateArrayField = (field, newArray) => {
     setMealkitInfo((prevState) => ({
       ...prevState,
@@ -128,12 +156,12 @@ function EditMealkit() {
   const updateQuantity = async (e) => {
     e.preventDefault();
     QuantityBlur();
-    if (!quantityError && quantity) {
+    if (!quantityError && quantity && !in_priceError && in_price) {
       try {
         const response = await ProductService.updateProductQuantity(
           prod_id,
           parseInt(quantity),
-          Number(price)
+          Number(in_price)
         );
         console.log("Update quantity and price successful", response);
         setUpdateQuantitySuccess("Quantity and price updated successfully.");
@@ -167,8 +195,8 @@ function EditMealkit() {
     e.preventDefault();
     PriceBlur();
     SalePersentBlur();
-    if (!prod_id || isNaN(price) || isNaN(sale_percent)) {
-      console.error("Invalid input data");
+    if (!prod_id || !price || saleError || priceError || !sale_percent) {
+      console.error("Cannot proceed: Price or Sale Percent is still blurred.");
       return;
     } else {
       try {
@@ -200,14 +228,20 @@ function EditMealkit() {
     IngredientBlur();
     if (
       !prod_id ||
-      isNaN(dayBeforeExpiry) ||
-      !weight.trim() ||
-      !description.trim() ||
-      !articleMd.trim() ||
-      instructions.length === 0 || // Kiểm tra mảng rỗng
-      !madeIn.trim()
+      !dayBeforeExpiry ||
+      dayBeforeExpiryError ||
+      !weight ||
+      weightError ||
+      !description ||
+      descriptionError ||
+      !articleMd ||
+      articleMdError ||
+      instructions.length === 0 ||
+      !madeIn ||
+      madeInError ||
+      !ingredient ||
+      ingredientError
     ) {
-      console.error("Invalid input data");
       return;
     } else {
       try {
@@ -273,6 +307,23 @@ function EditMealkit() {
     }
   };
 
+  const InPriceChange = (e) => {
+    const { value } = e.target;
+    setInPrice(value);
+    setProductQuantity((preState) => ({ ...preState, in_price: value }));
+    setUpdateQuantitySuccess(false);
+  };
+
+  const InPriceBlur = () => {
+    if (in_price === "") {
+      setInPriceError("Please enter a purchase price");
+    } else if (in_price < 1) {
+      setInPriceError("Please enter a purchase price greater than 0");
+    } else {
+      setInPriceError("");
+    }
+  };
+
   const SalePersentChange = (e) => {
     const { value } = e.target;
     setSale(value);
@@ -283,8 +334,8 @@ function EditMealkit() {
   const SalePersentBlur = () => {
     if (sale_percent === "") {
       setSaleError("Please enter a sale percent");
-    } else if (sale_percent < 1) {
-      setSaleError("Please enter a sale persent greater than 1");
+    } else if (sale_percent < 0) {
+      setSaleError("Please enter a sale percent of 0 or greater");
     } else if (sale_percent > 100) {
       setSaleError("Please enter a sale persent less than 100");
     } else {
@@ -302,10 +353,10 @@ function EditMealkit() {
   const DayBeforeExpiryBlur = () => {
     if (dayBeforeExpiry === "") {
       setDayBeforeExpiryError("Please enter a day before expiry");
-    } else if (sale_percent < 0) {
+    } else if (dayBeforeExpiry < 0) {
       setDayBeforeExpiryError("Please enter a day before expiry greater than 0");
     } else {
-      setSaleError("");
+      setDayBeforeExpiryError("");
     }
   };
 
@@ -464,6 +515,11 @@ function EditMealkit() {
                         value={quantity || ""}
                         onChange={QuantityChange}
                         onBlur={QuantityBlur}
+                        onKeyDown={(e) => {
+                          if (e.key.toLowerCase() === "e") {
+                            e.preventDefault();
+                          }
+                        }}
                         label="Quantity"
                         margin="normal"
                       />
@@ -475,16 +531,21 @@ function EditMealkit() {
 
                       <TextField
                         fullWidth
-                        label="Price"
+                        label="Purchase price"
                         type="number"
-                        value={price}
-                        onChange={PriceChange}
-                        onBlur={PriceBlur}
+                        value={in_price}
+                        onChange={InPriceChange}
+                        onBlur={InPriceBlur}
+                        onKeyDown={(e) => {
+                          if (e.key.toLowerCase() === "e") {
+                            e.preventDefault();
+                          }
+                        }}
                         margin="normal"
                       />
-                      {priceError && (
+                      {in_priceError && (
                         <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
-                          {priceError}
+                          {in_priceError}
                         </p>
                       )}
                       {updateQuantitySuccess && (
@@ -535,6 +596,11 @@ function EditMealkit() {
                       value={price}
                       onChange={PriceChange}
                       onBlur={PriceBlur}
+                      onKeyDown={(e) => {
+                        if (e.key.toLowerCase() === "e") {
+                          e.preventDefault();
+                        }
+                      }}
                       margin="normal"
                     />
                     {priceError && (
@@ -550,6 +616,11 @@ function EditMealkit() {
                       value={sale_percent}
                       onChange={SalePersentChange}
                       onBlur={SalePersentBlur}
+                      onKeyDown={(e) => {
+                        if (e.key.toLowerCase() === "e") {
+                          e.preventDefault();
+                        }
+                      }}
                       margin="normal"
                     />
                     {saleError && (
@@ -642,6 +713,11 @@ function EditMealkit() {
                         value={dayBeforeExpiry || 0}
                         onChange={DayBeforeExpiryChange}
                         onBlur={DayBeforeExpiryBlur}
+                        onKeyDown={(e) => {
+                          if (e.key.toLowerCase() === "e") {
+                            e.preventDefault();
+                          }
+                        }}
                         margin="normal"
                       />
                       {dayBeforeExpiryError && (
@@ -672,6 +748,11 @@ function EditMealkit() {
                         value={weight || ""}
                         onChange={WeightChange}
                         onBlur={WeightBlur}
+                        onKeyDown={(e) => {
+                          if (e.key.toLowerCase() === "e") {
+                            e.preventDefault();
+                          }
+                        }}
                         margin="normal"
                       />
                       {weightError && (

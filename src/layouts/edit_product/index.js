@@ -285,7 +285,7 @@ function EditProduct() {
   const InPriceBlur = () => {
     if (inPrice === "") {
       setInPriceError("Please enter a purchase price");
-    } else if (inPrice < 1) {
+    } else if (inPrice < 0) {
       setInPriceError("Please enter a purchase price greater than 0");
     } else {
       setInPriceError("");
@@ -302,7 +302,7 @@ function EditProduct() {
   const PriceBlur = () => {
     if (price === "") {
       setPriceError("Please enter a price");
-    } else if (price < 1) {
+    } else if (price < 0) {
       setPriceError("Please enter a price greater than 0");
     } else {
       setPriceError("");
@@ -487,6 +487,11 @@ function EditProduct() {
                         value={quantity || ""}
                         onChange={QuantityChange}
                         onBlur={QuantityBlur}
+                        onKeyDown={(e) => {
+                          if (e.key.toLowerCase() === "e") {
+                            e.preventDefault();
+                          }
+                        }}
                         label="Quantity"
                         margin="normal"
                       />
@@ -503,6 +508,11 @@ function EditProduct() {
                         value={inPrice}
                         onChange={InPriceChange}
                         onBlur={InPriceBlur}
+                        onKeyDown={(e) => {
+                          if (e.key.toLowerCase() === "e") {
+                            e.preventDefault();
+                          }
+                        }}
                         margin="normal"
                       />
                       {inPriceError && (
@@ -558,6 +568,11 @@ function EditProduct() {
                       value={price}
                       onChange={PriceChange}
                       onBlur={PriceBlur}
+                      onKeyDown={(e) => {
+                        if (e.key.toLowerCase() === "e") {
+                          e.preventDefault();
+                        }
+                      }}
                       margin="normal"
                     />
                     {priceError && (
@@ -573,6 +588,11 @@ function EditProduct() {
                       value={sale_percent}
                       onChange={SalePersentChange}
                       onBlur={SalePersentBlur}
+                      onKeyDown={(e) => {
+                        if (e.key.toLowerCase() === "e") {
+                          e.preventDefault();
+                        }
+                      }}
                       margin="normal"
                     />
                     {saleError && (
@@ -663,6 +683,11 @@ function EditProduct() {
                       value={dayBeforeExpiry || ""}
                       onChange={DayBeforeExpiryChange}
                       onBlur={DayBeforeExpiryBlur}
+                      onKeyDown={(e) => {
+                        if (e.key.toLowerCase() === "e") {
+                          e.preventDefault();
+                        }
+                      }}
                       margin="normal"
                     />
                     {dayBeforeExpiryError && (
@@ -693,6 +718,11 @@ function EditProduct() {
                       value={weight || ""}
                       onChange={WeightChange}
                       onBlur={WeightBlur}
+                      onKeyDown={(e) => {
+                        if (e.key.toLowerCase() === "e") {
+                          e.preventDefault();
+                        }
+                      }}
                       margin="normal"
                       inputProps={{ min: 0 }}
                     />

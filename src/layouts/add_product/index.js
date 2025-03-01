@@ -8,22 +8,6 @@ import { Link } from "react-router-dom";
 import ProductService from "api/ProductService";
 
 function AddProduct() {
-  const [product, setProduct] = useState({
-    article_md: "",
-    available_quantity: 0,
-    infos: {
-      weight: "",
-      storage_instructions: "",
-      made_in: "",
-    },
-    price: 0,
-    product_type: "",
-    sale_percent: 0,
-    day_before_expiry: "",
-    product_name: "",
-    description: "",
-  });
-
   const [mainImage, setMainImage] = useState(null);
   const [mainImagePreview, setMainImagePreview] = useState("");
   const [mainImageError, setMainImageError] = useState("");
@@ -43,6 +27,21 @@ function AddProduct() {
   const [weightError, setWeightError] = useState("");
   const [storageInstructionsError, setStorageInstructionsError] = useState("");
   const [madeInError, setMadeInError] = useState("");
+
+  const [product, setProduct] = useState({
+    article_md: "",
+    infos: {
+      weight: "",
+      storage_instructions: "",
+      made_in: "",
+    },
+    price: 0,
+    product_type: "",
+    sale_percent: 0,
+    day_before_expiry: "",
+    product_name: "",
+    description: "",
+  });
 
   const handleChange = (field, value) => {
     setProduct((prev) => ({
@@ -74,19 +73,10 @@ function AddProduct() {
       case "price":
         if (!value) {
           setPriceError("Price is required.");
-        } else if (value <= 0) {
+        } else if (value < 0) {
           setPriceError("Price must be greater than 0.");
         } else {
           setPriceError("");
-        }
-        break;
-      case "available_quantity":
-        if (!value) {
-          setAvailableQuantityError("Available quantity is required.");
-        } else if (value <= 0) {
-          setAvailableQuantityError("Available quantity cannot be negative.");
-        } else {
-          setAvailableQuantityError("");
         }
         break;
       case "day_before_expiry":
@@ -94,6 +84,8 @@ function AddProduct() {
           setDayBeforeExpiryError("Day before expiry is required.");
         } else if (value <= 0) {
           setDayBeforeExpiryError("Day before expiry cannot be negative.");
+        } else if (/^0\d*/.test(value)) {
+          setDayBeforeExpiryError("Day before expiry cannot start with 0.");
         } else {
           setDayBeforeExpiryError("");
         }
@@ -131,17 +123,19 @@ function AddProduct() {
     }));
 
     if (field === "infos") {
-      // Sửa "infors" thành "infos"
       switch (nestedField) {
         case "weight":
           if (!value.trim()) {
             setWeightError("Weight is required.");
+          } else if (/^0\d*/.test(value)) {
+            setWeightError("Weight cannot start with 0.");
           } else if (value < 1) {
             setWeightError("Weight must be greater than 0.");
           } else {
-            setWeightError(""); // Xóa lỗi khi nhập đúng
+            setWeightError("");
           }
           break;
+
         case "made_in":
           if (!value.trim()) {
             setMadeInError("Made in is required.");
@@ -196,7 +190,6 @@ function AddProduct() {
       product_name,
       article_md,
       price,
-      available_quantity,
       day_before_expiry,
       sale_percent,
       product_type,
@@ -214,10 +207,6 @@ function AddProduct() {
     }
     if (!price || price <= 0) {
       setPriceError("Price is required and must be greater than 0.");
-      return false;
-    }
-    if (!available_quantity || available_quantity <= 0) {
-      setAvailableQuantityError("Available Quantity is required and must be greater than 0.");
       return false;
     }
     if (!day_before_expiry) {
@@ -527,10 +516,15 @@ function AddProduct() {
                       </p>
                       <TextField
                         fullWidth
-                        label="Price"
+                        label="Price ($)"
                         type="number"
                         value={product.price}
                         onChange={(e) => handleChange("price", e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key.toLowerCase() === "e") {
+                            e.preventDefault();
+                          }
+                        }}
                         margin="normal"
                       />
                       <p
@@ -545,28 +539,15 @@ function AddProduct() {
                       </p>
                       <TextField
                         fullWidth
-                        label="Available Quantity"
+                        label="Day Before Expiry (days)"
                         type="number"
-                        value={product.available_quantity}
-                        onChange={(e) => handleChange("available_quantity", e.target.value)}
-                        margin="normal"
-                      />
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {availableQuantityError}
-                      </p>
-                      <TextField
-                        fullWidth
-                        label="Day Before Expiry"
-                        type="text"
                         value={product.day_before_expiry}
                         onChange={(e) => handleChange("day_before_expiry", e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key.toLowerCase() === "e") {
+                            e.preventDefault();
+                          }
+                        }}
                         margin="normal"
                       />
                       <p
@@ -585,6 +566,11 @@ function AddProduct() {
                         type="number"
                         value={product.sale_percent}
                         onChange={(e) => handleChange("sale_percent", e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key.toLowerCase() === "e") {
+                            e.preventDefault();
+                          }
+                        }}
                         margin="normal"
                       />
                       <p
@@ -646,9 +632,14 @@ function AddProduct() {
                       <TextField
                         fullWidth
                         type="number"
-                        label="Weight"
+                        label="Weight (gam)"
                         value={product.infos.weight}
                         onChange={(e) => handleNestedChange("infos", "weight", e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key.toLowerCase() === "e") {
+                            e.preventDefault();
+                          }
+                        }}
                         margin="normal"
                       />
                       <p

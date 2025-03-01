@@ -59,8 +59,7 @@ export default function data() {
 
   const columns = [
     { Header: "id", accessor: "id", width: "5%", align: "left" },
-    { Header: "title", accessor: "title", width: "20%", align: "center" },
-    { Header: "description", accessor: "description", align: "center" },
+    { Header: "title", accessor: "title", width: "50%", align: "center" },
     { Header: "action", accessor: "action", align: "center" },
   ];
 
@@ -79,7 +78,6 @@ export default function data() {
       </MDTypography>
     ),
     title: <Title title={item.title} />,
-    description: <Description description={item.description} />,
     action: (
       <MDBox display="flex" justifyContent="center">
         <>

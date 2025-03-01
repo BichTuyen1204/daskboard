@@ -10,7 +10,6 @@ import ProductService from "api/ProductService";
 function AddMealkit() {
   const [product, setProduct] = useState({
     article_md: "",
-    available_quantity: 0,
     ingredients: [],
     infos: {
       weight: "",
@@ -76,20 +75,13 @@ function AddMealkit() {
           setPriceError("");
         }
         break;
-      case "available_quantity":
-        if (!value) {
-          setAvailableQuantityError("Available quantity is required.");
-        } else if (value <= 0) {
-          setAvailableQuantityError("Available quantity cannot be negative.");
-        } else {
-          setAvailableQuantityError("");
-        }
-        break;
       case "day_before_expiry":
         if (!value) {
           setDayBeforeExpiryError("Day before expiry is required.");
         } else if (value <= 0) {
           setDayBeforeExpiryError("Day before expiry cannot be negative.");
+        } else if (/^0\d*/.test(value)) {
+          setDayBeforeExpiryError("Day before expiry cannot start with 0.");
         } else {
           setDayBeforeExpiryError("");
         }
@@ -97,7 +89,7 @@ function AddMealkit() {
       case "sale_percent":
         if (!value) {
           setSalePercentError("Sale percent is required.");
-        } else if (value <= 0) {
+        } else if (value < 0 || value > 100) {
           setSalePercentError("Sale percent must be between 0 and 100.");
         } else {
           setSalePercentError("");
@@ -197,7 +189,6 @@ function AddMealkit() {
       ingredients,
       instructions,
       price,
-      available_quantity,
       day_before_expiry,
       sale_percent,
       description,
@@ -214,10 +205,6 @@ function AddMealkit() {
     }
     if (!price || price <= 0) {
       setPriceError("The rice is required and must be greater than 0.");
-      return false;
-    }
-    if (!available_quantity || available_quantity <= 0) {
-      setAvailableQuantityError("The quantity is required and must be greater than 0.");
       return false;
     }
     if (!day_before_expiry) {
@@ -526,10 +513,15 @@ function AddMealkit() {
                       </p>
                       <TextField
                         fullWidth
-                        label="Price"
+                        label="Price ($)"
                         type="number"
                         value={product.price}
                         onChange={(e) => handleChange("price", e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key.toLowerCase() === "e") {
+                            e.preventDefault();
+                          }
+                        }}
                         margin="normal"
                       />
                       <p
@@ -544,28 +536,15 @@ function AddMealkit() {
                       </p>
                       <TextField
                         fullWidth
-                        label="Available Quantity"
-                        type="number"
-                        value={product.available_quantity}
-                        onChange={(e) => handleChange("available_quantity", e.target.value)}
-                        margin="normal"
-                      />
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {availableQuantityError}
-                      </p>
-                      <TextField
-                        fullWidth
                         label="Day Before Expiry"
                         type="text"
                         value={product.day_before_expiry}
                         onChange={(e) => handleChange("day_before_expiry", e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key.toLowerCase() === "e") {
+                            e.preventDefault();
+                          }
+                        }}
                         margin="normal"
                       />
                       <p
@@ -584,6 +563,11 @@ function AddMealkit() {
                         type="number"
                         value={product.sale_percent}
                         onChange={(e) => handleChange("sale_percent", e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key.toLowerCase() === "e") {
+                            e.preventDefault();
+                          }
+                        }}
                         margin="normal"
                       />
                       <p
@@ -622,6 +606,11 @@ function AddMealkit() {
                         label="Weight"
                         value={product.infos.weight}
                         onChange={(e) => handleNestedChange("infos", "weight", e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key.toLowerCase() === "e") {
+                            e.preventDefault();
+                          }
+                        }}
                         margin="normal"
                       />
                       <p

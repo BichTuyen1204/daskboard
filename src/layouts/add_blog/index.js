@@ -104,31 +104,73 @@ function AddBlog() {
     setSuccessMessage("");
   };
 
+  const validateForm = () => {
+    const { title, description, markdown_text, infos } = blog;
+
+    if (!title.trim()) {
+      setTitleError("Title is required.");
+      return false;
+    }
+    if (!description.trim()) {
+      setDescriptionError("Description is required.");
+      return false;
+    }
+    if (!markdown_text) {
+      setMarkdownTextError("Markdown text is required.");
+      return false;
+    }
+    if (!infos.serves.trim()) {
+      setServesError("Serves is required.");
+      return false;
+    }
+    if (!infos.cook_time.trim()) {
+      setCookTimeError("Cook time is required.");
+      return false;
+    }
+    if (infos.cook_time < 1) {
+      setCookTimeError("Cook time must be greater than 0.");
+      return false;
+    }
+    if (!infos.tags.trim()) {
+      setTagsError("The tags are required.");
+      return false;
+    }
+    if (!mainImage) {
+      setMainImageError("The main image is required.");
+      return false;
+    }
+    setErrorMessage("");
+    return true;
+  };
+
   const handleMainImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setMainImage(file);
-      setMainImagePreview(URL.createObjectURL(file));
-      setMainImageError("");
-      setErrorMessage("");
-      setSuccessMessage("");
+    if (file && !["image/jpeg", "image/png"].includes(file.type)) {
+      setMainImageError("Only JPG or PNG files are accepted.");
+      return;
     }
+    setMainImage(file);
+    setMainImagePreview(URL.createObjectURL(file));
+    setMainImageError("");
+    setErrorMessage("");
+    setSuccessMessage("");
   };
 
   const handleSubmit = async () => {
+    if (!validateForm() || mainImageError) return;
     const formData = new FormData();
     formData.append("main_image", mainImage);
     formData.append("blog_info", JSON.stringify(blog));
     try {
       const response = await BlogService.addBlog(formData);
       console.log("API Response:", response);
+      setMainImageError(false);
       setSuccessMessage("Blog added successfully!");
     } catch (error) {
       console.error("API Error:", error.response || error.message);
       const errorMsg = error.response
         ? error.response.data.message || error.response.statusText
         : error.message;
-      setErrorMessage("Blog was not added. Check the server response.");
     }
   };
 

@@ -173,7 +173,7 @@ function AddCoupon() {
                       <TextField
                         fullWidth
                         name="minimum_price"
-                        label="Minimum price"
+                        label="Minimum Price ($)"
                         value={coupon.minimum_price}
                         onChange={handleChange}
                         error={!!errors.minimum_price}
@@ -252,7 +252,7 @@ function AddCoupon() {
                       <TextField
                         fullWidth
                         name="sale_percent"
-                        label="Sale Percentage"
+                        label="Sale Percentage (%)"
                         type="number"
                         value={coupon.sale_percent}
                         onChange={handleChange}

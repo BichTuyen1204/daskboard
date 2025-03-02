@@ -1,125 +1,199 @@
-import React, { useState, useEffect } from "react";
-import useWebSocket from "react-use-websocket";
-import { Box, List, ListItem, ListItemText, TextField, Button, Icon } from "@mui/material";
+import React, { useState, useEffect, useRef } from "react";
 import AccountService from "api/AccountService";
-import MDBox from "components/MDBox";
-import MDTypography from "components/MDTypography";
-import { Link } from "react-router-dom";
+import {
+  List,
+  ListItem,
+  ListItemText,
+  Button,
+  TextField,
+  Paper,
+  Box,
+  Typography,
+  Avatar,
+  IconButton,
+} from "@mui/material";
+import { styled } from "@mui/system";
+import SendIcon from "@mui/icons-material/Send";
+
+const ChatContainer = styled(Box)({
+  display: "flex",
+  width: "81%",
+  marginLeft: "auto",
+  marginTop: "10px",
+  height: "97vh",
+  padding: "10px",
+  borderRadius: "10px",
+});
+
+const CustomerList = styled(Paper)({
+  width: "21%",
+  overflowY: "auto",
+  borderRadius: "10px",
+  background: "#fff",
+  padding: "10px",
+  marginRight: "30px",
+  boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+});
+
+const ChatBox = styled(Paper)({
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  padding: "20px",
+  borderRadius: "20px",
+  background: "#fff",
+  boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.2)",
+  animation: "fadeIn 0.5s ease-in-out",
+});
+
+const MessageList = styled(Box)({
+  flex: 1,
+  overflowY: "auto",
+  padding: "15px",
+  borderRadius: "15px",
+  background: "linear-gradient(to bottom, #f0f4f8, #d9e4ec)",
+  display: "flex",
+  flexDirection: "column",
+  gap: "10px",
+  boxShadow: "inset 0 2px 6px rgba(0, 0, 0, 0.1)",
+});
+
+const MessageBubble = styled(Box)(({ sender }) => ({
+  display: "inline-block",
+  maxWidth: "70%",
+  padding: "5px 15px",
+  fontSize: "0.8em",
+  borderRadius: sender === "staff" ? "15px 15px 0 15px" : "15px 15px 15px 0",
+  background: sender === "staff" ? "#00c3ff" : "#e3f2fd",
+  color: sender === "staff" ? "white" : "black",
+  alignSelf: sender === "staff" ? "flex-end" : "flex-start",
+  boxShadow: "0px 3px 6px rgba(0, 0, 0, 0.1)",
+}));
 
 const ChatWithCustomer = () => {
   const [customers, setCustomers] = useState([]);
+  const [socket, setSocket] = useState(null);
+  const [input, setInput] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [message, setMessage] = useState("");
   const jwtToken = sessionStorage.getItem("jwtToken");
+  const messagesEndRef = useRef(null);
 
-  // Lấy danh sách khách hàng
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
         const response = await AccountService.getAllCustomer(jwtToken);
         setCustomers(response);
       } catch (error) {
-        console.error("Can't fetch customers", error);
+        console.error("Không thể lấy danh sách khách hàng", error);
       }
     };
     fetchCustomers();
   }, [jwtToken]);
 
-  // WebSocket
-  const wsUrl = selectedUser ? `ws://localhost:8000/ws/chat/${selectedUser.id}` : null;
-  const { sendMessage } = useWebSocket(wsUrl, {
-    onOpen: () => console.log(`Connected to ${selectedUser?.username}`),
-    onMessage: (event) => {
-      const newMessage = JSON.parse(event.data);
-      setMessages((prev) => [...prev, newMessage]);
-    },
-    shouldReconnect: () => true,
-  });
+  const handleSelectCustomer = (customer) => {
+    if (socket) socket.close();
+    setSelectedUser(customer);
+    setMessages([]);
+  };
 
-  // Gửi tin nhắn
-  const handleSend = () => {
-    if (message.trim() !== "" && selectedUser) {
-      const msgData = {
-        sender: "staff",
-        text: message,
-        timestamp: new Date().toISOString(),
-      };
-      sendMessage(JSON.stringify(msgData));
-      setMessages((prev) => [...prev, msgData]);
-      setMessage("");
+  useEffect(() => {
+    if (!jwtToken || !selectedUser) return;
+    const WS_URL = `ws://localhost:8000/ws/chat/connect/${selectedUser.id}`;
+    const ws = new WebSocket(WS_URL);
+    ws.onopen = () => console.log("🔗 Kết nối WebSocket với User:", selectedUser.id);
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.msg) {
+        try {
+          const messageContent = JSON.parse(data.msg);
+          setMessages((prev) => [...prev, { text: messageContent.message, sender: data.sender }]);
+        } catch (error) {
+          console.error("❌ Lỗi parse dữ liệu tin nhắn:", error);
+        }
+      }
+    };
+    ws.onerror = (error) => console.error("❌ Lỗi WebSocket:", error);
+    ws.onclose = () => console.warn("⚠️ WebSocket bị đóng");
+    setSocket(ws);
+    return () => ws.close();
+  }, [selectedUser, jwtToken]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const sendMessage = () => {
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+      console.error("⚠️ WebSocket chưa kết nối");
+      return;
+    }
+    if (input.trim()) {
+      const messageData = { type: "chat", sender: "staff", message: input };
+      socket.send(JSON.stringify(messageData));
+      setInput("");
     }
   };
 
   return (
-    <Box
-      style={{
-        width: "70%",
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-end",
-        padding: "20px",
-      }}
-    >
-      {" "}
-      {/* Danh sách khách hàng */}
-      <Box width="30%" borderRight="1px solid #ddd" overflow="auto">
+    <ChatContainer>
+      <CustomerList elevation={3}>
+        <Typography variant="h6" sx={{ padding: "15px", textAlign: "center" }}>
+          Customer List
+        </Typography>
+        <hr style={{ marginBottom: "15px" }} />
         <List>
-          {customers.map((customer) => (
+          {customers?.map((customer) => (
             <ListItem
               button
               key={customer.id}
-              onClick={() => setSelectedUser(customer)}
-              style={{
-                backgroundColor: selectedUser?.id === customer.id ? "#f0f0f0" : "white",
+              onClick={() => handleSelectCustomer(customer)}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                backgroundColor: selectedUser?.id === customer.id ? "#bbdefb" : "white",
+                borderRadius: "5px",
+                marginBottom: "5px",
+                padding: "5px 15px",
               }}
             >
-              <ListItemText primary={customer.username} />
+              <Avatar sx={{ marginRight: 2 }}>{customer.username.charAt(0)}</Avatar>
+              <ListItemText
+                primaryTypographyProps={{ sx: { fontSize: "0.8em" } }}
+                primary={customer.username}
+              />
             </ListItem>
           ))}
         </List>
-      </Box>
-      {/* Khung chat */}
-      <Box width="70%" display="flex" flexDirection="column">
-        <Box flex={1} p={2} overflow="auto">
-          {selectedUser ? (
-            <>
-              <h3>Chat với {selectedUser.username}</h3>
-              <Box>
-                {messages.map((msg, index) => (
-                  <Box
-                    key={index}
-                    p={1}
-                    m={1}
-                    bgcolor={msg.sender === "staff" ? "#d1e7ff" : "#f8d7da"}
-                    borderRadius="5px"
-                    alignSelf={msg.sender === "staff" ? "flex-end" : "flex-start"}
-                  >
-                    <strong>{msg.sender}:</strong> {msg.text}
-                  </Box>
-                ))}
-              </Box>
-            </>
-          ) : (
-            <p>Chọn một khách hàng để chat</p>
-          )}
-        </Box>
+      </CustomerList>
 
-        {/* Nhập tin nhắn */}
-        <Box display="flex" p={2} borderTop="1px solid #ddd">
+      <ChatBox elevation={3}>
+        <Typography sx={{ textAlign: "center", fontSize: "0.8em", fontWeight: "500" }}>
+          Chat with {selectedUser?.username || "..."}
+        </Typography>
+        <MessageList>
+          {messages.map((msg, index) => (
+            <MessageBubble key={index} sender={msg.sender}>
+              {msg.text}
+            </MessageBubble>
+          ))}
+          <div ref={messagesEndRef} />
+        </MessageList>
+        <Box display="flex" mt={2}>
           <TextField
             fullWidth
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Nhập tin nhắn..."
+            variant="outlined"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            placeholder="Type a message..."
           />
-          <Button onClick={handleSend} variant="contained" color="primary">
-            Gửi
-          </Button>
+          <IconButton color="primary" onClick={sendMessage} sx={{ ml: 1 }}>
+            <SendIcon />
+          </IconButton>
         </Box>
-      </Box>
-    </Box>
+      </ChatBox>
+    </ChatContainer>
   );
 };
 

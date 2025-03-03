@@ -99,8 +99,8 @@ const ChatWithCustomer = () => {
 
   useEffect(() => {
     if (!jwtToken || !selectedUser) return;
-    const WS_URL = `ws://localhost:8000/ws/chat/connect/${selectedUser.id}`;
-    const ws = new WebSocket(WS_URL);
+    const ws = new WebSocket(`ws://localhost:8000/ws/chat/connect/${selectedUser.id}`);
+    console.log(selectedUser.id);
     ws.onopen = () => console.log("🔗 Kết nối WebSocket với User:", selectedUser.id);
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);

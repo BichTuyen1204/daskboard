@@ -100,17 +100,14 @@ const ChatWithCustomer = () => {
   useEffect(() => {
     if (!jwtToken || !selectedUser) return;
     const ws = new WebSocket(`ws://localhost:8000/ws/chat/connect/${selectedUser.id}`);
-    console.log(selectedUser.id);
-    ws.onopen = () => console.log("🔗 Kết nối WebSocket với User:", selectedUser.id);
+    ws.onopen = () => console.log("🔗 Kết nối WebSocket với User");
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.msg) {
         try {
           const messageContent = JSON.parse(data.msg);
           setMessages((prev) => [...prev, { text: messageContent.message, sender: data.sender }]);
-        } catch (error) {
-          console.error("❌ Lỗi parse dữ liệu tin nhắn:", error);
-        }
+        } catch (error) {}
       }
     };
     ws.onerror = (error) => console.error("❌ Lỗi WebSocket:", error);
@@ -125,7 +122,6 @@ const ChatWithCustomer = () => {
 
   const sendMessage = () => {
     if (!socket || socket.readyState !== WebSocket.OPEN) {
-      console.error("⚠️ WebSocket chưa kết nối");
       return;
     }
     if (input.trim()) {

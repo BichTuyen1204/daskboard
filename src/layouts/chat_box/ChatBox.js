@@ -99,7 +99,9 @@ const ChatWithCustomer = () => {
 
   useEffect(() => {
     if (!jwtToken || !selectedUser) return;
-    const ws = new WebSocket(`ws://localhost:8000/ws/chat/connect/${selectedUser.id}`);
+    const ws = new WebSocket(
+      `wss://culcon-admin-gg-87043777927.asia-northeast1.run.app/ws/chat/connect/${selectedUser.id}`
+    );
     ws.onopen = () => console.log("🔗 Kết nối WebSocket với User");
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);

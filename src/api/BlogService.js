@@ -1,5 +1,5 @@
 import axios from "axios";
-const API_BASE_URL = "http://localhost:8000/api/staff/blog";
+const API_BASE_URL = "https://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/staff/blog";
 class BlogService {
   async addBlog(formData) {
     try {
@@ -55,7 +55,7 @@ class BlogService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.post(
-        `http://localhost:8000/api/staff/blog/edit?id=${id}`,
+        `http://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/staff/blog/edit?id=${id}`,
         data,
         {
           headers: {

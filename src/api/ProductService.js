@@ -1,6 +1,7 @@
 import axios from "axios";
-const API_BASE_URL = "http://localhost:8000/api/staff";
-const API_BASE_URL_2 = "http://localhost:8000/api/general/product";
+const API_BASE_URL = "https://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/staff";
+const API_BASE_URL_2 =
+  "https://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/general/product";
 
 class ProductService {
   async createProduct(formData) {
@@ -58,7 +59,9 @@ class ProductService {
 
   async allMealkit() {
     try {
-      const response = await axios.get(`http://localhost:8000/api/general/mealkit/fetch_all`);
+      const response = await axios.get(
+        `http://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/general/mealkit/fetch_all`
+      );
       return response.data;
     } catch (error) {
       console.error(
@@ -110,7 +113,7 @@ class ProductService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.post(
-        `http://localhost:8000/api/staff/product/update/info/mealkit?prod_id=${prod_id}`,
+        `http://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/staff/product/update/info/mealkit?prod_id=${prod_id}`,
         data,
         {
           headers: {
@@ -202,7 +205,7 @@ class ProductService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.get(
-        `http://localhost:8000/api/staff/product/history/stock?prod_id=${prod_id}`,
+        `http://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/staff/product/history/stock?prod_id=${prod_id}`,
         {
           headers: {
             "Content-Type": "application/json",

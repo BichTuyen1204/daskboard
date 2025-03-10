@@ -103,7 +103,7 @@ const routes = [
     type: "collapse",
     name: "Chat with customer",
     key: "chat box",
-    icon: <Icon fontSize="small">chat</Icon>,
+    icon: <Icon fontSize="small">forum</Icon>,
     route: "/chat",
     component: <Chat_box />,
   },

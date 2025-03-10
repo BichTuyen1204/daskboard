@@ -15,9 +15,17 @@ export default function data() {
       if (jwtToken) {
         try {
           const response = await AccountService.getAllStaff(jwtToken);
-          setStaff(response);
+          console.log("API Response:", response); // Debugging
+
+          if (Array.isArray(response)) {
+            setStaff(response);
+          } else {
+            console.error("Expected an array but got:", response);
+            setStaff([]); // Đặt staff là mảng rỗng nếu dữ liệu không hợp lệ
+          }
         } catch (error) {
           console.error("Can't access the server", error);
+          setStaff([]); // Đảm bảo set một giá trị hợp lệ
         }
       }
     };
@@ -64,61 +72,63 @@ export default function data() {
     { Header: "action", accessor: "action", align: "center" },
   ];
 
-  const rows = staff.map((item) => ({
-    id: <ID id={item.id} />,
-    username: <Username username={item.username} />,
-    type: <Type type={item.type} />,
-    status: <Status status={item.status} />,
-    action: (
-      <MDBox display="flex" justifyContent="center">
-        <>
-          <Link to={`/view_staff/${item.id}`}>
-            <MDTypography
-              component="button"
-              variant="caption"
-              color="white"
-              fontWeight="medium"
-              style={{
-                backgroundColor: "#1976d2",
-                fontSize: "0.8em",
-                border: "none",
-                borderRadius: "2px",
-                padding: "5px 10px",
-                cursor: "pointer",
-              }}
-            >
-              View
-            </MDTypography>
-          </Link>
-          <Link
-            to={`/edit_staff/${item.id}`}
-            style={{ textDecoration: "none", marginLeft: "15px" }}
-          >
-            <MDTypography
-              component="button"
-              variant="caption"
-              fontWeight="medium"
-              style={{
-                backgroundColor: "white",
-                color: "#1976d2",
-                fontSize: "0.8em",
-                border: "none",
-                padding: "5px 10px",
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-              }}
-              onMouseEnter={(e) => (e.target.style.backgroundColor = "#f0f4ff")}
-              onMouseLeave={(e) => (e.target.style.backgroundColor = "white")}
-            >
-              <Icon fontSize="small" style={{ marginRight: "5px" }}>
-                edit
-              </Icon>
-            </MDTypography>
-          </Link>
-        </>
-      </MDBox>
-    ),
-  }));
+  const rows = Array.isArray(staff)
+    ? staff.map((item) => ({
+        id: <ID id={item.id} />,
+        username: <Username username={item.username} />,
+        type: <Type type={item.type} />,
+        status: <Status status={item.status} />,
+        action: (
+          <MDBox display="flex" justifyContent="center">
+            <>
+              <Link to={`/view_staff/${item.id}`}>
+                <MDTypography
+                  component="button"
+                  variant="caption"
+                  color="white"
+                  fontWeight="medium"
+                  style={{
+                    backgroundColor: "#1976d2",
+                    fontSize: "0.8em",
+                    border: "none",
+                    borderRadius: "2px",
+                    padding: "5px 10px",
+                    cursor: "pointer",
+                  }}
+                >
+                  View
+                </MDTypography>
+              </Link>
+              <Link
+                to={`/edit_staff/${item.id}`}
+                style={{ textDecoration: "none", marginLeft: "15px" }}
+              >
+                <MDTypography
+                  component="button"
+                  variant="caption"
+                  fontWeight="medium"
+                  style={{
+                    backgroundColor: "white",
+                    color: "#1976d2",
+                    fontSize: "0.8em",
+                    border: "none",
+                    padding: "5px 10px",
+                    cursor: "pointer",
+                    transition: "all 0.3s ease",
+                  }}
+                  onMouseEnter={(e) => (e.target.style.backgroundColor = "#f0f4ff")}
+                  onMouseLeave={(e) => (e.target.style.backgroundColor = "white")}
+                >
+                  <Icon fontSize="small" style={{ marginRight: "5px" }}>
+                    edit
+                  </Icon>
+                </MDTypography>
+              </Link>
+            </>
+          </MDBox>
+        ),
+      }))
+    : [];
 
   return { columns, rows };
 }

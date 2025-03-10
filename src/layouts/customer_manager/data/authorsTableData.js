@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import AccountService from "api/AccountService";
 import MDAvatar from "components/MDAvatar";
 import { Icon } from "@mui/material";
+import { object } from "prop-types";
 
 export default function data() {
   const [staff, setStaff] = useState([]);
@@ -60,16 +61,34 @@ export default function data() {
   ];
 
   const rows = staff.map((item) => ({
+    //Image start
     image: (
-      <MDBox display="flex" alignItems="center" lineHeight={1}>
-        <MDAvatar
+      <MDBox
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        sx={{
+          width: 35,
+          height: 35,
+          borderRadius: "50%",
+          overflow: "hidden",
+          boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.2)",
+          marginRight: "10px",
+        }}
+      >
+        <img
           src={
             item.profile_pic && item.profile_pic.trim() !== "defaultProfile"
               ? item.profile_pic
               : "https://i.pinimg.com/originals/2c/47/d5/2c47d5dd5b532f83bb55c4cd6f5bd1ef.jpg"
           }
-          size="sm"
           alt="Avatar"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: "center",
+          }}
           onError={(e) => {
             e.target.onerror = null;
             e.target.src =
@@ -78,12 +97,25 @@ export default function data() {
         />
       </MDBox>
     ),
+    //Image end
+
+    //ID start
     id: <ID id={item.id} />,
+    //ID end
+
+    //Username start
     username: <Username username={item.username} />,
+    //Username end
+
+    //Status start
     status: <Status status={item.status} />,
+    //Status end
+
+    //Action start
     action: (
       <MDBox display="flex" justifyContent="center">
         <>
+          {/* Button view customer detail start */}
           <Link to={`/view_customer/${item.id}`}>
             <MDTypography
               component="button"
@@ -102,6 +134,9 @@ export default function data() {
               View
             </MDTypography>
           </Link>
+          {/* Button view customer detail end */}
+
+          {/* Button edit customer start */}
           <Link
             to={`/edit_customer/${item.id}`}
             style={{ textDecoration: "none", marginLeft: "15px" }}
@@ -127,9 +162,11 @@ export default function data() {
               </Icon>
             </MDTypography>
           </Link>
+          {/* Button edit customer end */}
         </>
       </MDBox>
     ),
+    //Action end
   }));
 
   return { columns, rows };

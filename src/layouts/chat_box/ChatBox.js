@@ -4,12 +4,10 @@ import {
   List,
   ListItem,
   ListItemText,
-  Button,
   TextField,
   Paper,
   Box,
   Typography,
-  Avatar,
   IconButton,
 } from "@mui/material";
 import { styled } from "@mui/system";
@@ -58,17 +56,42 @@ const MessageList = styled(Box)({
   boxShadow: "inset 0 2px 6px rgba(0, 0, 0, 0.1)",
 });
 
-const MessageBubble = styled(Box)(({ sender }) => ({
-  display: "inline-block",
+const MessageContainer = styled(Box)(({ sender }) => ({
+  fontSize: "0.7em",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: sender === "staff" ? "flex-end" : "flex-start",
   maxWidth: "70%",
-  padding: "5px 15px",
-  fontSize: "0.8em",
+  alignSelf: sender === "staff" ? "flex-end" : "flex-start",
+}));
+
+const MessageBubble = styled(Box)(({ sender }) => ({
+  padding: "5px 10px",
   borderRadius: sender === "staff" ? "15px 15px 0 15px" : "15px 15px 15px 0",
   background: sender === "staff" ? "#00c3ff" : "#e3f2fd",
   color: sender === "staff" ? "white" : "black",
-  alignSelf: sender === "staff" ? "flex-end" : "flex-start",
   boxShadow: "0px 3px 6px rgba(0, 0, 0, 0.1)",
+  position: "relative",
 }));
+
+const SenderName = styled(Typography)({
+  fontSize: "0.85em",
+  fontWeight: "bold",
+  padding: "3px 10px",
+  color: "#444",
+});
+
+const Timestamp = styled(Typography)({
+  fontSize: "0.75em",
+  color: "#666",
+  marginTop: "3px",
+  textAlign: "right",
+  opacity: 0.7,
+});
+
+const saveMessagesToLocal = (userId, messages) => {
+  localStorage.setItem(`chat_${userId}`, JSON.stringify(messages));
+};
 
 const ChatWithCustomer = () => {
   const [customers, setCustomers] = useState([]);
@@ -85,7 +108,7 @@ const ChatWithCustomer = () => {
         const response = await AccountService.getAllCustomer(jwtToken);
         setCustomers(response);
       } catch (error) {
-        console.error("Không thể lấy danh sách khách hàng", error);
+        console.error("Can not get list customer", error);
       }
     };
     fetchCustomers();
@@ -94,7 +117,8 @@ const ChatWithCustomer = () => {
   const handleSelectCustomer = (customer) => {
     if (socket) socket.close();
     setSelectedUser(customer);
-    setMessages([]);
+    const storedMessages = localStorage.getItem(`chat_${customer.id}`);
+    setMessages(storedMessages ? JSON.parse(storedMessages) : []);
   };
 
   useEffect(() => {
@@ -102,18 +126,29 @@ const ChatWithCustomer = () => {
     const ws = new WebSocket(
       `wss://culcon-admin-gg-87043777927.asia-northeast1.run.app/ws/chat/connect/${selectedUser.id}`
     );
-    ws.onopen = () => console.log("🔗 Kết nối WebSocket với User");
+
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.msg) {
         try {
           const messageContent = JSON.parse(data.msg);
-          setMessages((prev) => [...prev, { text: messageContent.message, sender: data.sender }]);
+          const timestamp = new Date().toISOString();
+
+          const newMessage = {
+            text: messageContent.message,
+            sender: data.sender,
+            timestamp: messageContent.timestamp || timestamp,
+          };
+
+          setMessages((prev) => {
+            const updatedMessages = [...prev, newMessage];
+            saveMessagesToLocal(selectedUser.id, updatedMessages);
+            return updatedMessages;
+          });
         } catch (error) {}
       }
     };
-    ws.onerror = (error) => console.error("❌ Lỗi WebSocket:", error);
-    ws.onclose = () => console.warn("⚠️ WebSocket bị đóng");
+
     setSocket(ws);
     return () => ws.close();
   }, [selectedUser, jwtToken]);
@@ -127,10 +162,30 @@ const ChatWithCustomer = () => {
       return;
     }
     if (input.trim()) {
-      const messageData = { type: "chat", sender: "staff", message: input };
+      const timestamp = new Date().toISOString();
+      const messageData = {
+        type: "chat",
+        sender: "staff",
+        message: input,
+        timestamp,
+      };
+
       socket.send(JSON.stringify(messageData));
+
+      const updatedMessages = [...messages, { text: input, sender: "staff", timestamp }];
+      setMessages(updatedMessages);
+
+      if (selectedUser) {
+        saveMessagesToLocal(selectedUser.id, updatedMessages);
+      }
+
       setInput("");
     }
+  };
+
+  const formatTime = (timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
   };
 
   return (
@@ -155,9 +210,37 @@ const ChatWithCustomer = () => {
                 padding: "5px 15px",
               }}
             >
-              <Avatar sx={{ marginRight: 2 }}>{customer.username.charAt(0)}</Avatar>
+              <Box
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  overflow: "hidden",
+                  border: "1px solid",
+                  boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.2)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginRight: "10px",
+                }}
+              >
+                <img
+                  src={
+                    customer.profile_pic && customer.profile_pic.trim() !== "defaultProfile"
+                      ? customer.profile_pic
+                      : "https://i.pinimg.com/originals/2c/47/d5/2c47d5dd5b532f83bb55c4cd6f5bd1ef.jpg"
+                  }
+                  alt={customer.username}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              </Box>
+
               <ListItemText
-                primaryTypographyProps={{ sx: { fontSize: "0.8em" } }}
+                primaryTypographyProps={{ sx: { fontSize: "0.8em", fontWeight: "500" } }}
                 primary={customer.username}
               />
             </ListItem>
@@ -171,12 +254,15 @@ const ChatWithCustomer = () => {
         </Typography>
         <MessageList>
           {messages.map((msg, index) => (
-            <MessageBubble key={index} sender={msg.sender}>
-              {msg.text}
-            </MessageBubble>
+            <MessageContainer key={index} sender={msg.sender}>
+              <SenderName>{msg.sender === "staff" ? "You" : selectedUser?.username}</SenderName>
+              <MessageBubble sender={msg.sender}>{msg.text}</MessageBubble>
+              <Timestamp>{formatTime(msg.timestamp)}</Timestamp>
+            </MessageContainer>
           ))}
           <div ref={messagesEndRef} />
         </MessageList>
+
         <Box display="flex" mt={2}>
           <TextField
             fullWidth
@@ -187,7 +273,7 @@ const ChatWithCustomer = () => {
             placeholder="Type a message..."
           />
           <IconButton color="primary" onClick={sendMessage} sx={{ ml: 1 }}>
-            <SendIcon />
+            <SendIcon sx={{ color: "#00c3ff" }} />
           </IconButton>
         </Box>
       </ChatBox>

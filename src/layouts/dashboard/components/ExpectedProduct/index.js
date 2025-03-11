@@ -1,34 +1,32 @@
 import { useState } from "react";
 import Card from "@mui/material/Card";
 import Icon from "@mui/material/Icon";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DataTable from "examples/Tables/DataTable";
-import data from "layouts/dashboard/components/Projects/data";
+import data from "layouts/dashboard/components/ExpectedProduct/data/index";
 
-function Projects() {
+function ExpectedProduct() {
   const { columns, rows } = data();
   return (
     <Card>
       <MDBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
         <MDBox>
           <MDTypography variant="h6" gutterBottom>
-            Product top sale
+            Best-selling product prediction.
           </MDTypography>
           <MDBox display="flex" alignItems="center" lineHeight={0}>
             <Icon
               sx={{
                 fontWeight: "bold",
-                color: ({ palette: { info } }) => info.main,
+                color: ({ palette: { success } }) => success.main,
                 mt: -0.5,
               }}
             >
               done
             </Icon>
             <MDTypography variant="button" fontWeight="regular" color="text">
-              &nbsp;<strong>Top 10</strong> best-selling products of the month
+              &nbsp; The best-selling product next month is predicted
             </MDTypography>
           </MDBox>
         </MDBox>
@@ -46,4 +44,4 @@ function Projects() {
   );
 }
 
-export default Projects;
+export default ExpectedProduct;

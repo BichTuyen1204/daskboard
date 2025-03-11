@@ -35,7 +35,7 @@ export default function data() {
       </Tooltip>
     ));
 
-  const Company = ({ image, name }) => (
+  const Product = ({ image, name }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
       <MDTypography variant="button" fontWeight="medium" ml={1} lineHeight={1}>
         {name}
@@ -45,7 +45,7 @@ export default function data() {
 
   return {
     columns: [
-      { Header: "Name of Product", accessor: "companies", width: "30%", align: "left" },
+      { Header: "Name of Product", accessor: "product", width: "30%", align: "left" },
       { Header: "Total amount", accessor: "total_amount", width: "20%", align: "left" },
       { Header: "Total income", accessor: "budget", align: "center" },
       { Header: "completion", accessor: "completion", align: "center" },
@@ -53,7 +53,7 @@ export default function data() {
 
     rows: [
       {
-        companies: <Company name="Material UI XD Version" />,
+        product: <Product name="Material UI XD Version" />,
         total_amount: (
           <MDBox display="flex" py={1}>
             {avatars([

@@ -12,6 +12,7 @@ import reportsBarChartData from "layouts/dashboard/data/reportsBarChartData";
 import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 import Projects from "layouts/dashboard/components/Projects";
 import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
+import ExpectedProduct from "./components/ExpectedProduct";
 
 function Dashboard() {
   const { sales } = reportsLineChartData;
@@ -89,44 +90,66 @@ function Dashboard() {
             </MDBox>
           </Grid>
         </Grid>
+
         <MDBox mt={4.5}>
           <Grid container spacing={3}>
+            {/* Revenue days start */}
             <Grid item xs={12} md={6} lg={6}>
               <MDBox mb={3}>
                 <ReportsBarChart
                   color="info"
-                  title="Revenue Days"
+                  title="Revenue 7 Days"
                   description="Last Campaign Performance"
-                  date="campaign sent 2 days ago"
+                  des={
+                    <>
+                      Sales are expected to reach (<strong>$100</strong>) tomorrow
+                    </>
+                  }
+                  date="update 2 minutes ago"
                   chart={reportsBarChartData}
                 />
               </MDBox>
             </Grid>
+            {/* Revenue days end */}
+
+            {/* Revenue months start */}
             <Grid item xs={12} md={6} lg={6}>
               <MDBox mb={3}>
                 <ReportsLineChart
                   color="success"
-                  title="Revenue Months"
+                  title="Revenue 6 Months"
                   description={
                     <>
                       {" "}
-                      (<strong>+15%</strong>) increase in today sales.
+                      (<strong>+15%</strong>) increase in sales this month
                     </>
                   }
-                  date="updated 4 min ago"
+                  date="updated 4 minutes ago"
                   chart={sales}
+                  des={
+                    <>
+                      Sales are expected to reach <strong>800$</strong> next month
+                    </>
+                  }
                 />
               </MDBox>
             </Grid>
+            {/* Revenue months end */}
           </Grid>
         </MDBox>
+
         <MDBox>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={8}>
+            <Grid item xs={12} md={12} lg={12}>
               <Projects />
             </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <OrdersOverview />
+          </Grid>
+        </MDBox>
+
+        <MDBox>
+          <Grid container spacing={3} mt={1}>
+            <Grid item xs={12} md={12} lg={12}>
+              <ExpectedProduct />
             </Grid>
           </Grid>
         </MDBox>

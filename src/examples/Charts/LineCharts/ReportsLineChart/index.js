@@ -1,24 +1,5 @@
-/**
-=========================================================
-* Material Dashboard 2  React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 import { useMemo } from "react";
-
-// porp-types is a library for typechecking of props
 import PropTypes from "prop-types";
-
-// react-chartjs-2 components
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -31,17 +12,11 @@ import {
   Legend,
   Filler,
 } from "chart.js";
-
-// @mui material components
 import Card from "@mui/material/Card";
 import Divider from "@mui/material/Divider";
 import Icon from "@mui/material/Icon";
-
-// Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
-
-// ReportsLineChart configurations
 import configs from "examples/Charts/LineCharts/ReportsLineChart/configs";
 
 ChartJS.register(
@@ -55,7 +30,7 @@ ChartJS.register(
   Filler
 );
 
-function ReportsLineChart({ color, title, description, date, chart }) {
+function ReportsLineChart({ color, title, description, date, chart, des }) {
   const { data, options } = configs(chart.labels || [], chart.datasets || {});
 
   return (
@@ -85,6 +60,11 @@ function ReportsLineChart({ color, title, description, date, chart }) {
           <MDTypography component="div" variant="button" color="text" fontWeight="light">
             {description}
           </MDTypography>
+          {des && (
+            <MDTypography variant="button" color="text" fontWeight="light">
+              {des}
+            </MDTypography>
+          )}
           <Divider />
           <MDBox display="flex" alignItems="center">
             <MDTypography variant="button" color="text" lineHeight={1} sx={{ mt: 0.15, mr: 0.5 }}>
@@ -104,6 +84,7 @@ function ReportsLineChart({ color, title, description, date, chart }) {
 ReportsLineChart.defaultProps = {
   color: "info",
   description: "",
+  des: null,
 };
 
 // Typechecking props for the ReportsLineChart
@@ -113,6 +94,7 @@ ReportsLineChart.propTypes = {
   description: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   date: PropTypes.string.isRequired,
   chart: PropTypes.objectOf(PropTypes.oneOfType([PropTypes.array, PropTypes.object])).isRequired,
+  des: PropTypes.node,
 };
 
 export default ReportsLineChart;

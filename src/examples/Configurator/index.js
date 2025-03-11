@@ -1,43 +1,12 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 import { useState, useEffect } from "react";
-
-// react-github-btn
-import GitHubButton from "react-github-btn";
-
-// @mui material components
 import Divider from "@mui/material/Divider";
 import Switch from "@mui/material/Switch";
 import IconButton from "@mui/material/IconButton";
-import Link from "@mui/material/Link";
 import Icon from "@mui/material/Icon";
-
-// @mui icons
-import TwitterIcon from "@mui/icons-material/Twitter";
-import FacebookIcon from "@mui/icons-material/Facebook";
-
-// Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
-
-// Custom styles for the Configurator
 import ConfiguratorRoot from "examples/Configurator/ConfiguratorRoot";
-
-// Material Dashboard 2 React context
 import {
   useMaterialUIController,
   setOpenConfigurator,
@@ -61,20 +30,13 @@ function Configurator() {
   const [disabled, setDisabled] = useState(false);
   const sidenavColors = ["primary", "dark", "info", "success", "warning", "error"];
 
-  // Use the useEffect hook to change the button state for the sidenav type based on window size.
   useEffect(() => {
-    // A function that sets the disabled state of the buttons for the sidenav type.
     function handleDisabled() {
       return window.innerWidth > 1200 ? setDisabled(false) : setDisabled(true);
     }
-
-    // The event listener that's calling the handleDisabled function when resizing the window.
     window.addEventListener("resize", handleDisabled);
-
-    // Call the handleDisabled function to set the state with the initial value.
     handleDisabled();
 
-    // Remove event listener on cleanup
     return () => window.removeEventListener("resize", handleDisabled);
   }, []);
 
@@ -137,13 +99,6 @@ function Configurator() {
         pb={0.5}
         px={3}
       >
-        <MDBox>
-          <MDTypography variant="h5">Material UI Configurator</MDTypography>
-          <MDTypography variant="body2" color="text">
-            See our dashboard options.
-          </MDTypography>
-        </MDBox>
-
         <Icon
           sx={({ typography: { size }, palette: { dark, white } }) => ({
             fontSize: `${size.lg} !important`,
@@ -152,15 +107,14 @@ function Configurator() {
             strokeWidth: "2px",
             cursor: "pointer",
             transform: "translateY(5px)",
+            alignSelf: "flex-end",
+            ml: "auto",
           })}
           onClick={handleCloseConfigurator}
         >
           close
         </Icon>
       </MDBox>
-
-      <Divider />
-
       <MDBox pt={0.5} pb={3} px={3}>
         <MDBox>
           <MDTypography variant="h6">Sidenav Colors</MDTypography>

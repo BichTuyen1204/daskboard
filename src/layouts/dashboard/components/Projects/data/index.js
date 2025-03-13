@@ -1,80 +1,44 @@
-/* eslint-disable react/prop-types */
-import Tooltip from "@mui/material/Tooltip";
-import MDBox from "components/MDBox";
+import RevenueService from "api/RevenueService";
 import MDTypography from "components/MDTypography";
-import MDAvatar from "components/MDAvatar";
-import MDProgress from "components/MDProgress";
-import team1 from "assets/images/team-1.jpg";
-import team2 from "assets/images/team-2.jpg";
-import team3 from "assets/images/team-3.jpg";
-import team4 from "assets/images/team-4.jpg";
+import { useEffect, useState } from "react";
 
 export default function data() {
-  const avatars = (members) =>
-    members.map(([image, name]) => (
-      <Tooltip key={name} title={name} placeholder="bottom">
-        <MDAvatar
-          src={image}
-          alt="name"
-          size="xs"
-          sx={{
-            border: ({ borders: { borderWidth }, palette: { white } }) =>
-              `${borderWidth[2]} solid ${white.main}`,
-            cursor: "pointer",
-            position: "relative",
+  const jwtToken = sessionStorage.getItem("jwtToken");
+  const [topProductMonth, setTopProductMonth] = useState([]);
 
-            "&:not(:first-of-type)": {
-              ml: -1.25,
-            },
-
-            "&:hover, &:focus": {
-              zIndex: "10",
-            },
-          }}
-        />
-      </Tooltip>
-    ));
-
-  const Company = ({ image, name }) => (
-    <MDBox display="flex" alignItems="center" lineHeight={1}>
-      <MDTypography variant="button" fontWeight="medium" ml={1} lineHeight={1}>
-        {name}
-      </MDTypography>
-    </MDBox>
-  );
+  useEffect(() => {
+    const fetchRevenueData = async () => {
+      if (!jwtToken) return;
+      try {
+        const response = await RevenueService.getAllDays();
+        console.log("Dữ liệu từ API:", response.top_products.top_10_products_month);
+        setTopProductMonth(response.top_products.top_10_products_month);
+      } catch (error) {
+        console.error("Error fetching revenue data:", error);
+      }
+    };
+    fetchRevenueData();
+  }, [jwtToken]);
 
   return {
     columns: [
-      { Header: "Name of Product", accessor: "companies", width: "30%", align: "left" },
-      { Header: "Total amount", accessor: "total_amount", width: "20%", align: "left" },
-      { Header: "Total income", accessor: "budget", align: "center" },
-      { Header: "completion", accessor: "completion", align: "center" },
+      { Header: "#", accessor: "index", width: "10%", align: "center" },
+      { Header: "Name of Product", accessor: "name", width: "30%", align: "left" },
+      { Header: "Total amount", accessor: "total_amount", width: "20%", align: "center" },
     ],
 
-    rows: [
-      {
-        companies: <Company name="Material UI XD Version" />,
-        total_amount: (
-          <MDBox display="flex" py={1}>
-            {avatars([
-              [team1, "Ryan Tompson"],
-              [team2, "Romina Hadid"],
-              [team3, "Alexander Smith"],
-              [team4, "Jessica Doe"],
-            ])}
-          </MDBox>
-        ),
-        budget: (
-          <MDTypography variant="caption" color="text" fontWeight="medium">
-            $14,000
-          </MDTypography>
-        ),
-        completion: (
-          <MDBox width="8rem" textAlign="left">
-            <MDProgress value={60} color="info" variant="gradient" label={false} />
-          </MDBox>
-        ),
-      },
-    ],
+    rows: topProductMonth.map((product, index) => ({
+      index: index + 1,
+      name: (
+        <MDTypography variant="caption" color="text" fontWeight="medium">
+          {product.product_name}
+        </MDTypography>
+      ),
+      total_amount: (
+        <MDTypography variant="caption" color="text" fontWeight="medium">
+          {product.total_quantity}
+        </MDTypography>
+      ),
+    })),
   };
 }

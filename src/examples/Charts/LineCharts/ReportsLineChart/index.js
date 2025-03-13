@@ -1,6 +1,6 @@
-import { useMemo } from "react";
-import PropTypes from "prop-types";
+import React, { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
+import axios from "axios";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,91 +10,136 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler,
 } from "chart.js";
-import Card from "@mui/material/Card";
-import Divider from "@mui/material/Divider";
-import Icon from "@mui/material/Icon";
-import MDBox from "components/MDBox";
-import MDTypography from "components/MDTypography";
-import configs from "examples/Charts/LineCharts/ReportsLineChart/configs";
+import { Divider } from "@mui/material";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-function ReportsLineChart({ color, title, description, date, chart, des }) {
-  const { data, options } = configs(chart.labels || [], chart.datasets || {});
+const RevenueLineChart = () => {
+  const [revenueLineData, setRevenueLineData] = useState([]);
+  const [predictNextMonth, setPredictNextMonth] = useState(0);
+  const jwtToken = sessionStorage.getItem("jwtToken");
+
+  useEffect(() => {
+    const fetchRevenue = async () => {
+      if (!jwtToken) {
+        console.error("Token not found. Please log in again.");
+        return;
+      }
+      try {
+        const response = await axios.get(
+          "https://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/manager/revenue",
+          {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        setRevenueLineData(response.data.revenue.last_7_days_revenue);
+      } catch (error) {
+        console.error("Error fetching revenue data:", error.response?.data || error.message);
+      }
+    };
+    fetchRevenue();
+  }, [jwtToken]);
+
+  if (!revenueLineData.length) {
+    return (
+      <div style={{ background: "white", padding: "35px" }}>
+        <p style={{ textAlign: "center", fontSize: "0.9em", fontWeight: "450" }}>Loading...</p>
+      </div>
+    );
+  }
+
+  const chartData = {
+    labels: revenueLineData.map((item) => item.date),
+    datasets: [
+      {
+        label: "Revenue",
+        data: revenueLineData.map((item) => item.revenue),
+        borderColor: "#36A2EB",
+        backgroundColor: "rgba(54, 162, 235, 0.2)",
+        pointBackgroundColor: "#36A2EB",
+        pointBorderColor: "#fff",
+        tension: 0.4,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        callbacks: {
+          label: function (tooltipItem) {
+            return "$" + tooltipItem.raw.toLocaleString("en-US");
+          },
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: function (value) {
+            return "$" + value.toLocaleString("en-US");
+          },
+          color: "#333",
+        },
+      },
+      x: {
+        ticks: {
+          color: "#333",
+        },
+      },
+    },
+  };
 
   return (
-    <Card sx={{ height: "100%" }}>
-      <MDBox padding="1rem">
-        {useMemo(
-          () => (
-            <MDBox
-              variant="gradient"
-              bgColor={color}
-              borderRadius="lg"
-              coloredShadow={color}
-              py={2}
-              pr={0.5}
-              mt={-5}
-              height="12.5rem"
-            >
-              <Line data={data} options={options} redraw />
-            </MDBox>
-          ),
-          [chart, color]
-        )}
-        <MDBox pt={3} pb={1} px={1}>
-          <MDTypography variant="h6" textTransform="capitalize">
-            {title}
-          </MDTypography>
-          <MDTypography component="div" variant="button" color="text" fontWeight="light">
-            {description}
-          </MDTypography>
-          {des && (
-            <MDTypography variant="button" color="text" fontWeight="light">
-              {des}
-            </MDTypography>
-          )}
-          <Divider />
-          <MDBox display="flex" alignItems="center">
-            <MDTypography variant="button" color="text" lineHeight={1} sx={{ mt: 0.15, mr: 0.5 }}>
-              <Icon>schedule</Icon>
-            </MDTypography>
-            <MDTypography variant="button" color="text" fontWeight="light">
-              {date}
-            </MDTypography>
-          </MDBox>
-        </MDBox>
-      </MDBox>
-    </Card>
+    <div
+      style={{
+        marginTop: "35px",
+        position: "relative",
+        width: "100%",
+        height: "460px",
+        background: "white",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        borderRadius: "15px",
+      }}
+    >
+      <div
+        style={{
+          width: "90%",
+          height: "70%",
+          padding: "20px",
+          background: "#4C585B",
+          borderRadius: "12px",
+          boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.2)",
+          position: "absolute",
+          top: "28%",
+          left: "50%",
+          transform: "translate(-50%, -50%) scale(1.05)",
+          zIndex: 2,
+        }}
+      >
+        <Line data={chartData} options={options} />
+      </div>
+      <div style={{ marginTop: "320px", width: "100%", marginLeft: "35px" }}>
+        <p style={{ color: "#333", fontWeight: "bold", fontSize: "0.85em" }}>Revenue 7 days</p>
+        <p style={{ color: "#73777B", fontWeight: "150", fontSize: "0.7em", marginTop: "5px" }}>
+          Revenue in the last 7 days
+        </p>
+        <Divider />
+      </div>
+    </div>
   );
-}
-
-// Setting default values for the props of ReportsLineChart
-ReportsLineChart.defaultProps = {
-  color: "info",
-  description: "",
-  des: null,
 };
 
-// Typechecking props for the ReportsLineChart
-ReportsLineChart.propTypes = {
-  color: PropTypes.oneOf(["primary", "secondary", "info", "success", "warning", "error", "dark"]),
-  title: PropTypes.string.isRequired,
-  description: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
-  date: PropTypes.string.isRequired,
-  chart: PropTypes.objectOf(PropTypes.oneOfType([PropTypes.array, PropTypes.object])).isRequired,
-  des: PropTypes.node,
-};
-
-export default ReportsLineChart;
+export default RevenueLineChart;

@@ -26,7 +26,7 @@ function ExpectedProduct() {
               done
             </Icon>
             <MDTypography variant="button" fontWeight="regular" color="text">
-              &nbsp; The best-selling product next month is predicted
+              &nbsp; <strong>Top 10</strong> products all time
             </MDTypography>
           </MDBox>
         </MDBox>

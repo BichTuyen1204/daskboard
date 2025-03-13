@@ -1,8 +1,5 @@
-import { useState } from "react";
 import Card from "@mui/material/Card";
 import Icon from "@mui/material/Icon";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DataTable from "examples/Tables/DataTable";
@@ -10,6 +7,7 @@ import data from "layouts/dashboard/components/Projects/data";
 
 function Projects() {
   const { columns, rows } = data();
+
   return (
     <Card>
       <MDBox display="flex" justifyContent="space-between" alignItems="center" p={3}>

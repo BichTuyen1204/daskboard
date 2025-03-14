@@ -123,15 +123,22 @@ const ChatWithCustomer = () => {
 
   useEffect(() => {
     if (!jwtToken || !selectedUser) return;
+
     const ws = new WebSocket(
-      `wss://culcon-admin-gg-87043777927.asia-northeast1.run.app/ws/chat/connect/${selectedUser.id}`
+      `wss://culcon-admin-gg-87043777927.asia-northeast1.run.app/ws/chat/connect/${selectedUser.id}?token=${jwtToken}`
     );
+    console.log(ws);
+
+    ws.onopen = () => {
+      console.log("✅ WebSocket Connected");
+    };
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.msg) {
         try {
           const messageContent = JSON.parse(data.msg);
+          console.log("Received message:", data);
           const timestamp = new Date().toISOString();
 
           const newMessage = {
@@ -145,12 +152,31 @@ const ChatWithCustomer = () => {
             saveMessagesToLocal(selectedUser.id, updatedMessages);
             return updatedMessages;
           });
-        } catch (error) {}
+        } catch (error) {
+          console.error("Error parsing message:", error);
+        }
+      }
+    };
+
+    // Sự kiện khi có lỗi xảy ra với WebSocket
+    ws.onerror = (error) => {
+      console.error("WebSocket Error:", error);
+    };
+
+    // Sự kiện khi kết nối WebSocket đóng
+    ws.onclose = (event) => {
+      if (event.wasClean) {
+        console.log("WebSocket closed cleanly");
+      } else {
+        console.error("WebSocket closed with an error");
       }
     };
 
     setSocket(ws);
-    return () => ws.close();
+
+    return () => {
+      ws.close();
+    };
   }, [selectedUser, jwtToken]);
 
   useEffect(() => {
@@ -171,12 +197,14 @@ const ChatWithCustomer = () => {
       };
 
       socket.send(JSON.stringify(messageData));
+      console.log("Sending message:", messageData);
 
       const updatedMessages = [...messages, { text: input, sender: "staff", timestamp }];
       setMessages(updatedMessages);
 
       if (selectedUser) {
         saveMessagesToLocal(selectedUser.id, updatedMessages);
+        console.log("Stored messages:", localStorage.getItem(`chat_${selectedUser?.id}`));
       }
 
       setInput("");
@@ -185,7 +213,14 @@ const ChatWithCustomer = () => {
 
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
-    return date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+    return date.toLocaleString("vi-VN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
   };
 
   return (

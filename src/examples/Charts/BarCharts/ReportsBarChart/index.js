@@ -72,7 +72,7 @@ const RevenueBarChart = () => {
 
   if (!revenueData.length) {
     return (
-      <div style={{ background: "white", padding: "35px" }}>
+      <div style={{ background: "white", padding: "35px", borderRadius: "15px" }}>
         <p style={{ textAlign: "center", fontSize: "0.9em", fontWeight: "450" }}>Loading...</p>
       </div>
     );
@@ -148,9 +148,6 @@ const RevenueBarChart = () => {
       },
       x: {
         ticks: {
-          font: {
-            weight: "bold",
-          },
           color: "#F5F5F5",
         },
         grid: {

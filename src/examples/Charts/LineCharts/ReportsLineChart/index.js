@@ -17,7 +17,6 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 const RevenueLineChart = () => {
   const [revenueLineData, setRevenueLineData] = useState([]);
-  const [predictNextMonth, setPredictNextMonth] = useState(0);
   const jwtToken = sessionStorage.getItem("jwtToken");
 
   useEffect(() => {
@@ -46,11 +45,13 @@ const RevenueLineChart = () => {
 
   if (!revenueLineData.length) {
     return (
-      <div style={{ background: "white", padding: "35px" }}>
+      <div style={{ background: "white", padding: "35px", borderRadius: "15px" }}>
         <p style={{ textAlign: "center", fontSize: "0.9em", fontWeight: "450" }}>Loading...</p>
       </div>
     );
   }
+
+  const colors = ["#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#A133FF", "#FFD700", "#00FFFF"];
 
   const chartData = {
     labels: revenueLineData.map((item) => item.date),
@@ -60,7 +61,7 @@ const RevenueLineChart = () => {
         data: revenueLineData.map((item) => item.revenue),
         borderColor: "#36A2EB",
         backgroundColor: "rgba(54, 162, 235, 0.2)",
-        pointBackgroundColor: "#36A2EB",
+        pointBackgroundColor: revenueLineData.map((_, index) => colors[index % colors.length]),
         pointBorderColor: "#fff",
         tension: 0.4,
       },
@@ -89,12 +90,24 @@ const RevenueLineChart = () => {
           callback: function (value) {
             return "$" + value.toLocaleString("en-US");
           },
-          color: "#333",
+          color: "white",
+        },
+        grid: {
+          color: "rgba(255, 255, 255, 0.2)",
+          drawBorder: false,
+          drawOnChartArea: true,
+          drawTicks: false,
         },
       },
       x: {
         ticks: {
-          color: "#333",
+          color: "white",
+        },
+        grid: {
+          color: "#F5F5F5",
+          drawBorder: false,
+          drawOnChartArea: false,
+          display: false,
         },
       },
     },
@@ -106,7 +119,7 @@ const RevenueLineChart = () => {
         marginTop: "35px",
         position: "relative",
         width: "100%",
-        height: "460px",
+        height: "430px",
         background: "white",
         display: "flex",
         justifyContent: "center",
@@ -131,7 +144,7 @@ const RevenueLineChart = () => {
       >
         <Line data={chartData} options={options} />
       </div>
-      <div style={{ marginTop: "320px", width: "100%", marginLeft: "35px" }}>
+      <div style={{ marginTop: "300px", width: "100%", marginLeft: "35px" }}>
         <p style={{ color: "#333", fontWeight: "bold", fontSize: "0.85em" }}>Revenue 7 days</p>
         <p style={{ color: "#73777B", fontWeight: "150", fontSize: "0.7em", marginTop: "5px" }}>
           Revenue in the last 7 days

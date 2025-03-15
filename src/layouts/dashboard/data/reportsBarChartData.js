@@ -15,7 +15,7 @@ const reportsBarChartData = () => {
     const fetchRevenueData = async () => {
       try {
         const response = await get(
-          "https://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/manager/revenue"
+          "https://culcon-ad-be-30883260979.asia-east1.run.app//api/manager/revenue"
         );
         const data = await response.json();
         console.log("📢 Dữ liệu từ API:", data);

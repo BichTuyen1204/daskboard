@@ -1,7 +1,6 @@
 import axios from "axios";
-const API_BASE_URL = "https://culcon-ad-be-30883260979.asia-east1.run.app//api/staff";
-const API_BASE_URL_2 =
-  "https://culcon-ad-be-30883260979.asia-east1.run.app//api/general/product";
+const API_BASE_URL = "https://culcon-ad-be-30883260979.asia-east1.run.app/api/staff";
+const API_BASE_URL_2 = "https://culcon-ad-be-30883260979.asia-east1.run.app/api/general/product";
 
 class ProductService {
   async createProduct(formData) {

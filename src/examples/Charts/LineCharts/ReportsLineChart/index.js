@@ -27,7 +27,7 @@ const RevenueLineChart = () => {
       }
       try {
         const response = await axios.get(
-          "https://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/manager/revenue",
+          "https://culcon-ad-be-30883260979.asia-east1.run.app/api/manager/revenue",
           {
             headers: {
               Authorization: `Bearer ${jwtToken}`,

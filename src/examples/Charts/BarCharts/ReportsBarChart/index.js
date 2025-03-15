@@ -24,24 +24,25 @@ const RevenueBarChart = () => {
       if (!jwtToken) {
         console.error("Token not found. Please log in again.");
         return;
-      }
-      try {
-        const response = await axios.get(
-          "https://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/manager/revenue",
-          {
-            headers: {
-              Authorization: `Bearer ${jwtToken}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        setRevenueData(response.data.revenue.last_6_months_revenue);
-      } catch (error) {
-        console.error("Error fetching revenue data:", error.response?.data || error.message);
+      } else {
+        try {
+          const response = await axios.get(
+            "https://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/manager/revenue",
+            {
+              headers: {
+                Authorization: `Bearer ${jwtToken}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          console.log("API Response:", response.data);
+          setRevenueData(response.data.revenue.last_6_months_revenue);
+          console.log(response.data.revenue.last_6_months_revenue);
+        } catch (error) {
+          console.error("Error fetching revenue data:", error.response?.data || error.message);
+        }
       }
     };
-
     fetchRevenue();
   }, [jwtToken]);
 

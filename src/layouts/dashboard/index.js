@@ -16,12 +16,7 @@ import ExpectedProduct from "./components/ExpectedProduct";
 import RevenueService from "api/RevenueService";
 
 function Dashboard() {
-  const [revenue7Days, setRevenue7Days] = useState([]);
-  const [revenue6Months, setRevenue6Months] = useState([]);
-  const { sales } = reportsLineChartData;
   const navigate = useNavigate();
-  const jwtToken = sessionStorage.getItem("jwtToken");
-  const [expected, setExpected] = useState("");
 
   useEffect(() => {
     const token = sessionStorage.getItem("jwtToken");
@@ -29,62 +24,6 @@ function Dashboard() {
       navigate("/sign-in", { replace: true });
     }
   }, [navigate]);
-
-  useEffect(() => {
-    const fetchRevenueData = async () => {
-      if (!jwtToken) return;
-      try {
-        const response = await RevenueService.getAllDays();
-        setRevenue7Days(response.revenue.last_7_days_revenue);
-        console.log("Data 6 months:", response.revenue.last_6_months_revenue);
-        setRevenue6Months(response.revenue.last_6_months_revenue);
-      } catch (error) {
-        console.error("Error fetching revenue data:", error);
-      }
-    };
-    fetchRevenueData();
-  }, [jwtToken]);
-
-  const revenueChartData = {
-    labels: revenue7Days.map((item) => item.date),
-    datasets: [
-      {
-        label: "Revenue",
-        data: revenue7Days.map((item) => item.revenue),
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-      },
-    ],
-  };
-
-  const revenueMonthData = {
-    labels:
-      Array.isArray(revenue6Months) && revenue6Months.length
-        ? revenue6Months.map((item) => item.month)
-        : ["No Data"],
-    datasets: [
-      {
-        label: "Revenue",
-        data:
-          Array.isArray(revenue6Months) && revenue6Months.length
-            ? revenue6Months.map((item) => item.revenue)
-            : [0],
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-      },
-    ],
-  };
-
-  useEffect(() => {
-    const getPredictNextMonth = async () => {
-      if (!jwtToken) return;
-      try {
-        const response = await RevenueService.getPredictNextMonth();
-        setExpected(response);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    getPredictNextMonth();
-  }, [jwtToken]);
 
   return (
     <DashboardLayout>
@@ -165,19 +104,7 @@ function Dashboard() {
             {/* Revenue months start */}
             <Grid item xs={12} md={12} lg={12}>
               <MDBox mb={3}>
-                <ReportsLineChart
-                  color="success"
-                  title="Revenue 6 Months"
-                  description="Revenue over the last 6 months"
-                  des={
-                    <>
-                      {/* Sales are expected to reach (<strong>${expected.predicted_revenue}</strong>) */}
-                      this month
-                    </>
-                  }
-                  date="Updated just now"
-                  chart={revenueMonthData}
-                />
+                <ReportsLineChart />
               </MDBox>
             </Grid>
             {/* Revenue months end */}

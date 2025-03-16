@@ -15,17 +15,17 @@ export default function data() {
       if (jwtToken) {
         try {
           const response = await AccountService.getAllStaff(jwtToken);
-          console.log("API Response:", response); // Debugging
+          console.log("API Response:", response);
 
           if (Array.isArray(response)) {
             setStaff(response);
           } else {
             console.error("Expected an array but got:", response);
-            setStaff([]); // Đặt staff là mảng rỗng nếu dữ liệu không hợp lệ
+            setStaff([]);
           }
         } catch (error) {
           console.error("Can't access the server", error);
-          setStaff([]); // Đảm bảo set một giá trị hợp lệ
+          setStaff([]);
         }
       }
     };

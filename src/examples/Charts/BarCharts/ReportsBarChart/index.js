@@ -24,24 +24,25 @@ const RevenueBarChart = () => {
       if (!jwtToken) {
         console.error("Token not found. Please log in again.");
         return;
-      }
-      try {
-        const response = await axios.get(
-          "https://culcon-ad-be-30883260979.asia-east1.run.app/api/manager/revenue",
-          {
-            headers: {
-              Authorization: `Bearer ${jwtToken}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        setRevenueData(response.data.revenue.last_6_months_revenue);
-      } catch (error) {
-        console.error("Error fetching revenue data:", error.response?.data || error.message);
+      } else {
+        try {
+          const response = await axios.get(
+            "https://culcon-ad-be-30883260979.asia-east1.run.app/api/manager/revenue",
+            {
+              headers: {
+                Authorization: `Bearer ${jwtToken}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          console.log("API Response:", response.data);
+          setRevenueData(response.data.revenue.last_6_months_revenue);
+          console.log(response.data.revenue.last_6_months_revenue);
+        } catch (error) {
+          console.error("Error fetching revenue data:", error.response?.data || error.message);
+        }
       }
     };
-
     fetchRevenue();
   }, [jwtToken]);
 
@@ -198,7 +199,7 @@ const RevenueBarChart = () => {
           Revenue over the last 6 months
         </p>
         <p style={{ color: "#73777B", fontWeight: "150", fontSize: "0.7em" }}>
-          The projected revenue for next month is <strong>${predictNextMonth.toFixed(2)}</strong>
+          The projected revenue for next month is <strong>${predictNextMonth}</strong>
         </p>
         <Divider />
       </div>

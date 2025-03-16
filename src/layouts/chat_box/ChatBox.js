@@ -13,6 +13,7 @@ import {
 import { styled } from "@mui/system";
 import SendIcon from "@mui/icons-material/Send";
 
+const REACT_APP_BACKEND_WS_ENDPOINT = process.env.REACT_APP_BACKEND_WS_ENDPOINT;
 const ChatContainer = styled(Box)({
   display: "flex",
   width: "81%",
@@ -125,7 +126,7 @@ const ChatWithCustomer = () => {
     if (!jwtToken || !selectedUser) return;
 
     const ws = new WebSocket(
-      `wss://culcon-admin-gg-87043777927.asia-northeast1.run.app/ws/chat/connect/${selectedUser.id}?token=${jwtToken}`
+      `${REACT_APP_BACKEND_WS_ENDPOINT}/ws/chat/connect/${selectedUser.id}?token=${jwtToken}`
     );
     console.log(ws);
 

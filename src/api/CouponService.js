@@ -1,6 +1,9 @@
 import axios from "axios";
-const API_BASE_URL = "https://culcon-ad-be-30883260979.asia-east1.run.app/api/manager/coupon";
-const API_BASE_URL_2 = "https://culcon-ad-be-30883260979.asia-east1.run.app/api/general/coupon";
+
+const REACT_APP_BACKEND_API_ENDPOINT = process.env.REACT_APP_BACKEND_API_ENDPOINT;
+
+const API_BASE_URL = `${REACT_APP_BACKEND_API_ENDPOINT}/api/manager/coupon`;
+const API_BASE_URL_2 = `${REACT_APP_BACKEND_API_ENDPOINT}/api/general/coupon`;
 class CouponService {
   async addCoupon(coupon) {
     try {

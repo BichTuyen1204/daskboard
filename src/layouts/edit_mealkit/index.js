@@ -125,7 +125,7 @@ function EditMealkit() {
       try {
         const token = sessionStorage.getItem("jwtToken");
         const response = await axios.get(
-          `http://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/staff/product/history/stock?prod_id=${prod_id}`,
+          `https://culcon-ad-be-30883260979.asia-east1.run.app/api/staff/product/history/stock?prod_id=${prod_id}`,
           {
             headers: {
               "Content-Type": "application/json",

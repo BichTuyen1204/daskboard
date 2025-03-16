@@ -55,7 +55,7 @@ class BlogService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.post(
-        `http://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/staff/blog/edit?id=${id}`,
+        `https://culcon-ad-be-30883260979.asia-east1.run.app/api/staff/blog/edit?id=${id}`,
         data,
         {
           headers: {

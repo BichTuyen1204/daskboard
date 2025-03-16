@@ -5,6 +5,8 @@
 
 import { useState, useEffect } from "react";
 
+const REACT_APP_BACKEND_API_ENDPOINT = process.env.REACT_APP_BACKEND_API_ENDPOINT;
+
 const reportsBarChartData = () => {
   const [salesData, setSalesData] = useState({
     labels: [],
@@ -14,9 +16,7 @@ const reportsBarChartData = () => {
   useEffect(() => {
     const fetchRevenueData = async () => {
       try {
-        const response = await get(
-          "https://culcon-ad-be-30883260979.asia-east1.run.app/api/manager/revenue"
-        );
+        const response = await get(`${REACT_APP_BACKEND_API_ENDPOINT}/api/manager/revenue`);
         const data = await response.json();
         console.log("📢 Dữ liệu từ API:", data);
 

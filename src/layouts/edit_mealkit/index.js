@@ -7,6 +7,8 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import axios from "axios";
 import ProductService from "api/ProductService";
 
+const REACT_APP_BACKEND_API_ENDPOINT = process.env.REACT_APP_BACKEND_API_ENDPOINT;
+
 function EditMealkit() {
   const navigate = useNavigate();
   const [product, setProduct] = useState("");
@@ -125,7 +127,7 @@ function EditMealkit() {
       try {
         const token = sessionStorage.getItem("jwtToken");
         const response = await axios.get(
-          `https://culcon-ad-be-30883260979.asia-east1.run.app/api/staff/product/history/stock?prod_id=${prod_id}`,
+          `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/product/history/stock?prod_id=${prod_id}`,
           {
             headers: {
               "Content-Type": "application/json",

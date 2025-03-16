@@ -1,6 +1,9 @@
 import axios from "axios";
-const API_BASE_URL = "https://culcon-ad-be-30883260979.asia-east1.run.app/api/staff";
-const API_BASE_URL_2 = "https://culcon-ad-be-30883260979.asia-east1.run.app/api/general/product";
+
+const REACT_APP_BACKEND_API_ENDPOINT = process.env.REACT_APP_BACKEND_API_ENDPOINT;
+
+const API_BASE_URL = `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff`;
+const API_BASE_URL_2 = `${REACT_APP_BACKEND_API_ENDPOINT}/api/general/product`;
 
 class ProductService {
   async createProduct(formData) {
@@ -59,7 +62,7 @@ class ProductService {
   async allMealkit() {
     try {
       const response = await axios.get(
-        `https://culcon-ad-be-30883260979.asia-east1.run.app/api/general/mealkit/fetch_all`
+        `${REACT_APP_BACKEND_API_ENDPOINT}/api/general/mealkit/fetch_all`
       );
       return response.data;
     } catch (error) {
@@ -112,7 +115,7 @@ class ProductService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.post(
-        `https://culcon-ad-be-30883260979.asia-east1.run.app/api/staff/product/update/info/mealkit?prod_id=${prod_id}`,
+        `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/product/update/info/mealkit?prod_id=${prod_id}`,
         data,
         {
           headers: {
@@ -204,7 +207,7 @@ class ProductService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.get(
-        `https://culcon-ad-be-30883260979.asia-east1.run.app/api/staff/product/history/stock?prod_id=${prod_id}`,
+        `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/product/history/stock?prod_id=${prod_id}`,
         {
           headers: {
             "Content-Type": "application/json",

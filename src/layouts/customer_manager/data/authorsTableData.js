@@ -9,7 +9,7 @@ import { Icon } from "@mui/material";
 import { object } from "prop-types";
 
 export default function data() {
-  const [staff, setStaff] = useState([]);
+  const [customer, setCustomer] = useState([]);
   const jwtToken = sessionStorage.getItem("jwtToken");
   const defaultAvatar =
     "https://i.pinimg.com/originals/2c/47/d5/2c47d5dd5b532f83bb55c4cd6f5bd1ef.jpg";
@@ -19,9 +19,17 @@ export default function data() {
       if (jwtToken) {
         try {
           const response = await AccountService.getAllCustomer(jwtToken);
-          setStaff(response);
+          console.log("API Response:", response);
+
+          if (Array.isArray(response)) {
+            setCustomer(response);
+          } else {
+            console.error("Expected an array but got:", response);
+            setCustomer([]);
+          }
         } catch (error) {
           console.error("Can't access the server", error);
+          setCustomer([]);
         }
       }
     };
@@ -60,7 +68,7 @@ export default function data() {
     { Header: "action", accessor: "action", align: "center" },
   ];
 
-  const rows = staff.map((item) => ({
+  const rows = customer?.map((item) => ({
     //Image start
     image: (
       <MDBox

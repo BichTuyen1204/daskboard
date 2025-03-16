@@ -1,13 +1,12 @@
 import axios from "axios";
-const API_BASE_URL = "https://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/auth";
-const API_BASE_URL_2 =
-  "https://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/manager/create";
+const API_BASE_URL = "https://culcon-ad-be-30883260979.asia-east1.run.app/api/auth";
+const API_BASE_URL_2 = "https://culcon-ad-be-30883260979.asia-east1.run.app/api/manager/create";
 const API_BASE_URL_3 =
-  "https://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/manager/staff/fetch";
+  "https://culcon-ad-be-30883260979.asia-east1.run.app/api/manager/staff/fetch";
 const API_BASE_URL_4 =
-  "https://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/staff/customer/fetch";
+  "https://culcon-ad-be-30883260979.asia-east1.run.app/api/staff/customer/fetch";
 const API_BASE_URL_5 =
-  "https://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/staff/customer/edit";
+  "https://culcon-ad-be-30883260979.asia-east1.run.app/api/staff/customer/edit";
 
 class AccountService {
   async signin(account) {
@@ -123,7 +122,7 @@ class AccountService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.post(
-        `https://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/manager/staff/edit/account?id=${id}`,
+        `https://culcon-ad-be-30883260979.asia-east1.run.app/api/manager/staff/edit/account?id=${id}`,
         data,
         {
           headers: {
@@ -145,7 +144,7 @@ class AccountService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.patch(
-        `https://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/staff/customer/edit/info?id=${id}`,
+        `https://culcon-ad-be-30883260979.asia-east1.run.app/api/staff/customer/edit/info?id=${id}`,
         data,
         {
           headers: {
@@ -167,7 +166,7 @@ class AccountService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.post(
-        `https://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/manager/staff/edit/info?id=${id}`,
+        `https://culcon-ad-be-30883260979.asia-east1.run.app/api/manager/staff/edit/info?id=${id}`,
         data,
         {
           headers: {
@@ -211,7 +210,7 @@ class AccountService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.post(
-        `https://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/manager/staff/edit/status?id=${id}&status=${status}`,
+        `https://culcon-ad-be-30883260979.asia-east1.run.app/api/manager/staff/edit/status?id=${id}&status=${status}`,
         null,
         {
           headers: {

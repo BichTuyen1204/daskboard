@@ -1,8 +1,6 @@
 import axios from "axios";
-const API_BASE_URL =
-  "https://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/manager/coupon";
-const API_BASE_URL_2 =
-  "https://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/general/coupon";
+const API_BASE_URL = "https://culcon-ad-be-30883260979.asia-east1.run.app/api/manager/coupon";
+const API_BASE_URL_2 = "https://culcon-ad-be-30883260979.asia-east1.run.app/api/general/coupon";
 class CouponService {
   async addCoupon(coupon) {
     try {

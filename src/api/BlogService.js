@@ -1,5 +1,5 @@
 import axios from "axios";
-const API_BASE_URL = "https://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/staff/blog";
+const API_BASE_URL = "https://culcon-ad-be-30883260979.asia-east1.run.app/api/staff/blog";
 class BlogService {
   async addBlog(formData) {
     try {

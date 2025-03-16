@@ -8,15 +8,29 @@ import Footer from "examples/Footer";
 import ReportsBarChart from "examples/Charts/BarCharts/ReportsBarChart";
 import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
 import ComplexStatisticsCard from "examples/Cards/StatisticsCards/ComplexStatisticsCard";
-import reportsBarChartData from "layouts/dashboard/data/reportsBarChartData";
-import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 import Projects from "layouts/dashboard/components/Projects";
-import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
 import ExpectedProduct from "./components/ExpectedProduct";
-import RevenueService from "api/RevenueService";
+import AccountService from "api/AccountService";
 
 function Dashboard() {
   const navigate = useNavigate();
+
+  const [customer, setCustomer] = useState([]);
+  const jwtToken = sessionStorage.getItem("jwtToken");
+
+  useEffect(() => {
+    const getAllCustomer = async () => {
+      if (jwtToken) {
+        try {
+          const response = await AccountService.getAllCustomer(jwtToken);
+          setCustomer(response);
+        } catch (error) {
+          console.error("Can't access the server", error);
+        }
+      }
+    };
+    getAllCustomer();
+  }, [jwtToken]);
 
   useEffect(() => {
     const token = sessionStorage.getItem("jwtToken");
@@ -80,11 +94,11 @@ function Dashboard() {
                 color="primary"
                 icon="person_add"
                 title="Followers"
-                count="+91"
+                count={customer.length}
                 percentage={{
                   color: "success",
                   amount: "",
-                  label: "Just updated",
+                  label: "",
                 }}
               />
             </MDBox>

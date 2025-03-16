@@ -59,7 +59,7 @@ class ProductService {
   async allMealkit() {
     try {
       const response = await axios.get(
-        `http://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/general/mealkit/fetch_all`
+        `https://culcon-ad-be-30883260979.asia-east1.run.app/api/general/mealkit/fetch_all`
       );
       return response.data;
     } catch (error) {
@@ -112,7 +112,7 @@ class ProductService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.post(
-        `http://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/staff/product/update/info/mealkit?prod_id=${prod_id}`,
+        `https://culcon-ad-be-30883260979.asia-east1.run.app/api/staff/product/update/info/mealkit?prod_id=${prod_id}`,
         data,
         {
           headers: {
@@ -204,7 +204,7 @@ class ProductService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.get(
-        `http://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/staff/product/history/stock?prod_id=${prod_id}`,
+        `https://culcon-ad-be-30883260979.asia-east1.run.app/api/staff/product/history/stock?prod_id=${prod_id}`,
         {
           headers: {
             "Content-Type": "application/json",

@@ -1,5 +1,8 @@
 import axios from "axios";
-const API_BASE_URL = "https://culcon-ad-be-30883260979.asia-east1.run.app/api/staff/blog";
+
+const REACT_APP_BACKEND_API_ENDPOINT = process.env.REACT_APP_BACKEND_API_ENDPOINT;
+
+const API_BASE_URL = `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/blog`;
 class BlogService {
   async addBlog(formData) {
     try {
@@ -55,7 +58,7 @@ class BlogService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.post(
-        `http://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/staff/blog/edit?id=${id}`,
+        `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/blog/edit?id=${id}`,
         data,
         {
           headers: {

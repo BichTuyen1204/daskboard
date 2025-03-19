@@ -7,6 +7,8 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import ProductService from "api/ProductService";
 import axios from "axios";
 
+const REACT_APP_BACKEND_API_ENDPOINT = process.env.REACT_APP_BACKEND_API_ENDPOINT;
+
 function EditProduct() {
   const navigate = useNavigate();
   const [product, setProduct] = useState("");
@@ -103,7 +105,7 @@ function EditProduct() {
       try {
         const token = sessionStorage.getItem("jwtToken");
         const response = await axios.get(
-          `http://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/staff/product/history/stock?prod_id=${prod_id}`,
+          `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/product/history/stock?prod_id=${prod_id}`,
           {
             headers: {
               "Content-Type": "application/json",

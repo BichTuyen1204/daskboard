@@ -15,6 +15,8 @@ import { Divider } from "@mui/material";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
+const REACT_APP_BACKEND_API_ENDPOINT = process.env.REACT_APP_BACKEND_API_ENDPOINT;
+
 const RevenueLineChart = () => {
   const [revenueLineData, setRevenueLineData] = useState([]);
   const jwtToken = sessionStorage.getItem("jwtToken");
@@ -26,6 +28,7 @@ const RevenueLineChart = () => {
         return;
       }
       try {
+<<<<<<< HEAD
         const response = await axios.get(
           "https://culcon-ad-be-30883260979.asia-east1.run.app/api/manager/revenue",
           {
@@ -39,6 +42,15 @@ const RevenueLineChart = () => {
           (a, b) => new Date(a.date) - new Date(b.date)
         );
         setRevenueLineData(sortedData);
+=======
+        const response = await axios.get(`${REACT_APP_BACKEND_API_ENDPOINT}/api/manager/revenue`, {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+            "Content-Type": "application/json",
+          },
+        });
+        setRevenueLineData(response.data.revenue.last_7_days_revenue);
+>>>>>>> fc9c51da59a07ee8863d85a2acecfa33328ec42b
       } catch (error) {
         console.error("Error fetching revenue data:", error.response?.data || error.message);
       }

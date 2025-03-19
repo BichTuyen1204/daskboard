@@ -14,6 +14,8 @@ import { Divider, Icon } from "@mui/material";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+const REACT_APP_BACKEND_API_ENDPOINT = process.env.REACT_APP_BACKEND_API_ENDPOINT;
+
 const RevenueBarChart = () => {
   const [revenueData, setRevenueData] = useState([]);
   const [predictNextMonth, setPredictNextMonth] = useState("");
@@ -27,7 +29,7 @@ const RevenueBarChart = () => {
       } else {
         try {
           const response = await axios.get(
-            "https://culcon-ad-be-30883260979.asia-east1.run.app/api/manager/revenue",
+            `${REACT_APP_BACKEND_API_ENDPOINT}/api/manager/revenue`,
             {
               headers: {
                 Authorization: `Bearer ${jwtToken}`,
@@ -57,7 +59,7 @@ const RevenueBarChart = () => {
       }
       try {
         const response = await axios.get(
-          "https://culcon-ad-be-30883260979.asia-east1.run.app/api/manager/revenue/predict-next-month",
+          `${REACT_APP_BACKEND_API_ENDPOINT}/api/manager/revenue/predict-next-month`,
           {
             headers: {
               Authorization: `Bearer ${jwtToken}`,

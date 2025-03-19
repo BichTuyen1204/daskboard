@@ -3,6 +3,8 @@ import { Bar } from "react-chartjs-2";
 import { Divider } from "@mui/material";
 import axios from "axios";
 
+const REACT_APP_BACKEND_API_ENDPOINT = process.env.REACT_APP_BACKEND_API_ENDPOINT;
+
 function ExpectedProduct() {
   const jwtToken = sessionStorage.getItem("jwtToken");
   const [topProductMonth, setTopProductMonth] = useState([]);
@@ -15,7 +17,7 @@ function ExpectedProduct() {
       } else {
         try {
           const response = await axios.get(
-            "https://culcon-ad-be-30883260979.asia-east1.run.app/api/manager/revenue",
+            `${REACT_APP_BACKEND_API_ENDPOINT}/api/manager/revenue`,
             {
               headers: {
                 Authorization: `Bearer ${jwtToken}`,

@@ -23,9 +23,14 @@ function Dashboard() {
       if (jwtToken) {
         try {
           const response = await AccountService.getAllCustomer(jwtToken);
-          setCustomer(response);
+          if (Array.isArray(response)) {
+            setCustomer(response);
+          } else {
+            setCustomer([]);
+          }
         } catch (error) {
           console.error("Can't access the server", error);
+          setCustomer([]);
         }
       }
     };
@@ -94,7 +99,7 @@ function Dashboard() {
                 color="primary"
                 icon="person_add"
                 title="Followers"
-                count={customer.length}
+                count={customer ? customer.length : 0}
                 percentage={{
                   color: "success",
                   amount: "",

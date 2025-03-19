@@ -35,7 +35,10 @@ const RevenueLineChart = () => {
             },
           }
         );
-        setRevenueLineData(response.data.revenue.last_7_days_revenue);
+        const sortedData = response.data.revenue.last_7_days_revenue.sort(
+          (a, b) => new Date(a.date) - new Date(b.date)
+        );
+        setRevenueLineData(sortedData);
       } catch (error) {
         console.error("Error fetching revenue data:", error.response?.data || error.message);
       }

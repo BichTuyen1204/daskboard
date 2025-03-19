@@ -31,6 +31,7 @@ import Edit_Mealkit from "layouts/edit_mealkit";
 import History_Product from "layouts/history_product";
 import History_Mealkit from "layouts/history_mealkit";
 import Chat_box from "layouts/chat_box/ChatBox";
+import Order from "layouts/order_manager";
 
 const token = sessionStorage.getItem("jwtToken");
 
@@ -59,14 +60,14 @@ const routes = [
     route: "/mealkit",
     component: <Mealkit />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Order Management",
-  //   key: "Order",
-  //   icon: <Icon fontSize="small">list_alt</Icon>,
-  //   route: "/Order",
-  //   component: <Order />,
-  // },
+  {
+    type: "collapse",
+    name: "Order Management",
+    key: "Order",
+    icon: <Icon fontSize="small">list_alt</Icon>,
+    route: "/order",
+    component: <Order />,
+  },
   {
     type: "collapse",
     name: "Customer Management",

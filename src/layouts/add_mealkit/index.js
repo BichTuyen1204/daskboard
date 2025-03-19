@@ -35,7 +35,6 @@ function AddMealkit() {
   const [errorMessage, setErrorMessage] = useState("");
   const [productNameError, setProductNameError] = useState("");
   const [articleMDError, setArticleMDError] = useState("");
-  const [availableQuantityError, setAvailableQuantityError] = useState("");
   const [priceError, setPriceError] = useState("");
   const [salePercentError, setSalePercentError] = useState("");
   const [dayBeforeExpiryError, setDayBeforeExpiryError] = useState("");
@@ -47,6 +46,9 @@ function AddMealkit() {
   const [madeInError, setMadeInError] = useState("");
 
   const handleChange = (field, value) => {
+    if (["price", "sale_percent"].includes(field) && value === "") {
+      value = 0;
+    }
     setProduct((prev) => ({
       ...prev,
       [field]: value,
@@ -275,6 +277,20 @@ function AddMealkit() {
       }
       console.error(error.message || "Something went wrong.");
     }
+  };
+
+  const handleFocus = (field) => {
+    setProduct((prev) => ({
+      ...prev,
+      [field]: prev[field] === 0 ? "" : prev[field],
+    }));
+  };
+
+  const handleBlur = (field) => {
+    setProduct((prev) => ({
+      ...prev,
+      [field]: prev[field] === "" ? 0 : prev[field],
+    }));
   };
 
   return (
@@ -517,6 +533,8 @@ function AddMealkit() {
                         type="number"
                         value={product.price}
                         onChange={(e) => handleChange("price", e.target.value)}
+                        onFocus={() => handleFocus("price")}
+                        onBlur={() => handleBlur("price")}
                         onKeyDown={(e) => {
                           if (e.key.toLowerCase() === "e") {
                             e.preventDefault();
@@ -559,10 +577,12 @@ function AddMealkit() {
                       </p>
                       <TextField
                         fullWidth
-                        label="Sale Percent"
+                        label="Sale Percent (%)"
                         type="number"
                         value={product.sale_percent}
                         onChange={(e) => handleChange("sale_percent", e.target.value)}
+                        onFocus={() => handleFocus("sale_percent")}
+                        onBlur={() => handleBlur("sale_percent")}
                         onKeyDown={(e) => {
                           if (e.key.toLowerCase() === "e") {
                             e.preventDefault();
@@ -603,7 +623,7 @@ function AddMealkit() {
                       <TextField
                         fullWidth
                         type="number"
-                        label="Weight"
+                        label="Weight (gam)"
                         value={product.infos.weight}
                         onChange={(e) => handleNestedChange("infos", "weight", e.target.value)}
                         onKeyDown={(e) => {

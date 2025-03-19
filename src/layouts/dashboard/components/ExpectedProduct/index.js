@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import { Divider } from "@mui/material";
+import axios from "axios";
 
 function ExpectedProduct() {
   const jwtToken = sessionStorage.getItem("jwtToken");
@@ -22,8 +23,8 @@ function ExpectedProduct() {
               },
             }
           );
-          setTopProductMonth(response.data.top_products.top_10_products_all_time);
-          console.log(response.data.top_products.data.top_10_products_all_time);
+          setTopProductMonth(response.data.top_products?.top_10_products_all_time || []);
+          console.log("API Response:", response.data);
         } catch (error) {
           console.error("Error fetching revenue data:", error.response?.data || error.message);
         }
@@ -90,9 +91,6 @@ function ExpectedProduct() {
       tooltip: {
         callbacks: {
           enabled: false,
-          label: function (tooltipItem) {
-            return "$" + tooltipItem.raw.toLocaleString("en-US");
-          },
         },
       },
     },
@@ -100,9 +98,6 @@ function ExpectedProduct() {
       y: {
         beginAtZero: true,
         ticks: {
-          callback: function (value) {
-            return "$" + value.toLocaleString("en-US");
-          },
           color: "white",
         },
         grid: {

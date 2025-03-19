@@ -5,7 +5,6 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link } from "react-router-dom";
-import CouponService from "api/CouponService";
 import BlogService from "api/BlogService";
 
 function AddBlog() {
@@ -341,7 +340,7 @@ function AddBlog() {
                       <TextField
                         fullWidth
                         type="text"
-                        label="Serves"
+                        label="Serves (people)"
                         value={blog.infos.serves}
                         onChange={(e) => handleNestedChange("infos", "serves", e.target.value)}
                         margin="normal"
@@ -360,7 +359,7 @@ function AddBlog() {
                       <TextField
                         fullWidth
                         type="text"
-                        label="Cook time"
+                        label="Cook time (minutes)"
                         value={blog.infos.cook_time}
                         onChange={(e) => handleNestedChange("infos", "cook_time", e.target.value)}
                         margin="normal"

@@ -5,7 +5,7 @@ import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
-import authorsTableData from "layouts/order_manager/data/authorsTableData";
+import listOrder from "layouts/order_manager/data/listOrder";
 import confirmOrder from "layouts/order_manager/data/confirmOrder";
 import cancelOrder from "layouts/order_manager/data/cancelOrder";
 import { useNavigate } from "react-router-dom";
@@ -21,7 +21,7 @@ function Order() {
     }
   }, [navigate]);
 
-  const { columns, rows } = authorsTableData();
+  const { columns, rows } = listOrder();
   const { columns: pColumns, rows: pRows } = confirmOrder();
   const { columns: cancelColumns, rows: cancelRows } = cancelOrder();
 

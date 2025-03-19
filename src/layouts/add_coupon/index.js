@@ -82,6 +82,20 @@ function AddCoupon() {
     validateField(name, value);
   };
 
+  const handleFocus = (e) => {
+    const { name, value } = e.target;
+    if (value === "0") {
+      setCoupon((prevCoupon) => ({ ...prevCoupon, [name]: "" }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    if (value === "") {
+      setCoupon((prevCoupon) => ({ ...prevCoupon, [name]: "0" }));
+    }
+  };
+
   const handleSubmit = async () => {
     const isValid = Object.keys(errors).every((key) => validateField(key, coupon[key]));
 
@@ -176,6 +190,8 @@ function AddCoupon() {
                         label="Minimum Price ($)"
                         value={coupon.minimum_price}
                         onChange={handleChange}
+                        onFocus={handleFocus}
+                        onBlur={handleBlur}
                         error={!!errors.minimum_price}
                         helperText={errors.minimum_price}
                         margin="normal"
@@ -201,6 +217,8 @@ function AddCoupon() {
                         type="number"
                         value={coupon.usage_amount}
                         onChange={handleChange}
+                        onFocus={handleFocus}
+                        onBlur={handleBlur}
                         error={!!errors.usage_amount}
                         helperText={errors.usage_amount}
                         margin="normal"
@@ -231,7 +249,7 @@ function AddCoupon() {
                           shrink: true,
                         }}
                         inputProps={{
-                          min: new Date().toISOString().split("T")[0], // Chỉ cho phép chọn ngày hôm nay trở đi
+                          min: new Date().toISOString().split("T")[0],
                         }}
                         margin="normal"
                         sx={{
@@ -256,6 +274,8 @@ function AddCoupon() {
                         type="number"
                         value={coupon.sale_percent}
                         onChange={handleChange}
+                        onFocus={handleFocus}
+                        onBlur={handleBlur}
                         error={!!errors.sale_percent}
                         helperText={errors.sale_percent}
                         margin="normal"

@@ -36,7 +36,10 @@ const RevenueBarChart = () => {
             }
           );
           console.log("API Response:", response.data);
-          setRevenueData(response.data.revenue.last_6_months_revenue);
+          const sortedData = response.data.revenue.last_6_months_revenue.sort(
+            (a, b) => new Date(a.month) - new Date(b.month)
+          );
+          setRevenueData(sortedData);
           console.log(response.data.revenue.last_6_months_revenue);
         } catch (error) {
           console.error("Error fetching revenue data:", error.response?.data || error.message);
@@ -199,7 +202,8 @@ const RevenueBarChart = () => {
           Revenue over the last 6 months
         </p>
         <p style={{ color: "#73777B", fontWeight: "150", fontSize: "0.7em" }}>
-          The projected revenue for next month is <strong>${predictNextMonth}</strong>
+          The projected revenue for next month is{" "}
+          <strong>${predictNextMonth ? parseFloat(predictNextMonth).toFixed(2) : "0"}</strong>
         </p>
         <Divider />
       </div>

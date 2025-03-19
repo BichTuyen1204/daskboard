@@ -1,4 +1,5 @@
 import { Divider } from "@mui/material";
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 
@@ -22,8 +23,8 @@ function Projects() {
               },
             }
           );
-          setTopProductMonth(response.data.top_products.top_10_products_month);
-          console.log(response.data.top_products.data.top_10_products_month);
+          setTopProductMonth(response.data.top_products?.top_10_products_month || []);
+          console.log("Product of month", response.data.top_products.top_10_products_month);
         } catch (error) {
           console.error("Error fetching revenue data:", error.response?.data || error.message);
         }

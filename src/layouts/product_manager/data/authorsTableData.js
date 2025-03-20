@@ -13,13 +13,14 @@ export default function DataTable() {
 
   useEffect(() => {
     const getAllProduct = async () => {
-      if (jwtToken) {
-        try {
-          const response = await ProductService.allProduct(jwtToken);
-          setProduct(response);
-        } catch (error) {
-          console.error("Can't access the server", error);
-        }
+      if (!jwtToken) return; // Nếu không có token thì không gọi API
+
+      try {
+        const response = await ProductService.allProduct(jwtToken);
+        setProduct(Array.isArray(response) ? response : []); // Đảm bảo luôn là mảng
+      } catch (error) {
+        console.error("Can't access the server", error);
+        setProduct([]); // Khi lỗi, set thành mảng rỗng
       }
     };
 
@@ -72,104 +73,102 @@ export default function DataTable() {
     { Header: "action", accessor: "action", align: "center" },
   ];
 
-  const rows = product
-    .filter((item) => item.type !== "MK")
-    .map((item) => ({
-      image: (
-        <MDBox display="flex" alignItems="center" lineHeight={1}>
-          <Link to={`/product_detail/${item.id}`}>
-            <MDAvatar style={{ cursor: "pointer" }} src={item.image_url} size="sm" />
-          </Link>
-        </MDBox>
-      ),
-      name: <Name name={item.name} />,
-      cost_price: <CostPrice title={`$${item.price}`} />,
-      type: (
-        <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
-          {mapTypeToLabel(item.type)}
-        </MDTypography>
-      ),
-      status: (
-        <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
-          {mapStatus(item.status)}
-        </MDTypography>
-      ),
-      quantity: (
-        <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
-          {item.available_quantity}
-        </MDTypography>
-      ),
-      view: (
-        <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
-          <Link to={`/product_detail/${item.id}`}>
-            <MDTypography
-              component="button"
-              variant="caption"
-              color="white"
-              fontWeight="medium"
-              style={{
-                backgroundColor: "#1976d2",
-                fontSize: "0.9em",
-                border: "none",
-                borderRadius: "2px",
-                padding: "5px 10px",
-                cursor: "pointer",
-              }}
-            >
-              View Detail
-            </MDTypography>
-          </Link>
-        </MDTypography>
-      ),
-      history: (
-        <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
-          <Link to={`/history_product/${item.id}`}>
-            <MDTypography
-              component="button"
-              variant="caption"
-              color="white"
-              fontWeight="medium"
-              style={{
-                backgroundColor: "#1976d2",
-                fontSize: "0.9em",
-                border: "none",
-                borderRadius: "2px",
-                padding: "5px 10px",
-                cursor: "pointer",
-              }}
-            >
-              View History
-            </MDTypography>
-          </Link>
-        </MDTypography>
-      ),
-      action: (
-        <MDBox display="flex" justifyContent="center" gap={1}>
-          <Link to={`/edit_product/${item.id}`} style={{ textDecoration: "none" }}>
-            <MDTypography
-              component="button"
-              variant="caption"
-              fontWeight="medium"
-              style={{
-                backgroundColor: "white",
-                color: "#1976d2",
-                fontSize: "0.8em",
-                border: "none",
-                padding: "5px 10px",
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-              }}
-              onMouseEnter={(e) => (e.target.style.backgroundColor = "#f0f4ff")}
-              onMouseLeave={(e) => (e.target.style.backgroundColor = "white")}
-            >
-              <Icon fontSize="small" style={{ marginRight: "5px" }}>
-                edit
-              </Icon>
-            </MDTypography>
-          </Link>
-        </MDBox>
-      ),
-    }));
+  const rows = (Array.isArray(product) ? product : []).map((item) => ({
+    image: (
+      <MDBox display="flex" alignItems="center" lineHeight={1}>
+        <Link to={`/product_detail/${item.id}`}>
+          <MDAvatar style={{ cursor: "pointer" }} src={item.image_url} size="sm" />
+        </Link>
+      </MDBox>
+    ),
+    name: <Name name={item.name} />,
+    cost_price: <CostPrice title={`$${item.price}`} />,
+    type: (
+      <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
+        {mapTypeToLabel(item.type)}
+      </MDTypography>
+    ),
+    status: (
+      <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
+        {mapStatus(item.status)}
+      </MDTypography>
+    ),
+    quantity: (
+      <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
+        {item.available_quantity}
+      </MDTypography>
+    ),
+    view: (
+      <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
+        <Link to={`/product_detail/${item.id}`}>
+          <MDTypography
+            component="button"
+            variant="caption"
+            color="white"
+            fontWeight="medium"
+            style={{
+              backgroundColor: "#1976d2",
+              fontSize: "0.9em",
+              border: "none",
+              borderRadius: "2px",
+              padding: "5px 10px",
+              cursor: "pointer",
+            }}
+          >
+            View Detail
+          </MDTypography>
+        </Link>
+      </MDTypography>
+    ),
+    history: (
+      <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
+        <Link to={`/history_product/${item.id}`}>
+          <MDTypography
+            component="button"
+            variant="caption"
+            color="white"
+            fontWeight="medium"
+            style={{
+              backgroundColor: "#1976d2",
+              fontSize: "0.9em",
+              border: "none",
+              borderRadius: "2px",
+              padding: "5px 10px",
+              cursor: "pointer",
+            }}
+          >
+            View History
+          </MDTypography>
+        </Link>
+      </MDTypography>
+    ),
+    action: (
+      <MDBox display="flex" justifyContent="center" gap={1}>
+        <Link to={`/edit_product/${item.id}`} style={{ textDecoration: "none" }}>
+          <MDTypography
+            component="button"
+            variant="caption"
+            fontWeight="medium"
+            style={{
+              backgroundColor: "white",
+              color: "#1976d2",
+              fontSize: "0.8em",
+              border: "none",
+              padding: "5px 10px",
+              cursor: "pointer",
+              transition: "all 0.3s ease",
+            }}
+            onMouseEnter={(e) => (e.target.style.backgroundColor = "#f0f4ff")}
+            onMouseLeave={(e) => (e.target.style.backgroundColor = "white")}
+          >
+            <Icon fontSize="small" style={{ marginRight: "5px" }}>
+              edit
+            </Icon>
+          </MDTypography>
+        </Link>
+      </MDBox>
+    ),
+  }));
 
   return { columns, rows };
 }

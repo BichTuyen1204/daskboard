@@ -8,7 +8,7 @@ import Blog from "layouts/blog_manager";
 import SignIn from "layouts/authentication/sign-in";
 import Icon from "@mui/material/Icon";
 import Product_Detail from "layouts/product_detail";
-import Order_Detail from "layouts/order_detail";
+import Order_Confirm from "layouts/order_confirm_to_processing/index";
 import Profile_Detail from "layouts/profile_detail";
 import Add_Coupon from "layouts/add_coupon";
 import View_Coupon from "layouts/view_coupon";
@@ -32,6 +32,15 @@ import History_Product from "layouts/history_product";
 import History_Mealkit from "layouts/history_mealkit";
 import Chat_box from "layouts/chat_box/ChatBox";
 import Order from "layouts/order_manager";
+import List_Order from "layouts/order_manager/data/list_order/index";
+import Processing_Order from "layouts/order_manager/data/processing_order/index";
+import Shipping_Order from "layouts/order_manager/data/shipping_order/index";
+import Cancel_Order from "layouts/order_manager/data/cancel_order/index";
+import Confirm_Order from "layouts/order_manager/data/confirm_order/index";
+import Order_Processing_To_Shipping from "layouts/order_processing_to_shipping/index";
+import Order_Shipping_To_Shipped from "layouts/oder_shipping_to_shipped/index";
+import Shipped_Order from "layouts/order_manager/data/shipped_order/index";
+import Order_Shipped from "layouts/order_shipped/index";
 
 const token = sessionStorage.getItem("jwtToken");
 
@@ -153,8 +162,20 @@ const routes = [
     component: <Edit_Staff />,
   },
   {
-    route: "/order_detail",
-    component: <Order_Detail />,
+    route: "/order_detail/:id",
+    component: <Order_Confirm />,
+  },
+  {
+    route: "/order_processing_to_shipping/:id",
+    component: <Order_Processing_To_Shipping />,
+  },
+  {
+    route: "/order_shipping_to_shipped/:id",
+    component: <Order_Shipping_To_Shipped />,
+  },
+  {
+    route: "/order_shipped/:id",
+    component: <Order_Shipped />,
   },
   {
     route: "/profile_detail/:id",
@@ -203,6 +224,30 @@ const routes = [
   {
     route: "/add_mealkit",
     component: <Add_Mealkit />,
+  },
+  {
+    route: "/list_order",
+    component: <List_Order />,
+  },
+  {
+    route: "/processing_order",
+    component: <Processing_Order />,
+  },
+  {
+    route: "/shipping_order",
+    component: <Shipping_Order />,
+  },
+  {
+    route: "/shipped_order",
+    component: <Shipped_Order />,
+  },
+  {
+    route: "/cancel_order",
+    component: <Cancel_Order />,
+  },
+  {
+    route: "/confirm_order",
+    component: <Confirm_Order />,
   },
 ];
 

@@ -15,7 +15,7 @@ export default function data() {
 
   // Hàm mở popup
   const openModal = (id) => {
-    setSelectedItemId(id); // Lưu id của coupon
+    setSelectedItemId(id);
     setPopupDelete(true);
   };
 
@@ -43,9 +43,14 @@ export default function data() {
       if (jwtToken) {
         try {
           const response = await CouponService.getAllCoupon(jwtToken);
-          setCoupon(response);
+          if (Array.isArray(response)) {
+            setCoupon(response);
+          } else {
+            setCoupon([]);
+          }
         } catch (error) {
           console.error("Can't access the server", error);
+          setCoupon([]);
         }
       }
     };

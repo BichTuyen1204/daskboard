@@ -95,7 +95,7 @@ function MealkitDetail() {
               (a, b) => new Date(b.date) - new Date(a.date)
             );
 
-            setLatestPrice(sortedPriceList[0]); // Cập nhật state
+            setLatestPrice(sortedPriceList[0]);
           }
         } catch (error) {
           console.error("Can't access the server", error);

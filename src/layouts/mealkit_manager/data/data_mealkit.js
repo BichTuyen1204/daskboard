@@ -16,9 +16,14 @@ export default function DataTable() {
       if (jwtToken) {
         try {
           const response = await ProductService.allMealkit(jwtToken);
-          setMealkit(response);
+          if (Array.isArray(response)) {
+            setMealkit(response);
+          } else {
+            setMealkit([]);
+          }
         } catch (error) {
           console.error("Can't access the server", error);
+          setMealkit([]);
         }
       }
     };

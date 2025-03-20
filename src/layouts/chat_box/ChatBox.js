@@ -107,9 +107,14 @@ const ChatWithCustomer = () => {
     const fetchCustomers = async () => {
       try {
         const response = await AccountService.getAllCustomer(jwtToken);
-        setCustomers(response);
+        if (Array.isArray(response)) {
+          setCustomers(response);
+        } else {
+          setCustomers([]);
+        }
       } catch (error) {
         console.error("Can not get list customer", error);
+        setCustomers([]);
       }
     };
     fetchCustomers();

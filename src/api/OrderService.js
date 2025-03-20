@@ -2,46 +2,49 @@ import axios from "axios";
 const API_BASE_URL = "https://culcon-ad-be-30883260979.asia-east1.run.app/api/staff/order";
 
 class OrderService {
-  async getAllOrder() {
+  async getAllOrder(page, size) {
     try {
       const token = sessionStorage.getItem("jwtToken");
-      const response = await axios.get(`${API_BASE_URL}/fetch/all`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      if (!token) throw new Error("No JWT Token found!");
 
+      const response = await axios.get(`${API_BASE_URL}/fetch/all?index=${page}&size=${size}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return response.data;
     } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
-      throw error;
+      console.error("API Error:", error.response?.data || error.message);
+      return { orders: [], totalPages: 1 };
     }
   }
 
-  async allMealkit() {
+  async getAllOrderOnConfirm(status, page, size) {
     try {
+      const token = sessionStorage.getItem("jwtToken");
+      if (!token) {
+        return;
+      }
       const response = await axios.get(
-        `http://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/general/mealkit/fetch_all`
+        `${API_BASE_URL}/fetch/status?status=${status}&index=${page - 1}&size=${size}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
+
       return response.data;
     } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
-      throw error;
+      console.error("API Error:", error.response?.data || error.message);
+      return { content: [], total_page: 1 };
     }
   }
 
-  async getProductDetail(prod_id) {
+  async getOrderDetail(id) {
     try {
-      const response = await axios.get(`${API_BASE_URL_2}/fetch`, {
-        params: {
-          prod_id: prod_id,
-        },
+      const token = sessionStorage.getItem("jwtToken");
+      if (!token) {
+        return;
+      }
+      const response = await axios.get(`${API_BASE_URL}/fetch/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
     } catch (error) {
@@ -53,123 +56,38 @@ class OrderService {
     }
   }
 
-  async updateProductInfo(prod_id, data) {
+  async cancelOrder(id) {
     try {
       const token = sessionStorage.getItem("jwtToken");
+      if (!token) {
+        throw new Error("No JWT token found");
+      }
       const response = await axios.post(
-        `${API_BASE_URL}/product/update/info/prod?prod_id=${prod_id}`,
-        data,
+        `${API_BASE_URL}/cancel/${id}`,
+        {},
         {
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
       return response.data;
     } catch (error) {
-      console.error("Error during API calls:", error.response?.data || error.message);
+      console.error("Error when API calls:", error.message);
       throw error;
     }
   }
 
-  async updateMealkitInfo(prod_id, data) {
+  async processingOrder(id) {
     try {
       const token = sessionStorage.getItem("jwtToken");
+      if (!token) {
+        throw new Error("No JWT token found");
+      }
       const response = await axios.post(
-        `http://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/staff/product/update/info/mealkit?prod_id=${prod_id}`,
-        data,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error during API calls:", error.response?.data || error.message);
-      throw error;
-    }
-  }
-
-  async updateProductStatus(prod_id, status) {
-    try {
-      const token = sessionStorage.getItem("jwtToken");
-      const response = await axios.patch(`${API_BASE_URL}/product/update/status`, null, {
-        params: {
-          prod_id: prod_id,
-          status: status,
-        },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      return response.data;
-    } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
-      throw error;
-    }
-  }
-
-  async updateProductQuantity(prod_id, quantity, in_price) {
-    try {
-      const token = sessionStorage.getItem("jwtToken");
-      const response = await axios.patch(`${API_BASE_URL}/product/update/quantity`, null, {
-        params: {
-          prod_id: prod_id,
-          quantity: quantity,
-          in_price: in_price,
-        },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      return response.data;
-    } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
-      throw error;
-    }
-  }
-
-  async updateProductPrice(product_id, price, sale_percent) {
-    try {
-      const token = sessionStorage.getItem("jwtToken");
-      const response = await axios.put(
-        `${API_BASE_URL}/product/update/price`,
-        null, // Không gửi body
-        {
-          params: {
-            product_id: product_id,
-            price: price,
-            sale_percent: sale_percent,
-          },
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      return response.data;
-    } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
-      throw error;
-    }
-  }
-
-  async getHistoryProduct(prod_id) {
-    try {
-      const token = sessionStorage.getItem("jwtToken");
-      const response = await axios.get(
-        `http://culcon-admin-gg-87043777927.asia-northeast1.run.app/api/staff/product/history/stock?prod_id=${prod_id}`,
+        `${API_BASE_URL}/accept/${id}`,
+        {},
         {
           headers: {
             "Content-Type": "application/json",
@@ -179,10 +97,53 @@ class OrderService {
       );
       return response.data;
     } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
+      console.error("Error when API calls:", error.message);
+      throw error;
+    }
+  }
+
+  async shippingOrder(id) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      if (!token) {
+        throw new Error("No JWT token found");
+      }
+      const response = await axios.post(
+        `${API_BASE_URL}/ship/${id}`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
+      return response.data;
+    } catch (error) {
+      console.error("Error when API calls:", error.message);
+      throw error;
+    }
+  }
+
+  async shippedOrder(id) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      if (!token) {
+        throw new Error("No JWT token found");
+      }
+      const response = await axios.post(
+        `${API_BASE_URL}/shipped/${id}`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error when API calls:", error.message);
       throw error;
     }
   }

@@ -7,8 +7,6 @@ import { Icon } from "@mui/material";
 import BlogService from "api/BlogService";
 
 export default function data() {
-  const [open, setOpen] = useState(false);
-  const [selectedItemId, setSelectedItemId] = useState(null);
   const [blog, setBlog] = useState([]);
   const jwtToken = sessionStorage.getItem("jwtToken");
 
@@ -17,13 +15,19 @@ export default function data() {
       if (jwtToken) {
         try {
           const response = await BlogService.getAllBlog(jwtToken);
-          setBlog(response);
+          if (Array.isArray(response)) {
+            setBlog(response);
+          } else {
+            setBlog([]);
+          }
         } catch (error) {
           if (error.response?.status === 401) {
             console.error("Unauthorized: Please log in again.");
             alert("Session expired. Please log in again.");
+            setCustomer([]);
           } else {
             console.error("Can't access the server", error);
+            setCustomer([]);
           }
         }
       }

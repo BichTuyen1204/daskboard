@@ -2,12 +2,18 @@ import { useEffect, useState } from "react";
 import Card from "@mui/material/Card";
 import { Grid, TextField, Button, Icon } from "@mui/material";
 import MDBox from "components/MDBox";
-import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import OrderService from "api/OrderService";
 
-function OrderDetail() {
+function OrderShipped() {
   const navigate = useNavigate();
+  const [orderDetail, setOrderDetail] = useState("");
+  const { id } = useParams();
+  const jwtToken = sessionStorage.getItem("jwtToken");
+  const [popupOnShipped, setPopupOnShipped] = useState(false);
+  const [popupShippedOrderSuccess, setPopupShippedOrderSuccess] = useState(false);
+  const [selectedItemIdShipped, setSelectedItemIdShipped] = useState(null);
 
   useEffect(() => {
     const token = sessionStorage.getItem("jwtToken");
@@ -16,15 +22,54 @@ function OrderDetail() {
     }
   }, [navigate]);
 
-  const [product, setProduct] = useState({
-    id: 1,
-    image:
-      "https://assets.epicurious.com/photos/62f16ed5fe4be95d5a460eed/1:1/w_4318,h_4318,c_limit/RoastChicken_RECIPE_080420_37993.jpg",
-    name: "Product A",
-    category: "Category 1",
-    quantity: 10,
-    description: 10,
-  });
+  useEffect(() => {
+    const getOrderDetail = async () => {
+      if (jwtToken) {
+        try {
+          const response = await OrderService.getOrderDetail(id);
+          setOrderDetail(response);
+        } catch (error) {
+          console.error("Can't access the server", error);
+        }
+      }
+    };
+
+    getOrderDetail();
+  }, [id, jwtToken]);
+
+  const shippedOrder = async (id) => {
+    const jwtToken = sessionStorage.getItem("jwtToken");
+    if (!jwtToken) {
+      console.log("No JWT token found");
+      return;
+    }
+    try {
+      const response = await OrderService.shippedOrder(id);
+      if (response === true) {
+        setPopupOnShipped(false);
+        setPopupShippedOrderSuccess(true);
+        setTimeout(() => {
+          setPopupShippedOrderSuccess(false);
+          navigate("/shipping_order");
+        }, 4000);
+      } else {
+        console.log("Failed to cancel order:", response);
+      }
+    } catch (error) {
+      console.error("Failed to cancel order:", error.message);
+    }
+  };
+
+  // Hàm mở popup
+  const openShippedOrder = (id) => {
+    setSelectedItemIdShipped(id);
+    setPopupOnShipped(true);
+  };
+
+  // Hàm hủy xóa
+  const cancelShippedOrder = () => {
+    setPopupOnShipped(false);
+  };
 
   return (
     <DashboardLayout>
@@ -33,15 +78,25 @@ function OrderDetail() {
           <Grid item xs={12} md={12} lg={12}>
             <Card>
               <MDBox p={3}>
-                <Link to="/order">
+                <Link to="/shipped_order">
                   <Icon sx={{ cursor: "pointer", "&:hover": { color: "gray" } }}>arrow_back</Icon>
                 </Link>
                 <div style={{ fontWeight: "500", fontSize: "0.9em", paddingBottom: "5px" }}>
-                  Order ID: {product.id}
+                  Order ID: {orderDetail.id}
                 </div>
                 <div style={{ fontWeight: "500", fontSize: "0.6em", paddingBottom: "10px" }}>
-                  January 1, 2025 at 09:48 am form Cần Thơ
+                  {new Date(orderDetail.order_date).toLocaleString("en-US", {
+                    timeZone: "Asia/Ho_Chi_Minh",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                    hour12: false,
+                  })}
                 </div>
+
                 {/* Order Item */}
                 <Card>
                   <Grid p={2}>
@@ -52,73 +107,117 @@ function OrderDetail() {
                           fontWeight: "500",
                           borderRadius: "5px",
                           padding: "5px 10px",
-                          color: "green",
-                          backgroundColor: "lightgreen",
-                          border: "1px solid lightgreen",
+                          color: "white",
+                          backgroundColor: "green",
+                          border: "1px solid white",
                           cursor: "pointer",
                         }}
                       >
-                        Confirm
+                        {orderDetail.order_status}
                       </button>
                     </div>
-                    <div style={{ display: "flex", marginTop: "15px" }}>
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        style={{
-                          width: "4rem",
-                          height: "55px",
-                          borderRadius: "8px",
-                          marginBottom: "16px",
-                        }}
-                      />
-                      <div style={{ paddingLeft: "15px", width: "50%" }}>
-                        <div
-                          style={{
-                            fontSize: "0.6em",
-                          }}
-                        >
-                          Category
-                        </div>
-                        <div
-                          style={{
-                            fontSize: "0.7em",
-                          }}
-                        >
-                          Name of product
-                        </div>
-                      </div>
-                      <div style={{ display: "flex", width: "50%" }}>
-                        <div>
-                          <button
+
+                    <div style={{ borderBottom: "1px solid #ccc", padding: "10px" }}>
+                      <div style={{ display: "flex", flexWrap: "wrap", marginTop: "15px" }}>
+                        {orderDetail.items &&
+                          orderDetail.items.length > 0 &&
+                          orderDetail.items.map((item, index) => (
+                            <div
+                              key={index}
+                              style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                marginBottom: "15px",
+                                width: "100%",
+                                flexWrap: "wrap",
+                                borderBottom: "1px solid #ccc",
+                                paddingBottom: "15px",
+                              }}
+                            >
+                              {/* Hình ảnh sản phẩm */}
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                style={{
+                                  width: "4rem",
+                                  height: "55px",
+                                  borderRadius: "8px",
+                                  marginRight: "15px", // Thêm khoảng cách giữa hình ảnh và thông tin
+                                }}
+                              />
+
+                              {/* Thông tin sản phẩm */}
+                              <div style={{ fontSize: "0.6em", width: "50%" }}>
+                                <div>
+                                  Category: <strong>{item.type}</strong>
+                                </div>
+                                <div>
+                                  Name of product: <strong>{item.name}</strong>
+                                </div>
+                                <div>
+                                  Sale percent: <strong>{item.sale_percent}%</strong>
+                                </div>
+                                <div>
+                                  Product of the day:{" "}
+                                  <strong>
+                                    {new Date(item.price_date).toLocaleString("en-US", {
+                                      timeZone: "Asia/Ho_Chi_Minh",
+                                      year: "numeric",
+                                      month: "long",
+                                      day: "numeric",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      second: "2-digit",
+                                      hour12: false,
+                                    })}
+                                  </strong>
+                                </div>
+                              </div>
+
+                              {/* Giá sản phẩm */}
+                              <div
+                                style={{
+                                  fontSize: "0.65em",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  justifyContent: "space-between",
+                                }}
+                              >
+                                <p>Price</p>
+                                <button
+                                  style={{
+                                    padding: "5px 15px",
+                                    background: "#373737",
+                                    color: "white",
+                                    border: "1px solid gray",
+                                    borderRadius: "5px",
+                                    marginBottom: "5px",
+                                  }}
+                                >
+                                  ${item.price}
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+
+                        {/* Tổng giá của các sản phẩm */}
+                        <div style={{ marginTop: "15px", display: "flex" }}>
+                          <p style={{ fontSize: "0.75em", fontWeight: "450" }}>Total price:</p>
+                          <div
                             style={{
-                              padding: "5px 15px",
-                              background: "#373737",
-                              color: "white",
-                              border: "1px solid gray",
-                              borderRadius: "5px",
-                              marginRight: "10rem",
+                              color: "tomato",
+                              marginLeft: "15px",
+                              paddingBottom: "10px",
                             }}
                           >
-                            3 x $500
-                          </button>
-                          <button
-                            style={{
-                              padding: "5px 15px",
-                              background: "#373737",
-                              color: "white",
-                              border: "1px solid gray",
-                              borderRadius: "5px",
-                              marginRight: "10rem",
-                            }}
-                          >
-                            $1500
-                          </button>
+                            <strong>${orderDetail.total_price}</strong>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </Grid>
                 </Card>
+
                 {/* Info user */}
                 <Card style={{ marginTop: "20px" }}>
                   <Grid p={2}>
@@ -129,13 +228,13 @@ function OrderDetail() {
                           fontWeight: "500",
                           borderRadius: "5px",
                           padding: "5px 10px",
-                          color: "#ffaa00",
-                          backgroundColor: "lightyellow",
+                          color: "white",
+                          backgroundColor: "green",
                           border: "1px solid gray",
                           cursor: "pointer",
                         }}
                       >
-                        BANKING
+                        {orderDetail.payment_method}
                       </button>
                     </div>
                     <div style={{ display: "flex", marginTop: "15px" }}>
@@ -153,7 +252,7 @@ function OrderDetail() {
                           fontSize: "0.6em",
                         }}
                       >
-                        Nguyen Van A
+                        {orderDetail.receiver}
                       </div>
                     </div>
                     <div style={{ display: "flex", marginTop: "15px" }}>
@@ -171,7 +270,7 @@ function OrderDetail() {
                           fontSize: "0.6em",
                         }}
                       >
-                        099999999999
+                        {orderDetail.phonenumber}
                       </div>
                     </div>
                     <div style={{ display: "flex", marginTop: "15px" }}>
@@ -189,7 +288,7 @@ function OrderDetail() {
                           fontSize: "0.6em",
                         }}
                       >
-                        Kyoto
+                        {orderDetail.delivery_address}
                       </div>
                     </div>
                     <div style={{ display: "flex", marginTop: "15px" }}>
@@ -207,7 +306,7 @@ function OrderDetail() {
                           fontSize: "0.6em",
                         }}
                       >
-                        Kyoto
+                        {orderDetail.note || "Nothing"}
                       </div>
                     </div>
                   </Grid>
@@ -223,7 +322,7 @@ function OrderDetail() {
                           width: "50%",
                         }}
                       >
-                        Subtotal:
+                        <strong>Subtotal:</strong>
                       </div>
                       <div
                         style={{
@@ -231,7 +330,10 @@ function OrderDetail() {
                           width: "25%",
                         }}
                       >
-                        1 item
+                        {orderDetail.items && orderDetail.items.length > 0
+                          ? orderDetail.items.length
+                          : 0}{" "}
+                        items
                       </div>
                       <div
                         style={{
@@ -239,7 +341,7 @@ function OrderDetail() {
                           width: "25%",
                         }}
                       >
-                        $1500
+                        ${orderDetail.total_price}
                       </div>
                     </div>
                     <div style={{ display: "flex", marginTop: "15px" }}>
@@ -249,7 +351,7 @@ function OrderDetail() {
                           width: "50%",
                         }}
                       >
-                        Coupon:
+                        <strong>Coupon:</strong>
                       </div>
                       <div
                         style={{
@@ -257,7 +359,7 @@ function OrderDetail() {
                           width: "25%",
                         }}
                       >
-                        Nguyen Van A
+                        {/* {orderDetail.coupon} */}
                       </div>
                       <div
                         style={{
@@ -266,7 +368,7 @@ function OrderDetail() {
                           marginLeft: "-7px",
                         }}
                       >
-                        - $1500
+                        {/* - $1500 */}
                       </div>
                     </div>
                     <div style={{ display: "flex", marginTop: "15px" }}>
@@ -276,7 +378,7 @@ function OrderDetail() {
                           width: "50%",
                         }}
                       >
-                        Shipping:
+                        <strong>Shipping:</strong>
                       </div>
                       <div
                         style={{
@@ -317,7 +419,7 @@ function OrderDetail() {
                           fontWeight: "500",
                         }}
                       >
-                        $77777
+                        {orderDetail.total_price}
                       </div>
                     </div>
                     <div style={{ borderBottom: "1px solid #cfcfcf" }}></div>
@@ -328,7 +430,7 @@ function OrderDetail() {
                           width: "50%",
                         }}
                       >
-                        Paid by customer:
+                        <strong>Paid by customer:</strong>
                       </div>
                       <div
                         style={{
@@ -341,7 +443,7 @@ function OrderDetail() {
                           width: "25%",
                         }}
                       >
-                        $77777
+                        {orderDetail.total_price}
                       </div>
                     </div>
                     <div style={{ display: "flex", margin: "15px 0px" }}>
@@ -351,7 +453,7 @@ function OrderDetail() {
                           width: "50%",
                         }}
                       >
-                        Payment:
+                        <strong>Payment:</strong>
                       </div>
                       <div
                         style={{
@@ -364,29 +466,8 @@ function OrderDetail() {
                           width: "25%",
                         }}
                       >
-                        Banking ( Paypal )
+                        {orderDetail.payment_method}
                       </div>
-                    </div>
-
-                    <div
-                      style={{
-                        width: "100%",
-                        display: "flex",
-                        justifyContent: "flex-end",
-                      }}
-                    >
-                      <Button
-                        style={{
-                          border: "1px solid green",
-                          padding: "10px",
-                          backgroundColor: "green",
-                          color: "white",
-                          borderRadius: "5px",
-                          fontSize: "0.6em",
-                        }}
-                      >
-                        ON PROCESSING
-                      </Button>
                     </div>
                   </Grid>
                 </Card>
@@ -399,4 +480,4 @@ function OrderDetail() {
   );
 }
 
-export default OrderDetail;
+export default OrderShipped;

@@ -41,6 +41,9 @@ import Order_Processing_To_Shipping from "layouts/order_processing_to_shipping/i
 import Order_Shipping_To_Shipped from "layouts/oder_shipping_to_shipped/index";
 import Shipped_Order from "layouts/order_manager/data/shipped_order/index";
 import Order_Shipped from "layouts/order_shipped/index";
+import Order_Cancel_Detail from "layouts/order_cancel_detail/index";
+import Delivered_Order from "layouts/order_manager/data/delivered_order/index";
+import Order_Delivered_Detail from "layouts/order_delivered/index";
 
 const token = sessionStorage.getItem("jwtToken");
 
@@ -174,6 +177,14 @@ const routes = [
     component: <Order_Shipping_To_Shipped />,
   },
   {
+    route: "/order_cancel_detail/:id",
+    component: <Order_Cancel_Detail />,
+  },
+  {
+    route: "/order_delivered_detail/:id",
+    component: <Order_Delivered_Detail />,
+  },
+  {
     route: "/order_shipped/:id",
     component: <Order_Shipped />,
   },
@@ -244,6 +255,10 @@ const routes = [
   {
     route: "/cancel_order",
     component: <Cancel_Order />,
+  },
+  {
+    route: "/delivered_order",
+    component: <Delivered_Order />,
   },
   {
     route: "/confirm_order",

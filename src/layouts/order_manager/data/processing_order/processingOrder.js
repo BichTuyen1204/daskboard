@@ -55,7 +55,7 @@ export default function processingOrder(pageOnProcessing, rowsPerPageOnProcessin
     receiver: <MDTypography variant="caption">{item.receiver}</MDTypography>,
     order_date: (
       <MDTypography variant="caption">
-        {new Date(item.order_date).toLocaleString("en-US", {
+        {/* {new Date(item.order_date).toLocaleString("en-US", {
           timeZone: "Asia/Ho_Chi_Minh",
           year: "numeric",
           month: "long",
@@ -64,7 +64,12 @@ export default function processingOrder(pageOnProcessing, rowsPerPageOnProcessin
           minute: "2-digit",
           second: "2-digit",
           hour12: false,
-        })}
+        })} */}
+        {(() => {
+          const utcDate = new Date(item.order_date);
+          utcDate.setHours(utcDate.getHours() + 7);
+          return utcDate.toLocaleString("vi-VN");
+        })()}
       </MDTypography>
     ),
     delivery_address: <MDTypography variant="caption">{item.delivery_address}</MDTypography>,

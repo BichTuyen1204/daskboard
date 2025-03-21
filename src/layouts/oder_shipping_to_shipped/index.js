@@ -78,14 +78,14 @@ function OrderShippingToShipped() {
           <Grid item xs={12} md={12} lg={12}>
             <Card>
               <MDBox p={3}>
-                <Link to="/processing_order">
+                <Link to="/shipping_order">
                   <Icon sx={{ cursor: "pointer", "&:hover": { color: "gray" } }}>arrow_back</Icon>
                 </Link>
                 <div style={{ fontWeight: "500", fontSize: "0.9em", paddingBottom: "5px" }}>
                   Order ID: {orderDetail.id}
                 </div>
                 <div style={{ fontWeight: "500", fontSize: "0.6em", paddingBottom: "10px" }}>
-                  {new Date(orderDetail.order_date).toLocaleString("en-US", {
+                  {/* {new Date(orderDetail.order_date).toLocaleString("en-US", {
                     timeZone: "Asia/Ho_Chi_Minh",
                     year: "numeric",
                     month: "long",
@@ -94,7 +94,12 @@ function OrderShippingToShipped() {
                     minute: "2-digit",
                     second: "2-digit",
                     hour12: false,
-                  })}
+                  })} */}
+                  {(() => {
+                    const utcDate = new Date(orderDetail.order_date);
+                    utcDate.setHours(utcDate.getHours() + 7);
+                    return utcDate.toLocaleString("vi-VN");
+                  })()}
                 </div>
 
                 {/* Order Item */}
@@ -160,7 +165,7 @@ function OrderShippingToShipped() {
                                 <div>
                                   Product of the day:{" "}
                                   <strong>
-                                    {new Date(item.price_date).toLocaleString("en-US", {
+                                    {/* {new Date(item.price_date).toLocaleString("en-US", {
                                       timeZone: "Asia/Ho_Chi_Minh",
                                       year: "numeric",
                                       month: "long",
@@ -169,7 +174,26 @@ function OrderShippingToShipped() {
                                       minute: "2-digit",
                                       second: "2-digit",
                                       hour12: false,
-                                    })}
+                                    })} */}
+                                    {(() => {
+                                      const utcDate = new Date(item.price_date);
+                                      utcDate.setHours(utcDate.getHours() + 7);
+                                      return utcDate.toLocaleString("vi-VN");
+                                    })()}
+                                  </strong>
+                                </div>
+                                <div>
+                                  Coupon used:{" "}
+                                  <strong>
+                                    {orderDetail?.coupon?.sale_percent || "0"}% (- $
+                                    {orderDetail?.total_price && orderDetail?.coupon?.sale_percent
+                                      ? (
+                                          (orderDetail.total_price *
+                                            orderDetail.coupon.sale_percent) /
+                                          100
+                                        ).toFixed(2)
+                                      : "0"}
+                                    )
                                   </strong>
                                 </div>
                               </div>
@@ -315,7 +339,7 @@ function OrderShippingToShipped() {
                 <Card style={{ marginTop: "20px" }}>
                   <Grid p={2}>
                     <div style={{ fontWeight: "500", fontSize: "0.8em" }}>Order summary</div>
-                    <div style={{ display: "flex", marginTop: "15px" }}>
+                    {/* <div style={{ display: "flex", marginTop: "15px" }}>
                       <div
                         style={{
                           fontSize: "0.6em",
@@ -358,19 +382,15 @@ function OrderShippingToShipped() {
                           fontSize: "0.6em",
                           width: "25%",
                         }}
-                      >
-                        {/* {orderDetail.coupon} */}
-                      </div>
+                      ></div>
                       <div
                         style={{
                           fontSize: "0.6em",
                           width: "25%",
                           marginLeft: "-7px",
                         }}
-                      >
-                        {/* - $1500 */}
-                      </div>
-                    </div>
+                      ></div>
+                    </div> */}
                     <div style={{ display: "flex", marginTop: "15px" }}>
                       <div
                         style={{
@@ -647,7 +667,7 @@ function OrderShippingToShipped() {
                   marginTop: "20px",
                 }}
               >
-                You have successfully transitioned the order to shipping.
+                You have successfully delivered the order.
               </p>
               <Icon
                 onClick={cancelShippedOrder}

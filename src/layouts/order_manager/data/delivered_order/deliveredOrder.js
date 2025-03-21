@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 export default function deliveredOrder(pageDelivered, rowsPerPageDelivered) {
   const [orders, setOrders] = useState([]);
-  const [hasNextPageDelivered, setHasNextPageDelivered] = useState(true);
+  const [totalPages, setTotalPages] = useState(1);
   const jwtToken = sessionStorage.getItem("jwtToken");
 
   useEffect(() => {
@@ -14,55 +14,66 @@ export default function deliveredOrder(pageDelivered, rowsPerPageDelivered) {
       if (!jwtToken) return;
       try {
         const response = await OrderService.getAllOrderOnConfirm(
-          "SHIPPED",
+          "DELIVERED",
           pageDelivered,
           rowsPerPageDelivered
         );
         console.log("Confirm Response:", response);
 
-        if (Array.isArray(response)) {
-          setOrders(response);
-          setHasNextPageDelivered(response.length === rowsPerPageDelivered);
+        if (Array.isArray(response.content)) {
+          setOrders(response.content);
+          setTotalPages(response.total_page || 1);
         } else {
           setOrders([]);
-          setHasNextPageDelivered(false);
+          setTotalPages(1);
         }
       } catch (error) {
         console.error("Error fetching orders:", error);
-        setHasNextPageDelivered(false);
+        setOrders([]);
+        setTotalPages(1);
       }
     };
     fetchOrders();
   }, [jwtToken, pageDelivered, rowsPerPageDelivered]);
 
+  const hasNextPageDelivered = pageDelivered < totalPages;
+
   const columns = [
-    { Header: "Receiver", accessor: "name", align: "left" },
-    { Header: "Order Date", accessor: "order_date", align: "left" },
-    { Header: "Address", accessor: "address", align: "left" },
-    { Header: "Phone", accessor: "phone", align: "left" },
-    { Header: "Payment Status", accessor: "payment_status", align: "left" },
-    { Header: "Total Price", accessor: "total_price", align: "left" },
-    { Header: "Coupon", accessor: "coupon", align: "left" },
-    { Header: "Status", accessor: "status", align: "left" },
-    { Header: "Action", accessor: "action", align: "left" },
+    { Header: "Receiver", accessor: "name", align: "center" },
+    { Header: "Order Date", accessor: "order_date", align: "center" },
+    { Header: "Address", accessor: "address", align: "center" },
+    { Header: "Phone", accessor: "phone", align: "center" },
+    { Header: "Payment Status", accessor: "payment_status", align: "center" },
+    { Header: "Total Price", accessor: "total_price", align: "center" },
+    { Header: "Coupon", accessor: "coupon", align: "center" },
+    { Header: "Status", accessor: "status", align: "center" },
+    { Header: "Action", accessor: "action", align: "center" },
   ];
 
   const rows = orders.map((item) => ({
     name: <MDTypography variant="caption">{item.receiver}</MDTypography>,
-    order_date: <MDTypography variant="caption">{item.order_date}</MDTypography>,
+    order_date: (
+      <MDTypography variant="caption">
+        {(() => {
+          const utcDate = new Date(item.order_date);
+          utcDate.setHours(utcDate.getHours() + 7);
+          return utcDate.toLocaleString("vi-VN");
+        })()}
+      </MDTypography>
+    ),
     address: <MDTypography variant="caption">{item.delivery_address}</MDTypography>,
     phone: <MDTypography variant="caption">{item.phonenumber}</MDTypography>,
     payment_status: <MDTypography variant="caption">{item.payment_status}</MDTypography>,
-    total_price: <MDTypography variant="caption">{item.total_price}</MDTypography>,
-    coupon: <MDTypography variant="caption">{item.coupon_sale}</MDTypography>,
+    total_price: <MDTypography variant="caption">${item.total_price}</MDTypography>,
+    coupon: <MDTypography variant="caption">{item.coupon_sale || "0"}%</MDTypography>,
     status: (
-      <MDTypography variant="caption" style={{ color: "green" }}>
+      <MDTypography variant="caption" style={{ color: "green", fontWeight: "500" }}>
         {item.order_status}
       </MDTypography>
     ),
     action: (
       <MDBox display="flex" justifyContent="center">
-        <Link to={`/order_detail/${item.id}`} style={{ textDecoration: "none" }}>
+        <Link to={`/order_delivered_detail/${item.id}`} style={{ textDecoration: "none" }}>
           <MDTypography
             variant="caption"
             style={{

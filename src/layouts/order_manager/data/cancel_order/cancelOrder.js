@@ -21,7 +21,12 @@ export default function cancelOrder(pageCancelOrder, rowsPerPageCancelOrder) {
         console.log("Confirm Response:", response);
 
         if (Array.isArray(response.content)) {
-          setOrders(response.content);
+          // Sắp xếp đơn hàng theo order_date giảm dần (mới nhất lên trước)
+          const sortedOrders = response.content.sort(
+            (a, b) => new Date(b.order_date) - new Date(a.order_date)
+          );
+
+          setOrders(sortedOrders);
           setTotalPages(response.total_page || 1);
         } else {
           setOrders([]);
@@ -54,7 +59,7 @@ export default function cancelOrder(pageCancelOrder, rowsPerPageCancelOrder) {
     name: <MDTypography variant="caption">{item.receiver}</MDTypography>,
     order_date: (
       <MDTypography variant="caption">
-        {new Date(item.order_date).toLocaleString("en-US", {
+        {/* {new Date(item.order_date).toLocaleString("en-US", {
           timeZone: "Asia/Ho_Chi_Minh",
           year: "numeric",
           month: "long",
@@ -63,7 +68,12 @@ export default function cancelOrder(pageCancelOrder, rowsPerPageCancelOrder) {
           minute: "2-digit",
           second: "2-digit",
           hour12: false,
-        })}
+        })} */}
+        {(() => {
+          const utcDate = new Date(item.order_date);
+          utcDate.setHours(utcDate.getHours() + 7);
+          return utcDate.toLocaleString("vi-VN");
+        })()}
       </MDTypography>
     ),
     address: <MDTypography variant="caption">{item.delivery_address}</MDTypography>,
@@ -78,7 +88,7 @@ export default function cancelOrder(pageCancelOrder, rowsPerPageCancelOrder) {
     ),
     action: (
       <MDBox display="flex" justifyContent="center">
-        <Link to={`/order_detail/${item.id}`} style={{ textDecoration: "none" }}>
+        <Link to={`/order_cancel_detail/${item.id}`} style={{ textDecoration: "none" }}>
           <MDTypography
             variant="caption"
             style={{

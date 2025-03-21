@@ -11,9 +11,6 @@ function OrderShipped() {
   const [orderDetail, setOrderDetail] = useState("");
   const { id } = useParams();
   const jwtToken = sessionStorage.getItem("jwtToken");
-  const [popupOnShipped, setPopupOnShipped] = useState(false);
-  const [popupShippedOrderSuccess, setPopupShippedOrderSuccess] = useState(false);
-  const [selectedItemIdShipped, setSelectedItemIdShipped] = useState(null);
 
   useEffect(() => {
     const token = sessionStorage.getItem("jwtToken");
@@ -37,40 +34,6 @@ function OrderShipped() {
     getOrderDetail();
   }, [id, jwtToken]);
 
-  const shippedOrder = async (id) => {
-    const jwtToken = sessionStorage.getItem("jwtToken");
-    if (!jwtToken) {
-      console.log("No JWT token found");
-      return;
-    }
-    try {
-      const response = await OrderService.shippedOrder(id);
-      if (response === true) {
-        setPopupOnShipped(false);
-        setPopupShippedOrderSuccess(true);
-        setTimeout(() => {
-          setPopupShippedOrderSuccess(false);
-          navigate("/shipping_order");
-        }, 4000);
-      } else {
-        console.log("Failed to cancel order:", response);
-      }
-    } catch (error) {
-      console.error("Failed to cancel order:", error.message);
-    }
-  };
-
-  // Hàm mở popup
-  const openShippedOrder = (id) => {
-    setSelectedItemIdShipped(id);
-    setPopupOnShipped(true);
-  };
-
-  // Hàm hủy xóa
-  const cancelShippedOrder = () => {
-    setPopupOnShipped(false);
-  };
-
   return (
     <DashboardLayout>
       <MDBox pb={3}>
@@ -85,7 +48,7 @@ function OrderShipped() {
                   Order ID: {orderDetail.id}
                 </div>
                 <div style={{ fontWeight: "500", fontSize: "0.6em", paddingBottom: "10px" }}>
-                  {new Date(orderDetail.order_date).toLocaleString("en-US", {
+                  {/* {new Date(orderDetail.order_date).toLocaleString("en-US", {
                     timeZone: "Asia/Ho_Chi_Minh",
                     year: "numeric",
                     month: "long",
@@ -94,7 +57,12 @@ function OrderShipped() {
                     minute: "2-digit",
                     second: "2-digit",
                     hour12: false,
-                  })}
+                  })} */}
+                  {(() => {
+                    const utcDate = new Date(orderDetail.order_date);
+                    utcDate.setHours(utcDate.getHours() + 7);
+                    return utcDate.toLocaleString("vi-VN");
+                  })()}
                 </div>
 
                 {/* Order Item */}
@@ -160,7 +128,7 @@ function OrderShipped() {
                                 <div>
                                   Product of the day:{" "}
                                   <strong>
-                                    {new Date(item.price_date).toLocaleString("en-US", {
+                                    {/* {new Date(item.price_date).toLocaleString("en-US", {
                                       timeZone: "Asia/Ho_Chi_Minh",
                                       year: "numeric",
                                       month: "long",
@@ -169,7 +137,26 @@ function OrderShipped() {
                                       minute: "2-digit",
                                       second: "2-digit",
                                       hour12: false,
-                                    })}
+                                    })} */}
+                                    {(() => {
+                                      const utcDate = new Date(item.price_date);
+                                      utcDate.setHours(utcDate.getHours() + 7);
+                                      return utcDate.toLocaleString("vi-VN");
+                                    })()}
+                                  </strong>
+                                </div>
+                                <div>
+                                  Coupon used:{" "}
+                                  <strong>
+                                    {orderDetail?.coupon?.sale_percent || "0"}% (- $
+                                    {orderDetail?.total_price && orderDetail?.coupon?.sale_percent
+                                      ? (
+                                          (orderDetail.total_price *
+                                            orderDetail.coupon.sale_percent) /
+                                          100
+                                        ).toFixed(2)
+                                      : "0"}
+                                    )
                                   </strong>
                                 </div>
                               </div>
@@ -315,7 +302,7 @@ function OrderShipped() {
                 <Card style={{ marginTop: "20px" }}>
                   <Grid p={2}>
                     <div style={{ fontWeight: "500", fontSize: "0.8em" }}>Order summary</div>
-                    <div style={{ display: "flex", marginTop: "15px" }}>
+                    {/* <div style={{ display: "flex", marginTop: "15px" }}>
                       <div
                         style={{
                           fontSize: "0.6em",
@@ -358,19 +345,15 @@ function OrderShipped() {
                           fontSize: "0.6em",
                           width: "25%",
                         }}
-                      >
-                        {/* {orderDetail.coupon} */}
-                      </div>
+                      ></div>
                       <div
                         style={{
                           fontSize: "0.6em",
                           width: "25%",
                           marginLeft: "-7px",
                         }}
-                      >
-                        {/* - $1500 */}
-                      </div>
-                    </div>
+                      ></div>
+                    </div> */}
                     <div style={{ display: "flex", marginTop: "15px" }}>
                       <div
                         style={{

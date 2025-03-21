@@ -126,7 +126,7 @@ function OrderProcessingToShipping() {
                   Order ID: {orderDetail.id}
                 </div>
                 <div style={{ fontWeight: "500", fontSize: "0.6em", paddingBottom: "10px" }}>
-                  {new Date(orderDetail.order_date).toLocaleString("en-US", {
+                  {/* {new Date(orderDetail.order_date).toLocaleString("en-US", {
                     timeZone: "Asia/Ho_Chi_Minh",
                     year: "numeric",
                     month: "long",
@@ -135,7 +135,12 @@ function OrderProcessingToShipping() {
                     minute: "2-digit",
                     second: "2-digit",
                     hour12: false,
-                  })}
+                  })} */}
+                  {(() => {
+                    const utcDate = new Date(orderDetail.order_date);
+                    utcDate.setHours(utcDate.getHours() + 7);
+                    return utcDate.toLocaleString("vi-VN");
+                  })()}
                 </div>
 
                 {/* Order Item */}
@@ -211,6 +216,20 @@ function OrderProcessingToShipping() {
                                       second: "2-digit",
                                       hour12: false,
                                     })}
+                                  </strong>
+                                </div>
+                                <div>
+                                  Coupon used:{" "}
+                                  <strong>
+                                    {orderDetail?.coupon?.sale_percent || "0"}% (- $
+                                    {orderDetail?.total_price && orderDetail?.coupon?.sale_percent
+                                      ? (
+                                          (orderDetail.total_price *
+                                            orderDetail.coupon.sale_percent) /
+                                          100
+                                        ).toFixed(2)
+                                      : "0"}
+                                    )
                                   </strong>
                                 </div>
                               </div>

@@ -5,25 +5,34 @@ import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
-import listOrder from "layouts/order_manager/data/list_order/listOrder";
+import deliveredOrder from "layouts/order_manager/data/delivered_order/deliveredOrder";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Box, Icon, IconButton, Typography } from "@mui/material";
 import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
 
-function ListOrder() {
+function Order() {
   const navigate = useNavigate();
-  // List order
-  const [page, setPage] = useState(1);
-  const rowsPerPage = 7;
-  const { columns, rows, totalPages } = listOrder(page, rowsPerPage);
 
-  const handlePrevPage = () => {
-    if (page > 1) setPage(page - 1);
+  // Delivered
+  const [pageDelivered, setPageDelivered] = useState(1);
+  const rowsPerPageDelivered = 6;
+  const {
+    columns: deliveredColumns,
+    rows: deliveredRows,
+    hasNextPageDelivered,
+  } = deliveredOrder(pageDelivered, rowsPerPageDelivered);
+
+  const handlePrevPageDelivered = () => {
+    if (pageDelivered > 1) {
+      setPageDelivered((prev) => prev - 1);
+    }
   };
 
-  const handleNextPage = () => {
-    if (page < totalPages) setPage(page + 1);
+  const handleNextPageDelivered = () => {
+    if (hasNextPageDelivered) {
+      setPageDelivered((prev) => prev + 1);
+    }
   };
 
   useEffect(() => {
@@ -38,6 +47,7 @@ function ListOrder() {
       <DashboardNavbar />
       <MDBox pt={6} pb={3}>
         <Grid container spacing={6}>
+          {/* Delivered */}
           <Grid item xs={12}>
             <Card>
               <MDBox
@@ -45,16 +55,14 @@ function ListOrder() {
                 mt={-3}
                 py={3}
                 px={2}
-                variant="gradient"
-                bgColor="info"
+                bgColor="#074799"
                 borderRadius="lg"
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Order list
+                  Delivered Order
                 </MDTypography>
               </MDBox>
-
               <MDBox pt={2}>
                 <Link
                   style={{ marginLeft: "15px" }}
@@ -68,7 +76,7 @@ function ListOrder() {
                   <Icon sx={{ cursor: "pointer", "&:hover": { color: "gray" } }}>arrow_back</Icon>
                 </Link>
                 <DataTable
-                  table={{ columns, rows }}
+                  table={{ columns: deliveredColumns, rows: deliveredRows }}
                   isSorted={false}
                   entriesPerPage={false}
                   showTotalEntries={false}
@@ -83,52 +91,58 @@ function ListOrder() {
                 pb={2}
                 mx={5}
               >
+                {/* Nút Previous */}
                 <IconButton
-                  onClick={handlePrevPage}
-                  disabled={page === 1}
+                  onClick={handlePrevPageDelivered}
+                  disabled={pageDelivered === 1}
                   sx={{
                     bgcolor: "black",
                     fontSize: "0.6em",
                     color: "white",
                     width: "30px",
                     height: "30px",
+                    minWidth: "30px",
                     borderRadius: "50%",
                     "&:hover, &:focus": { bgcolor: "#333 !important", color: "white !important" },
-                    opacity: page === 1 ? 0.3 : 1,
+                    opacity: pageDelivered === 1 ? 0.3 : 1,
                   }}
                 >
                   <ArrowBackIos sx={{ fontSize: "14px" }} />
                 </IconButton>
 
+                {/* Số trang */}
                 <Box
                   sx={{
                     mx: 2,
                     width: 30,
                     height: 30,
                     display: "flex",
+                    border: "1px solid white",
                     alignItems: "center",
                     justifyContent: "center",
                     borderRadius: "50%",
-                    bgcolor: "#1b98e0",
+                    bgcolor: "#074799",
                   }}
                 >
                   <Typography color="white" fontWeight="bold">
-                    <p style={{ fontSize: "14px", color: "white" }}>{page}</p>
+                    <p style={{ fontSize: "0.7em", color: "white" }}>{pageDelivered}</p>
                   </Typography>
                 </Box>
 
+                {/* Nút Next */}
                 <IconButton
-                  onClick={handleNextPage}
-                  disabled={page >= totalPages}
+                  onClick={handleNextPageDelivered}
+                  disabled={!hasNextPageDelivered}
                   sx={{
                     bgcolor: "black",
                     fontSize: "0.6em",
                     color: "white",
                     width: "30px",
                     height: "30px",
+                    minWidth: "30px",
                     borderRadius: "50%",
                     "&:hover, &:focus": { bgcolor: "#333 !important", color: "white !important" },
-                    opacity: page >= totalPages ? 0.3 : 1,
+                    opacity: hasNextPageDelivered ? 1 : 0.3,
                   }}
                 >
                   <ArrowForwardIos sx={{ fontSize: "14px" }} />
@@ -142,4 +156,4 @@ function ListOrder() {
   );
 }
 
-export default ListOrder;
+export default Order;

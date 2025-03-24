@@ -6,31 +6,35 @@ import { useEffect, useState } from "react";
 import AccountService from "api/AccountService";
 import { Icon } from "@mui/material";
 
-export default function data() {
+export default function data(pageStaff, rowsPerPageStaff) {
   const [staff, setStaff] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
   const jwtToken = sessionStorage.getItem("jwtToken");
 
   useEffect(() => {
     const getAllStaff = async () => {
       if (jwtToken) {
         try {
-          const response = await AccountService.getAllStaff(jwtToken);
+          const response = await AccountService.getAllStaff(pageStaff, rowsPerPageStaff);
           console.log("API Response:", response);
-
-          if (Array.isArray(response)) {
-            setStaff(response);
+          if (Array.isArray(response.content)) {
+            setStaff(response.content);
+            setTotalPages(response.total_page || 1);
           } else {
-            console.error("Expected an array but got:", response);
             setStaff([]);
+            setTotalPages(1);
           }
         } catch (error) {
           console.error("Can't access the server", error);
           setStaff([]);
+          setTotalPages(1);
         }
       }
     };
     getAllStaff();
-  }, [jwtToken]);
+  }, [jwtToken, pageStaff, rowsPerPageStaff]);
+
+  const hasNextPageStaff = pageStaff < totalPages;
 
   const Username = ({ username }) => (
     <MDBox lineHeight={1} textAlign="center">
@@ -130,5 +134,5 @@ export default function data() {
       }))
     : [];
 
-  return { columns, rows };
+  return { columns, rows, hasNextPageStaff };
 }

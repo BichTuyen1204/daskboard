@@ -6,12 +6,28 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
 import authorsTableData from "layouts/coupon_manager/data/authorsTableData";
-import { Icon } from "@mui/material";
+import { Box, Icon, IconButton, Typography } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
 
 function Coupon() {
   const navigate = useNavigate();
+  const [pageCoupon, setPageCoupon] = useState(1);
+  const rowsPerPageCoupon = 6;
+  const { columns, rows, hasNextPageCoupon } = authorsTableData(pageCoupon, rowsPerPageCoupon);
+
+  const handlePrevPageCoupon = () => {
+    if (pageCoupon > 1) {
+      setPageCoupon((prev) => prev - 1);
+    }
+  };
+
+  const handleNextPageCoupon = () => {
+    if (hasNextPageCoupon) {
+      setPageCoupon((prev) => prev + 1);
+    }
+  };
 
   useEffect(() => {
     const token = sessionStorage.getItem("jwtToken");
@@ -19,8 +35,6 @@ function Coupon() {
       navigate("/sign-in", { replace: true });
     }
   }, [navigate]);
-
-  const { columns, rows } = authorsTableData();
 
   return (
     <DashboardLayout>
@@ -51,6 +65,71 @@ function Coupon() {
                   showTotalEntries={false}
                   noEndBorder
                 />
+              </MDBox>
+              <MDBox
+                display="flex"
+                justifyContent="flex-end"
+                alignItems="center"
+                mt={2}
+                pb={2}
+                mx={5}
+              >
+                {/* Nút Previous */}
+                <IconButton
+                  onClick={handlePrevPageCoupon}
+                  disabled={pageCoupon === 1}
+                  sx={{
+                    bgcolor: "black",
+                    fontSize: "0.6em",
+                    color: "white",
+                    width: "30px",
+                    height: "30px",
+                    minWidth: "30px",
+                    borderRadius: "50%",
+                    "&:hover, &:focus": { bgcolor: "#333 !important", color: "white !important" },
+                    opacity: pageCoupon === 1 ? 0.3 : 1,
+                  }}
+                >
+                  <ArrowBackIos sx={{ fontSize: "14px" }} />
+                </IconButton>
+
+                {/* Số trang */}
+                <Box
+                  sx={{
+                    mx: 2,
+                    width: 30,
+                    height: 30,
+                    display: "flex",
+                    border: "1px solid white",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "50%",
+                    bgcolor: "#1b98e0",
+                  }}
+                >
+                  <Typography color="white" fontWeight="bold">
+                    <p style={{ fontSize: "0.7em", color: "white" }}>{pageCoupon}</p>
+                  </Typography>
+                </Box>
+
+                {/* Nút Next */}
+                <IconButton
+                  onClick={handleNextPageCoupon}
+                  disabled={!hasNextPageCoupon}
+                  sx={{
+                    bgcolor: "black",
+                    fontSize: "0.6em",
+                    color: "white",
+                    width: "30px",
+                    height: "30px",
+                    minWidth: "30px",
+                    borderRadius: "50%",
+                    "&:hover, &:focus": { bgcolor: "#333 !important", color: "white !important" },
+                    opacity: hasNextPageCoupon ? 1 : 0.3,
+                  }}
+                >
+                  <ArrowForwardIos sx={{ fontSize: "14px" }} />
+                </IconButton>
               </MDBox>
             </Card>
           </Grid>

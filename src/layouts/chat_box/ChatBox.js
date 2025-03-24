@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import AccountService from "api/AccountService";
 import {
   List,
@@ -9,9 +9,11 @@ import {
   Box,
   Typography,
   IconButton,
+  Icon,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import SendIcon from "@mui/icons-material/Send";
+import { Link, useParams } from "react-router-dom";
 
 const REACT_APP_BACKEND_WS_ENDPOINT = process.env.REACT_APP_BACKEND_WS_ENDPOINT;
 const ChatContainer = styled(Box)({
@@ -95,104 +97,137 @@ const saveMessagesToLocal = (userId, messages) => {
 };
 
 const ChatWithCustomer = () => {
-  const [customers, setCustomers] = useState([]);
+  const [customers, setCustomers] = useState(null);
   const [socket, setSocket] = useState(null);
   const [input, setInput] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const jwtToken = sessionStorage.getItem("jwtToken");
   const messagesEndRef = useRef(null);
+  const socketRef = useRef(null);
+  const { id } = useParams();
+  const messagesRef = useRef([]);
 
   useEffect(() => {
-    const fetchCustomers = async () => {
+    if (!jwtToken || !id) return;
+
+    const fetchCustomer = async () => {
       try {
-        const response = await AccountService.getAllCustomer(jwtToken);
-        if (Array.isArray(response)) {
+        const response = await AccountService.getCustomerDetail(id);
+        console.log("Db user:", response);
+        if (response) {
           setCustomers(response);
+          setSelectedUser(response);
+          const storedMessages = localStorage.getItem(`chat_${id}`);
+          setMessages(storedMessages ? JSON.parse(storedMessages) : []);
         } else {
-          setCustomers([]);
+          console.warn("Customer data is empty!");
+          setCustomers(null);
         }
       } catch (error) {
-        console.error("Can not get list customer", error);
-        setCustomers([]);
+        console.error("Can't access server", error);
       }
     };
-    fetchCustomers();
-  }, [jwtToken]);
+    fetchCustomer();
+  }, [id, jwtToken]);
 
-  const handleSelectCustomer = (customer) => {
-    if (socket) socket.close();
-    setSelectedUser(customer);
-    const storedMessages = localStorage.getItem(`chat_${customer.id}`);
-    setMessages(storedMessages ? JSON.parse(storedMessages) : []);
-  };
-
-  useEffect(() => {
-    if (!jwtToken || !selectedUser) return;
+  const setupWebSocket = useCallback(() => {
+    if (!jwtToken || !id) return;
 
     const ws = new WebSocket(
-      `${REACT_APP_BACKEND_WS_ENDPOINT}/ws/chat/connect/${selectedUser.id}?token=${jwtToken}`
+      `${REACT_APP_BACKEND_WS_ENDPOINT}/ws/chat/connect/${id}?token=${jwtToken}`
     );
-    console.log(ws);
 
-    ws.onopen = () => {
-      console.log("✅ WebSocket Connected");
-    };
+    socketRef.current = ws;
+
+    ws.onopen = () => console.log("✅ WebSocket Connected");
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.msg) {
+
+      if (data.type === "data" && Array.isArray(data.chatlog)) {
+        // Khi tải lịch sử chat từ server
+        const parsedMessages = data.chatlog
+          .map((msgObj) => {
+            try {
+              const messageContent = JSON.parse(msgObj.msg);
+              return {
+                text: messageContent.message,
+                sender: messageContent.sender,
+                timestamp: messageContent.timestamp,
+              };
+            } catch (error) {
+              console.error("Error parsing message", error);
+              return null;
+            }
+          })
+          .filter(Boolean);
+
+        // ✅ Tránh trùng lặp tin nhắn đã hiển thị
+        const newMessages = parsedMessages.filter(
+          (msg) => !messagesRef.current.some((m) => m.timestamp === msg.timestamp)
+        );
+
+        if (newMessages.length > 0) {
+          messagesRef.current = [...messagesRef.current, ...newMessages];
+          setMessages([...messagesRef.current]);
+          saveMessagesToLocal(id, messagesRef.current);
+        }
+      } else if (data.msg) {
         try {
           const messageContent = JSON.parse(data.msg);
-          console.log("Received message:", data);
-          const timestamp = new Date().toISOString();
+          if (messageContent.type === "chat") {
+            const newMessage = {
+              text: messageContent.message,
+              sender: messageContent.sender,
+              timestamp: messageContent.timestamp,
+            };
 
-          const newMessage = {
-            text: messageContent.message,
-            sender: data.sender,
-            timestamp: messageContent.timestamp || timestamp,
-          };
-
-          setMessages((prev) => {
-            const updatedMessages = [...prev, newMessage];
-            saveMessagesToLocal(selectedUser.id, updatedMessages);
-            return updatedMessages;
-          });
+            // ✅ Kiểm tra tin nhắn đã có trên UI chưa (tránh trùng)
+            if (!messagesRef.current.some((m) => m.timestamp === newMessage.timestamp)) {
+              messagesRef.current = [...messagesRef.current, newMessage];
+              setMessages([...messagesRef.current]);
+              saveMessagesToLocal(idUser, messagesRef.current);
+            }
+          }
         } catch (error) {
-          console.error("Error parsing message:", error);
+          console.error("Lỗi khi parse tin nhắn từ server:", error);
         }
       }
     };
 
-    // Sự kiện khi có lỗi xảy ra với WebSocket
-    ws.onerror = (error) => {
-      console.error("WebSocket Error:", error);
+    ws.onerror = (error) => console.error("WebSocket Error:", error);
+
+    ws.onclose = () => {
+      console.warn("WebSocket Disconnected. Reconnecting in 3s...");
+      setTimeout(() => {
+        if (!socketRef.current || socketRef.current.readyState === WebSocket.CLOSED) {
+          setupWebSocket();
+        }
+      }, 3000);
     };
 
-    // Sự kiện khi kết nối WebSocket đóng
-    ws.onclose = (event) => {
-      if (event.wasClean) {
-        console.log("WebSocket closed cleanly");
-      } else {
-        console.error("WebSocket closed with an error");
-      }
-    };
+    return () => ws.close();
+  }, [id, jwtToken]);
 
-    setSocket(ws);
+  useEffect(() => {
+    if (id) {
+      const storedMessages = localStorage.getItem(`chat_${id}`);
+      setMessages(storedMessages ? JSON.parse(storedMessages) : []);
+      messagesRef.current = storedMessages ? JSON.parse(storedMessages) : [];
+    }
+  }, [id]);
 
-    return () => {
-      ws.close();
-    };
-  }, [selectedUser, jwtToken]);
+  useEffect(() => {
+    setupWebSocket();
+  }, [setupWebSocket]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const sendMessage = () => {
-    if (!socket || socket.readyState !== WebSocket.OPEN) {
-      return;
-    }
+    if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) return;
     if (input.trim()) {
       const timestamp = new Date().toISOString();
       const messageData = {
@@ -202,20 +237,25 @@ const ChatWithCustomer = () => {
         timestamp,
       };
 
-      socket.send(JSON.stringify(messageData));
-      console.log("Sending message:", messageData);
+      socketRef.current.send(JSON.stringify(messageData));
+      console.log("📤 Sent Message:", messageData);
 
-      const updatedMessages = [...messages, { text: input, sender: "staff", timestamp }];
-      setMessages(updatedMessages);
+      // Cập nhật UI ngay lập tức mà không cần chờ phản hồi từ server
+      const newMessage = { text: input, sender: "staff", timestamp };
+      messagesRef.current = [...messagesRef.current, newMessage];
+      setMessages([...messagesRef.current]);
+      saveMessagesToLocal(id, messagesRef.current);
 
-      if (selectedUser) {
-        saveMessagesToLocal(selectedUser.id, updatedMessages);
-        console.log("Stored messages:", localStorage.getItem(`chat_${selectedUser?.id}`));
-      }
+      // Cuộn xuống cuối khi gửi tin nhắn
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
-      setInput("");
+      setInput(""); // Xóa input sau khi gửi
     }
   };
+
+  useEffect(() => {
+    console.log("📩 Tất cả tin nhắn:", messages);
+  }, [messages]);
 
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
@@ -232,20 +272,22 @@ const ChatWithCustomer = () => {
   return (
     <ChatContainer>
       <CustomerList elevation={3}>
+        <Link to="/chat">
+          <Icon sx={{ cursor: "pointer", "&:hover": { color: "gray" } }}>arrow_back</Icon>
+        </Link>
         <Typography variant="h6" sx={{ padding: "15px", textAlign: "center" }}>
-          Customer List
+          Customer
         </Typography>
         <hr style={{ marginBottom: "15px" }} />
         <List>
-          {customers?.map((customer) => (
+          {customers && (
             <ListItem
               button
-              key={customer.id}
-              onClick={() => handleSelectCustomer(customer)}
+              key={customers.id}
               sx={{
                 display: "flex",
                 alignItems: "center",
-                backgroundColor: selectedUser?.id === customer.id ? "#bbdefb" : "white",
+                backgroundColor: customers?.id ? "#bbdefb" : "white",
                 borderRadius: "5px",
                 marginBottom: "5px",
                 padding: "5px 15px",
@@ -267,11 +309,11 @@ const ChatWithCustomer = () => {
               >
                 <img
                   src={
-                    customer.profile_pic && customer.profile_pic.trim() !== "defaultProfile"
-                      ? customer.profile_pic
+                    customers.profile_pic && customers.profile_pic.trim() !== "defaultProfile"
+                      ? customers.profile_pic
                       : "https://i.pinimg.com/originals/2c/47/d5/2c47d5dd5b532f83bb55c4cd6f5bd1ef.jpg"
                   }
-                  alt={customer.username}
+                  alt={customers.username}
                   style={{
                     width: "100%",
                     height: "100%",
@@ -282,16 +324,16 @@ const ChatWithCustomer = () => {
 
               <ListItemText
                 primaryTypographyProps={{ sx: { fontSize: "0.8em", fontWeight: "500" } }}
-                primary={customer.username}
+                primary={customers.username}
               />
             </ListItem>
-          ))}
+          )}
         </List>
       </CustomerList>
 
       <ChatBox elevation={3}>
         <Typography sx={{ textAlign: "center", fontSize: "0.8em", fontWeight: "500" }}>
-          Chat with {selectedUser?.username || "..."}
+          Chat with {customers?.username || "No one"}
         </Typography>
         <MessageList>
           {messages.map((msg, index) => (

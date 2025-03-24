@@ -55,12 +55,11 @@ class AccountService {
     }
   }
 
-  async getAllCustomer() {
+  async getAllCustomer(page, size) {
     try {
       const token = sessionStorage.getItem("jwtToken");
-      const response = await axios.get(`${API_BASE_URL_4}/all`, {
+      const response = await axios.get(`${API_BASE_URL_4}/all?index=${page - 1}&size=${size}`, {
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });

@@ -7,12 +7,24 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
 import authorsTableData from "layouts/product_manager/data/authorsTableData";
 import projectsTableData from "layouts/product_manager/data/projectsTableData";
-import { Icon } from "@mui/material";
+import { Box, Icon, IconButton, Typography } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
 
 function Product() {
   const navigate = useNavigate();
+  const [page, setPage] = useState(1);
+  const rowsPerPage = 7;
+  const { columns, rows, totalPages } = authorsTableData(page, rowsPerPage);
+
+  const handlePrevPage = () => {
+    if (page > 1) setPage(page - 1);
+  };
+
+  const handleNextPage = () => {
+    if (page < totalPages) setPage(page + 1);
+  };
 
   useEffect(() => {
     const token = sessionStorage.getItem("jwtToken");
@@ -21,7 +33,6 @@ function Product() {
     }
   }, [navigate]);
 
-  const { columns, rows } = authorsTableData();
   const { columns: pColumns, rows: pRows } = projectsTableData();
 
   return (
@@ -53,6 +64,65 @@ function Product() {
                   showTotalEntries={false}
                   noEndBorder
                 />
+              </MDBox>
+              <MDBox
+                display="flex"
+                justifyContent="flex-end"
+                alignItems="center"
+                mt={2}
+                pb={2}
+                mx={5}
+              >
+                <IconButton
+                  onClick={handlePrevPage}
+                  disabled={page === 1}
+                  sx={{
+                    bgcolor: "black",
+                    fontSize: "0.6em",
+                    color: "white",
+                    width: "30px",
+                    height: "30px",
+                    borderRadius: "50%",
+                    "&:hover, &:focus": { bgcolor: "#333 !important", color: "white !important" },
+                    opacity: page === 1 ? 0.3 : 1,
+                  }}
+                >
+                  <ArrowBackIos sx={{ fontSize: "14px" }} />
+                </IconButton>
+
+                <Box
+                  sx={{
+                    mx: 2,
+                    width: 30,
+                    height: 30,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "50%",
+                    bgcolor: "#1b98e0",
+                  }}
+                >
+                  <Typography color="white" fontWeight="bold">
+                    <p style={{ fontSize: "14px", color: "white" }}>{page}</p>
+                  </Typography>
+                </Box>
+
+                <IconButton
+                  onClick={handleNextPage}
+                  disabled={page >= totalPages}
+                  sx={{
+                    bgcolor: "black",
+                    fontSize: "0.6em",
+                    color: "white",
+                    width: "30px",
+                    height: "30px",
+                    borderRadius: "50%",
+                    "&:hover, &:focus": { bgcolor: "#333 !important", color: "white !important" },
+                    opacity: page >= totalPages ? 0.3 : 1,
+                  }}
+                >
+                  <ArrowForwardIos sx={{ fontSize: "14px" }} />
+                </IconButton>
               </MDBox>
             </Card>
           </Grid>

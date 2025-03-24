@@ -6,34 +6,34 @@ import { useEffect, useState } from "react";
 import { Icon } from "@mui/material";
 import BlogService from "api/BlogService";
 
-export default function data() {
+export default function data(pageBlog, rowsPerPageBlog) {
   const [blog, setBlog] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+
   const jwtToken = sessionStorage.getItem("jwtToken");
 
   useEffect(() => {
     const getAllBlog = async () => {
       if (jwtToken) {
         try {
-          const response = await BlogService.getAllBlog(jwtToken);
-          if (Array.isArray(response)) {
-            setBlog(response);
+          const response = await BlogService.getAllBlog(pageBlog, rowsPerPageBlog);
+          if (Array.isArray(response.content)) {
+            setBlog(response.content);
+            setTotalPages(response.total_page || 1);
           } else {
             setBlog([]);
+            setTotalPages(1);
           }
         } catch (error) {
-          if (error.response?.status === 401) {
-            console.error("Unauthorized: Please log in again.");
-            alert("Session expired. Please log in again.");
-            setCustomer([]);
-          } else {
-            console.error("Can't access the server", error);
-            setCustomer([]);
-          }
+          setBlog([]);
+          setTotalPages(1);
         }
       }
     };
     getAllBlog();
-  }, [jwtToken]);
+  }, [jwtToken, pageBlog, rowsPerPageBlog]);
+
+  const hasNextPageBlog = pageBlog < totalPages;
 
   const Description = ({ description }) => (
     <MDBox
@@ -130,5 +130,5 @@ export default function data() {
     ),
   }));
 
-  return { columns, rows };
+  return { columns, rows, hasNextPageBlog };
 }

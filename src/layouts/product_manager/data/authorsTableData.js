@@ -7,25 +7,32 @@ import { Icon } from "@mui/material";
 import { Link } from "react-router-dom";
 import ProductService from "api/ProductService";
 
-export default function DataTable() {
+export default function DataTable(page, rowsPerPage) {
   const [product, setProduct] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
   const jwtToken = sessionStorage.getItem("jwtToken");
 
   useEffect(() => {
     const getAllProduct = async () => {
-      if (!jwtToken) return; // Nếu không có token thì không gọi API
+      if (!jwtToken) return;
 
       try {
-        const response = await ProductService.allProduct(jwtToken);
-        setProduct(Array.isArray(response) ? response : []); // Đảm bảo luôn là mảng
+        const response = await ProductService.allProduct(page, rowsPerPage);
+        if (Array.isArray(response.content)) {
+          setProduct(response.content);
+          setTotalPages(response.total_page || 1);
+        } else {
+          setOrders([]);
+          setTotalPages(1);
+        }
       } catch (error) {
-        console.error("Can't access the server", error);
-        setProduct([]); // Khi lỗi, set thành mảng rỗng
+        setProduct([]);
+        setTotalPages(1);
       }
     };
 
     getAllProduct();
-  }, [jwtToken]);
+  }, [jwtToken, page, rowsPerPage]);
 
   const mapTypeToLabel = (type) => {
     const typeMap = {
@@ -170,5 +177,5 @@ export default function DataTable() {
     ),
   }));
 
-  return { columns, rows };
+  return { columns, rows, totalPages };
 }

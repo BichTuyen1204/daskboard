@@ -24,17 +24,25 @@ class BlogService {
     }
   }
 
-  async getAllBlog(jwtToken) {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/fetch/all`, {
-        headers: {
-          Authorization: `Bearer ${jwtToken}`,
-        },
-      });
-      return response.data;
-    } catch (error) {
-      console.error("Error when API calls:", error.message);
-      throw error;
+  async getAllBlog(page, size) {
+    const token = sessionStorage.getItem("jwtToken");
+    if (!token) {
+      return;
+    } else {
+      try {
+        const response = await axios.get(
+          `${API_BASE_URL}/fetch/all?index=${page - 1}&size=${size}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Error when API calls:", error.message);
+        throw error;
+      }
     }
   }
 

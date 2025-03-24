@@ -46,23 +46,31 @@ class ProductService {
     }
   }
 
-  async allProduct() {
+  async allProduct(page, size) {
     try {
-      const response = await axios.get(`${API_BASE_URL_2}/fetch_all`);
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.get(
+        `${API_BASE_URL_2}/fetch_all?index=${page - 1}&size=${size}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       return response.data;
     } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
-      throw error;
+      return { content: [], total_page: 1 };
     }
   }
 
-  async allMealkit() {
+  async allMealkit(page, size) {
     try {
+      const token = sessionStorage.getItem("jwtToken");
       const response = await axios.get(
-        `${REACT_APP_BACKEND_API_ENDPOINT}/api/general/mealkit/fetch_all`
+        `${REACT_APP_BACKEND_API_ENDPOINT}/api/general/mealkit/fetch_all?index=${
+          page - 1
+        }&size=${size}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
       return response.data;
     } catch (error) {

@@ -5,27 +5,27 @@ import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
-import data_mealkit from "layouts/mealkit_manager/data/data_mealkit";
-import { Box, Icon, IconButton, Typography } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+import data from "layouts/chat_box_manager/data/index";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
+import { Box, IconButton, Typography } from "@mui/material";
 
-function Mealkit() {
-  const [pageMealkit, setPageMealkit] = useState(1);
-  const rowsPerPageMealkit = 7;
+function ChatBox() {
+  const [pageCustomer, setPageCustomer] = useState(1);
+  const rowsPerPageCustomer = 7;
   const navigate = useNavigate();
-  const { columns, rows, hasNextPageMealkit } = data_mealkit(pageMealkit, rowsPerPageMealkit);
+  const { columns, rows, hasNextPageCustomer } = data(pageCustomer, rowsPerPageCustomer);
 
-  const handlePrevPageMealkit = () => {
-    if (pageMealkit > 1) {
-      setPageMealkit((prev) => prev - 1);
+  const handlePrevPageCustomer = () => {
+    if (pageCustomer > 1) {
+      setPageCustomer((prev) => prev - 1);
     }
   };
 
-  const handleNextPageMealkit = () => {
-    if (hasNextPageMealkit) {
-      setPageMealkit((prev) => prev + 1);
+  const handleNextPageCustomer = () => {
+    if (hasNextPageCustomer) {
+      setPageCustomer((prev) => prev + 1);
     }
   };
 
@@ -35,7 +35,6 @@ function Mealkit() {
       navigate("/sign-in", { replace: true });
     }
   }, [navigate]);
-
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -54,7 +53,7 @@ function Mealkit() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Mealkit list
+                  Customer list
                 </MDTypography>
               </MDBox>
               <MDBox pt={3}>
@@ -75,8 +74,8 @@ function Mealkit() {
                 mx={5}
               >
                 <IconButton
-                  onClick={handlePrevPageMealkit}
-                  disabled={pageMealkit === 1}
+                  onClick={handlePrevPageCustomer}
+                  disabled={pageCustomer === 1}
                   sx={{
                     bgcolor: "black",
                     fontSize: "0.6em",
@@ -85,7 +84,7 @@ function Mealkit() {
                     height: "30px",
                     borderRadius: "50%",
                     "&:hover, &:focus": { bgcolor: "#333 !important", color: "white !important" },
-                    opacity: pageMealkit === 1 ? 0.3 : 1,
+                    opacity: pageCustomer === 1 ? 0.3 : 1,
                   }}
                 >
                   <ArrowBackIos sx={{ fontSize: "14px" }} />
@@ -104,13 +103,13 @@ function Mealkit() {
                   }}
                 >
                   <Typography color="white" fontWeight="bold">
-                    <p style={{ fontSize: "14px", color: "white" }}>{pageMealkit}</p>
+                    <p style={{ fontSize: "14px", color: "white" }}>{pageCustomer}</p>
                   </Typography>
                 </Box>
 
                 <IconButton
-                  onClick={handleNextPageMealkit}
-                  disabled={!hasNextPageMealkit}
+                  onClick={handleNextPageCustomer}
+                  disabled={!hasNextPageCustomer}
                   sx={{
                     bgcolor: "black",
                     fontSize: "0.6em",
@@ -119,7 +118,7 @@ function Mealkit() {
                     height: "30px",
                     borderRadius: "50%",
                     "&:hover, &:focus": { bgcolor: "#333 !important", color: "white !important" },
-                    opacity: hasNextPageMealkit ? 0.3 : 1,
+                    opacity: hasNextPageCustomer ? 0.3 : 1,
                   }}
                 >
                   <ArrowForwardIos sx={{ fontSize: "14px" }} />
@@ -129,30 +128,8 @@ function Mealkit() {
           </Grid>
         </Grid>
       </MDBox>
-      <Link to="/add_mealkit">
-        <MDBox
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          width="3.25rem"
-          height="3.25rem"
-          bgColor="white"
-          shadow="sm"
-          borderRadius="50%"
-          position="fixed"
-          right="2rem"
-          bottom="2rem"
-          zIndex={99}
-          color="dark"
-          sx={{ cursor: "pointer" }}
-        >
-          <Icon fontSize="small" color="inherit">
-            add
-          </Icon>
-        </MDBox>
-      </Link>
     </DashboardLayout>
   );
 }
 
-export default Mealkit;
+export default ChatBox;

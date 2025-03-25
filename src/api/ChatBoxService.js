@@ -16,7 +16,7 @@ class ChatBoxService {
       });
       return response.data;
     } catch (error) {
-      console.error("Error when API calls:", error.message);
+      error.message;
     }
   }
 }

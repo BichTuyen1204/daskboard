@@ -24,7 +24,6 @@ const RevenueBarChart = () => {
   useEffect(() => {
     const fetchRevenue = async () => {
       if (!jwtToken) {
-        console.error("Token not found. Please log in again.");
         return;
       } else {
         try {
@@ -37,15 +36,11 @@ const RevenueBarChart = () => {
               },
             }
           );
-          console.log("API Response:", response.data);
           const sortedData = response.data.revenue.last_6_months_revenue.sort(
             (a, b) => new Date(a.month) - new Date(b.month)
           );
           setRevenueData(sortedData);
-          console.log(response.data.revenue.last_6_months_revenue);
-        } catch (error) {
-          console.error("Error fetching revenue data:", error.response?.data || error.message);
-        }
+        } catch (error) {}
       }
     };
     fetchRevenue();
@@ -54,7 +49,6 @@ const RevenueBarChart = () => {
   useEffect(() => {
     const getPredictNextMonth = async () => {
       if (!jwtToken) {
-        console.error("Token not found. Please log in again.");
         return;
       }
       try {
@@ -68,9 +62,7 @@ const RevenueBarChart = () => {
           }
         );
         setPredictNextMonth(response.data.predicted_revenue);
-      } catch (error) {
-        console.error("Error fetching revenue data:", error.response?.data || error.message);
-      }
+      } catch (error) {}
     };
 
     getPredictNextMonth();

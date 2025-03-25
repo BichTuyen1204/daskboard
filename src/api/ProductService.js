@@ -17,10 +17,6 @@ class ProductService {
       });
       return response.data;
     } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
       throw error;
     }
   }
@@ -38,10 +34,8 @@ class ProductService {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log("Data mealkit", response.data);
       return response.data;
     } catch (error) {
-      console.error("Error during API call:", error.response ? error.response.data : error.message);
       throw error;
     }
   }
@@ -74,10 +68,6 @@ class ProductService {
       );
       return response.data;
     } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
       throw error;
     }
   }
@@ -91,10 +81,6 @@ class ProductService {
       });
       return response.data;
     } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
       throw error;
     }
   }
@@ -114,7 +100,6 @@ class ProductService {
       );
       return response.data;
     } catch (error) {
-      console.error("Error during API calls:", error.response?.data || error.message);
       throw error;
     }
   }
@@ -134,7 +119,6 @@ class ProductService {
       );
       return response.data;
     } catch (error) {
-      console.error("Error during API calls:", error.response?.data || error.message);
       throw error;
     }
   }
@@ -153,10 +137,6 @@ class ProductService {
       });
       return response.data;
     } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
       throw error;
     }
   }
@@ -176,10 +156,6 @@ class ProductService {
       });
       return response.data;
     } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
       throw error;
     }
   }
@@ -203,10 +179,6 @@ class ProductService {
       );
       return response.data;
     } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
       throw error;
     }
   }
@@ -225,10 +197,6 @@ class ProductService {
       );
       return response.data;
     } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
       throw error;
     }
   }

@@ -12,7 +12,6 @@ class OrderService {
       });
       return response.data;
     } catch (error) {
-      console.error("API Error:", error.response?.data || error.message);
       return { orders: [], totalPages: 1 };
     }
   }
@@ -32,7 +31,6 @@ class OrderService {
 
       return response.data;
     } catch (error) {
-      console.error("API Error:", error.response?.data || error.message);
       return { content: [], total_page: 1 };
     }
   }
@@ -48,10 +46,6 @@ class OrderService {
       });
       return response.data;
     } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
       throw error;
     }
   }
@@ -74,7 +68,6 @@ class OrderService {
       );
       return response.data;
     } catch (error) {
-      console.error("Error when API calls:", error.message);
       throw error;
     }
   }
@@ -97,7 +90,6 @@ class OrderService {
       );
       return response.data;
     } catch (error) {
-      console.error("Error when API calls:", error.message);
       throw error;
     }
   }
@@ -120,7 +112,6 @@ class OrderService {
       );
       return response.data;
     } catch (error) {
-      console.error("Error when API calls:", error.message);
       throw error;
     }
   }
@@ -143,7 +134,6 @@ class OrderService {
       );
       return response.data;
     } catch (error) {
-      console.error("Error when API calls:", error.message);
       throw error;
     }
   }

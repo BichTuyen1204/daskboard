@@ -15,14 +15,9 @@ class AccountService {
         "Content-Type": "application/x-www-form-urlencoded",
       };
       const response = await axios.post(`${API_BASE_URL}/login`, account, { headers });
-      console.log("Response", response.data);
-
       const jwtToken = response.data.access_token;
       sessionStorage.setItem("jwtToken", jwtToken);
-    } catch (error) {
-      console.error("Login failed: ", error.response?.data || error.message);
-      throw error;
-    }
+    } catch (error) {}
   }
 
   async addStaff(staff) {
@@ -34,10 +29,7 @@ class AccountService {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log("Add successful:", response.data);
-    } catch (error) {
-      console.error("Error when API calls:", error.message);
-    }
+    } catch (error) {}
   }
 
   async getAllStaff() {
@@ -50,9 +42,7 @@ class AccountService {
         },
       });
       return response.data;
-    } catch (error) {
-      console.error("Error when API calls:", error.message);
-    }
+    } catch (error) {}
   }
 
   async getAllCustomer(page, size) {
@@ -64,9 +54,7 @@ class AccountService {
         },
       });
       return response.data;
-    } catch (error) {
-      console.error("Error when API calls:", error.message);
-    }
+    } catch (error) {}
   }
 
   async getCustomerDetail(id) {
@@ -79,9 +67,7 @@ class AccountService {
         },
       });
       return response.data;
-    } catch (error) {
-      console.error("Error when API calls:", error.message);
-    }
+    } catch (error) {}
   }
 
   async getStaffDetail(id) {
@@ -94,9 +80,7 @@ class AccountService {
         },
       });
       return response.data;
-    } catch (error) {
-      console.error("Error when API calls:", error.message);
-    }
+    } catch (error) {}
   }
 
   async updateAccountCustomer(id, data) {
@@ -108,13 +92,7 @@ class AccountService {
         },
       });
       return response.data;
-    } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
-      throw error;
-    }
+    } catch (error) {}
   }
 
   async updateAccountStaff(id, data) {
@@ -130,13 +108,7 @@ class AccountService {
         }
       );
       return response.data;
-    } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
-      throw error;
-    }
+    } catch (error) {}
   }
 
   async updateInforCustomer(id, data) {
@@ -152,13 +124,7 @@ class AccountService {
         }
       );
       return response.data;
-    } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
-      throw error;
-    }
+    } catch (error) {}
   }
 
   async updateInforStaff(id, data) {
@@ -174,13 +140,7 @@ class AccountService {
         }
       );
       return response.data;
-    } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
-      throw error;
-    }
+    } catch (error) {}
   }
 
   async updateStatusCustomer(id, status) {
@@ -196,13 +156,7 @@ class AccountService {
         }
       );
       return response.data;
-    } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
-      throw error;
-    }
+    } catch (error) {}
   }
 
   async updateStatusStaff(id, status) {
@@ -218,13 +172,20 @@ class AccountService {
         }
       );
       return response.data;
-    } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
-      throw error;
-    }
+    } catch (error) {}
+  }
+
+  async getProfile() {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.get(`${API_BASE_URL}/profile`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {}
   }
 }
 export default new AccountService();

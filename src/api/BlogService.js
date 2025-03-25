@@ -13,13 +13,8 @@ class BlogService {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log("add successfull:", response);
       return response.data;
     } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
       throw error;
     }
   }
@@ -40,7 +35,6 @@ class BlogService {
         );
         return response.data;
       } catch (error) {
-        console.error("Error when API calls:", error.message);
         throw error;
       }
     }
@@ -57,7 +51,6 @@ class BlogService {
       });
       return response.data;
     } catch (error) {
-      console.error("Error when API calls:", error.message);
       throw error;
     }
   }
@@ -77,7 +70,6 @@ class BlogService {
       );
       return response.data;
     } catch (error) {
-      console.error("Error when API calls:", error.message);
       throw error;
     }
   }

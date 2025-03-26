@@ -3,8 +3,8 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import AccountService from "api/AccountService";
 import { Icon } from "@mui/material";
+import ChatBoxService from "api/ChatBoxService";
 
 export default function data(pageCustomer, rowsPerPageCustomer) {
   const [customer, setCustomer] = useState([]);
@@ -16,12 +16,12 @@ export default function data(pageCustomer, rowsPerPageCustomer) {
   const hasNextPageCustomer = pageCustomer < totalPages;
 
   useEffect(() => {
-    const getAllCustomer = async () => {
+    const getAllUser = async () => {
       if (!jwtToken) {
         return;
       } else {
         try {
-          const response = await AccountService.getAllCustomer(pageCustomer, rowsPerPageCustomer);
+          const response = await ChatBoxService.getAllUser(pageCustomer, rowsPerPageCustomer);
           console.log(response);
           if (Array.isArray(response.content)) {
             setCustomer(response.content);
@@ -37,7 +37,7 @@ export default function data(pageCustomer, rowsPerPageCustomer) {
         }
       }
     };
-    getAllCustomer();
+    getAllUser();
   }, [jwtToken, pageCustomer, rowsPerPageCustomer]);
 
   const Status = ({ status }) => (
@@ -68,7 +68,6 @@ export default function data(pageCustomer, rowsPerPageCustomer) {
     { Header: "image", accessor: "image", width: "5%", align: "left" },
     { Header: "ID", accessor: "id", width: "5%", align: "left" },
     { Header: "username", accessor: "username", align: "center" },
-    { Header: "status", accessor: "status", align: "center" },
     { Header: "action", accessor: "action", align: "center" },
   ];
 
@@ -90,8 +89,8 @@ export default function data(pageCustomer, rowsPerPageCustomer) {
       >
         <img
           src={
-            item.profile_pic && item.profile_pic.trim() !== "defaultProfile"
-              ? item.profile_pic
+            item.user_pfp && item.user_pfp.trim() !== "defaultProfile"
+              ? item.user_pfp
               : "https://i.pinimg.com/originals/2c/47/d5/2c47d5dd5b532f83bb55c4cd6f5bd1ef.jpg"
           }
           alt="Avatar"
@@ -119,16 +118,12 @@ export default function data(pageCustomer, rowsPerPageCustomer) {
     username: <Username username={item.username} />,
     //Username end
 
-    //Status start
-    status: <Status status={item.status} />,
-    //Status end
-
     //Action start
     action: (
       <MDBox display="flex" justifyContent="center">
         <>
           {/* Button view customer detail start */}
-          <Link to={`/view_customer/${item.id}`}>
+          <Link to={`/chat_with_user/${item.id}`}>
             <MDTypography
               component="button"
               variant="caption"
@@ -143,38 +138,10 @@ export default function data(pageCustomer, rowsPerPageCustomer) {
                 cursor: "pointer",
               }}
             >
-              View
+              Chat
             </MDTypography>
           </Link>
           {/* Button view customer detail end */}
-
-          {/* Button edit customer start */}
-          <Link
-            to={`/edit_customer/${item.id}`}
-            style={{ textDecoration: "none", marginLeft: "15px" }}
-          >
-            <MDTypography
-              component="button"
-              variant="caption"
-              fontWeight="medium"
-              style={{
-                backgroundColor: "white",
-                color: "#1976d2",
-                fontSize: "0.8em",
-                border: "none",
-                padding: "5px 10px",
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-              }}
-              onMouseEnter={(e) => (e.target.style.backgroundColor = "#f0f4ff")}
-              onMouseLeave={(e) => (e.target.style.backgroundColor = "white")}
-            >
-              <Icon fontSize="small" style={{ marginRight: "5px" }}>
-                edit
-              </Icon>
-            </MDTypography>
-          </Link>
-          {/* Button edit customer end */}
         </>
       </MDBox>
     ),

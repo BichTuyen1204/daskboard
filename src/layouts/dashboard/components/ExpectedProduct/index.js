@@ -12,7 +12,6 @@ function ExpectedProduct() {
   useEffect(() => {
     const fetchRevenue = async () => {
       if (!jwtToken) {
-        console.error("Token not found. Please log in again.");
         return;
       } else {
         try {
@@ -26,9 +25,8 @@ function ExpectedProduct() {
             }
           );
           setTopProductMonth(response.data.top_products?.top_10_products_all_time || []);
-          console.log("API Response:", response.data);
         } catch (error) {
-          console.error("Error fetching revenue data:", error.response?.data || error.message);
+          error.message;
         }
       }
     };

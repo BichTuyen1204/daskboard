@@ -13,7 +13,6 @@ import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
 
 function ListOrder() {
   const navigate = useNavigate();
-  // List order
   const [page, setPage] = useState(1);
   const rowsPerPage = 7;
   const { columns, rows, totalPages } = listOrder(page, rowsPerPage);

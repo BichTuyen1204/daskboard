@@ -7,12 +7,30 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
 import authorsTableData from "layouts/customer_manager/data/authorsTableData";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
+import { Box, IconButton, Typography } from "@mui/material";
 
 function Customer() {
-  const { columns, rows } = authorsTableData();
-
+  const [pageCustomer, setPageCustomer] = useState(1);
+  const rowsPerPageCustomer = 7;
   const navigate = useNavigate();
+  const { columns, rows, hasNextPageCustomer } = authorsTableData(
+    pageCustomer,
+    rowsPerPageCustomer
+  );
+
+  const handlePrevPageCustomer = () => {
+    if (pageCustomer > 1) {
+      setPageCustomer((prev) => prev - 1);
+    }
+  };
+
+  const handleNextPageCustomer = () => {
+    if (hasNextPageCustomer) {
+      setPageCustomer((prev) => prev + 1);
+    }
+  };
 
   useEffect(() => {
     const token = sessionStorage.getItem("jwtToken");
@@ -49,6 +67,65 @@ function Customer() {
                   showTotalEntries={false}
                   noEndBorder
                 />
+              </MDBox>
+              <MDBox
+                display="flex"
+                justifyContent="flex-end"
+                alignItems="center"
+                mt={2}
+                pb={2}
+                mx={5}
+              >
+                <IconButton
+                  onClick={handlePrevPageCustomer}
+                  disabled={pageCustomer === 1}
+                  sx={{
+                    bgcolor: "black",
+                    fontSize: "0.6em",
+                    color: "white",
+                    width: "30px",
+                    height: "30px",
+                    borderRadius: "50%",
+                    "&:hover, &:focus": { bgcolor: "#333 !important", color: "white !important" },
+                    opacity: pageCustomer === 1 ? 0.3 : 1,
+                  }}
+                >
+                  <ArrowBackIos sx={{ fontSize: "14px" }} />
+                </IconButton>
+
+                <Box
+                  sx={{
+                    mx: 2,
+                    width: 30,
+                    height: 30,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "50%",
+                    bgcolor: "#1b98e0",
+                  }}
+                >
+                  <Typography color="white" fontWeight="bold">
+                    <p style={{ fontSize: "14px", color: "white" }}>{pageCustomer}</p>
+                  </Typography>
+                </Box>
+
+                <IconButton
+                  onClick={handleNextPageCustomer}
+                  disabled={!hasNextPageCustomer}
+                  sx={{
+                    bgcolor: "black",
+                    fontSize: "0.6em",
+                    color: "white",
+                    width: "30px",
+                    height: "30px",
+                    borderRadius: "50%",
+                    "&:hover, &:focus": { bgcolor: "#333 !important", color: "white !important" },
+                    opacity: hasNextPageCustomer ? 0.3 : 1,
+                  }}
+                >
+                  <ArrowForwardIos sx={{ fontSize: "14px" }} />
+                </IconButton>
               </MDBox>
             </Card>
           </Grid>

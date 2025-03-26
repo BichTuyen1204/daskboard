@@ -6,10 +6,10 @@ import { useEffect, useState } from "react";
 import CouponService from "api/CouponService";
 import { Box, Button, Icon, Modal, Typography } from "@mui/material";
 
-export default function data() {
-  const [open, setOpen] = useState(false);
+export default function data(pageCoupon, rowsPerPageCoupon) {
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [coupon, setCoupon] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
   const jwtToken = sessionStorage.getItem("jwtToken");
   const [popupDelete, setPopupDelete] = useState(false);
 
@@ -40,22 +40,26 @@ export default function data() {
 
   useEffect(() => {
     const getAllCoupon = async () => {
-      if (jwtToken) {
+      if (!jwtToken) {
+        return;
+      } else {
         try {
-          const response = await CouponService.getAllCoupon(jwtToken);
-          if (Array.isArray(response)) {
-            setCoupon(response);
+          const response = await CouponService.getAllCoupon(pageCoupon, rowsPerPageCoupon);
+          if (Array.isArray(response.content)) {
+            setCoupon(response.content);
+            setTotalPages(response.total_page || 1);
           } else {
             setCoupon([]);
+            setTotalPages(1);
           }
         } catch (error) {
-          console.error("Can't access the server", error);
           setCoupon([]);
+          setTotalPages(1);
         }
       }
     };
     getAllCoupon();
-  }, [jwtToken]);
+  }, [jwtToken, pageCoupon, rowsPerPageCoupon]);
 
   const Expire_date = ({ expire_time }) => (
     <MDBox lineHeight={1} textAlign="left" fontSize="0.8em">
@@ -282,5 +286,5 @@ export default function data() {
     ),
   }));
 
-  return { columns, rows };
+  return { columns, rows, totalPages };
 }

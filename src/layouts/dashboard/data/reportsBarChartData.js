@@ -1,8 +1,3 @@
-// export default {
-//   labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-//   datasets: { label: "Sales", data: [50, 20, 10, 22, 50, 10, 40] },
-// };
-
 import { useState, useEffect } from "react";
 
 const REACT_APP_BACKEND_API_ENDPOINT = process.env.REACT_APP_BACKEND_API_ENDPOINT;
@@ -18,10 +13,8 @@ const reportsBarChartData = () => {
       try {
         const response = await get(`${REACT_APP_BACKEND_API_ENDPOINT}/api/manager/revenue`);
         const data = await response.json();
-        console.log("📢 Dữ liệu từ API:", data);
 
         if (data.revenue?.last_7_days_revenue?.length) {
-          // Sắp xếp theo thời gian
           const sortedData = data.revenue.last_7_days_revenue.sort(
             (a, b) => new Date(a.date) - new Date(b.date)
           );
@@ -43,14 +36,8 @@ const reportsBarChartData = () => {
               },
             ],
           });
-
-          console.log("✅ Dữ liệu sau khi fetch:", { labels, revenueData });
-        } else {
-          console.log("⚠️ Không có dữ liệu doanh thu.");
         }
-      } catch (error) {
-        console.error("❌ Lỗi fetch dữ liệu:", error);
-      }
+      } catch (error) {}
     };
 
     fetchRevenueData();

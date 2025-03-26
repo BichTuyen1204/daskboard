@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import OrderService from "api/OrderService";
-import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
-import { Link } from "react-router-dom";
 
 export default function listOrder(page, rowsPerPage) {
   const [orders, setOrders] = useState([]);
@@ -12,7 +10,6 @@ export default function listOrder(page, rowsPerPage) {
   useEffect(() => {
     const fetchOrders = async () => {
       if (!jwtToken) {
-        console.warn("JWT Token not found!");
         return;
       }
       try {
@@ -22,12 +19,10 @@ export default function listOrder(page, rowsPerPage) {
           setOrders(response.content);
           setTotalPages(response.total_page || 1);
         } else {
-          console.warn("API returned empty or invalid content:", response);
           setOrders([]);
           setTotalPages(1);
         }
       } catch (error) {
-        console.error("Error fetching orders:", error);
         setOrders([]);
         setTotalPages(1);
       }

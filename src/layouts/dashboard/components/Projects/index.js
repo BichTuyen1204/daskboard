@@ -12,7 +12,6 @@ function Projects() {
   useEffect(() => {
     const fetchRevenue = async () => {
       if (!jwtToken) {
-        console.error("Token not found. Please log in again.");
         return;
       } else {
         try {
@@ -26,10 +25,7 @@ function Projects() {
             }
           );
           setTopProductMonth(response.data.top_products?.top_10_products_month || []);
-          console.log("Product of month", response.data.top_products.top_10_products_month);
-        } catch (error) {
-          console.error("Error fetching revenue data:", error.response?.data || error.message);
-        }
+        } catch (error) {}
       }
     };
     fetchRevenue();

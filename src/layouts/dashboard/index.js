@@ -11,40 +11,133 @@ import ComplexStatisticsCard from "examples/Cards/StatisticsCards/ComplexStatist
 import Projects from "layouts/dashboard/components/Projects";
 import ExpectedProduct from "./components/ExpectedProduct";
 import AccountService from "api/AccountService";
-
+import { Box, Typography } from "@mui/material";
+import { RestaurantMenu } from "@mui/icons-material";
 function Dashboard() {
   const navigate = useNavigate();
-
+  const [account, setAccount] = useState("");
   const [customer, setCustomer] = useState([]);
   const jwtToken = sessionStorage.getItem("jwtToken");
 
   useEffect(() => {
-    const getAllCustomer = async () => {
-      if (jwtToken) {
-        try {
-          const response = await AccountService.getAllCustomer(jwtToken);
-          if (Array.isArray(response)) {
-            setCustomer(response);
-          } else {
-            setCustomer([]);
-          }
-        } catch (error) {
-          console.error("Can't access the server", error);
-          setCustomer([]);
-        }
-      }
-    };
-    getAllCustomer();
-  }, [jwtToken]);
+    if (!jwtToken) {
+      alert("Your session has expired. Please log in again.");
+      navigate("/sign-in");
+    }
+  }, [jwtToken, navigate]);
+
+  // useEffect(() => {
+  //   const getAllCustomer = async () => {
+  //     if (jwtToken) {
+  //       try {
+  //         const response = await AccountService.getAllCustomer(jwtToken);
+  //         if (Array.isArray(response)) {
+  //           setCustomer(response);
+  //         } else {
+  //           setCustomer([]);
+  //         }
+  //       } catch (error) {
+  //         setCustomer([]);
+  //       }
+  //     }
+  //   };
+  //   getAllCustomer();
+  // }, [jwtToken]);
 
   useEffect(() => {
-    const token = sessionStorage.getItem("jwtToken");
-    if (!token) {
-      navigate("/sign-in", { replace: true });
-    }
-  }, [navigate]);
+    const getProfile = async () => {
+      if (!jwtToken) {
+        return;
+      } else {
+        try {
+          const response = await AccountService.getProfile(jwtToken);
+          setAccount(response);
+        } catch (error) {}
+      }
+    };
+    getProfile();
+  }, [jwtToken]);
 
-  return (
+  // useEffect(() => {
+  //   if (account?.type === null) {
+  //     alert("Your session has expired. Please log in again.");
+  //     navigate("/logout", { replace: true });
+  //   }
+  // }, [account, navigate]);
+
+  return account.type === 2 ? (
+    <Box
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+      alignItems="center"
+      height="100vh"
+      sx={{
+        background: "linear-gradient(135deg, #A2D5F2 20%, #89CFF0 80%)", // Màu xanh nhẹ nhàng
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      {/* Hiệu ứng food paint */}
+      <Box
+        sx={{
+          position: "absolute",
+          width: "250px",
+          height: "250px",
+          background: "rgba(132, 214, 255, 0.98)",
+          borderRadius: "50%",
+          top: "10%",
+          left: "10%",
+          filter: "blur(70px)",
+          transform: "rotate(20deg)",
+        }}
+      />
+      <Box
+        sx={{
+          position: "absolute",
+          width: "180px",
+          height: "180px",
+          background: "rgba(46, 178, 254, 0)",
+          borderRadius: "50%",
+          bottom: "15%",
+          right: "15%",
+          filter: "blur(50px)",
+          transform: "rotate(-15deg)",
+        }}
+      />
+
+      {/* Thêm icon food trải random */}
+      <Box sx={{ position: "absolute", top: "20%", left: "55%", fontSize: "50px" }}>
+        <RestaurantMenu />
+      </Box>
+
+      {/* Hiệu ứng thẻ glassmorphism */}
+      <Box
+        sx={{
+          top: "30%",
+          background: "rgba(255, 255, 255, 0.2)",
+          backdropFilter: "blur(15px)",
+          padding: "40px 20px",
+          borderRadius: "20px",
+          boxShadow: "0px 12px 30px rgba(0, 0, 0, 0.15)",
+          textAlign: "center",
+          color: "white",
+          maxWidth: "90%",
+          position: "absolute",
+          left: "55%",
+          transform: "translateX(-45%)",
+        }}
+      >
+        <Typography variant="h3" fontWeight="bold" gutterBottom>
+          WELCOME TO CULINARY CONNECT MANAGE
+        </Typography>
+
+        <Typography variant="h5" fontStyle="italic">
+          Hi {account.username} 👋
+        </Typography>
+      </Box>
+    </Box>
+  ) : (
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox py={3}>

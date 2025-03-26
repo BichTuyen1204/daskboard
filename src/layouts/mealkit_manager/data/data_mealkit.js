@@ -7,48 +7,36 @@ import { Icon } from "@mui/material";
 import { Link } from "react-router-dom";
 import ProductService from "api/ProductService";
 
-export default function DataTable() {
+export default function DataTable(pageMealkit, rowsPerPageMealkit) {
   const [mealkit, setMealkit] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
   const jwtToken = sessionStorage.getItem("jwtToken");
+
+  const hasNextPageMealkit = pageMealkit < totalPages;
 
   useEffect(() => {
     const getAllMealkit = async () => {
-      if (jwtToken) {
+      if (!jwtToken) {
+        return;
+      } else {
         try {
-          const response = await ProductService.allMealkit(jwtToken);
-          if (Array.isArray(response)) {
-            setMealkit(response);
+          const response = await ProductService.allMealkit(pageMealkit, rowsPerPageMealkit);
+          if (Array.isArray(response.content)) {
+            setMealkit(response.content);
+            setTotalPages(response.total_page || 1);
           } else {
             setMealkit([]);
+            setTotalPages(1);
           }
         } catch (error) {
-          console.error("Can't access the server", error);
           setMealkit([]);
+          setTotalPages(1);
         }
       }
     };
-
     getAllMealkit();
-  }, [jwtToken]);
+  }, [jwtToken, pageMealkit, rowsPerPageMealkit]);
 
-  const mapTypeToLabel = (type) => {
-    const typeMap = {
-      VEG: "Vegetable",
-      MEAT: "Meat",
-      MK: "Mealkit",
-      SS: "Season",
-    };
-    return typeMap[type] || type;
-  };
-
-  const mapStatus = (typeStatus) => {
-    const typeMapStatus = {
-      IN_STOCK: "In stock",
-      OUT_OF_STOCK: "Out of stock",
-      NO_LONGER_IN_SALE: "No longer in sale",
-    };
-    return typeMapStatus[typeStatus] || typeStatus;
-  };
   const CostPrice = ({ title }) => (
     <MDBox lineHeight={1} textAlign="left" fontSize="0.8em">
       <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
@@ -77,7 +65,7 @@ export default function DataTable() {
     { Header: "action", accessor: "action", align: "center" },
   ];
 
-  const rows = mealkit.map((item) => ({
+  const rows = mealkit?.map((item) => ({
     image: (
       <MDBox display="flex" alignItems="center" lineHeight={1}>
         <Link to={`/mealkit_detail/${item.id}`}>
@@ -89,12 +77,12 @@ export default function DataTable() {
     cost_price: <CostPrice title={`$${item.price}`} />,
     type: (
       <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
-        {mapTypeToLabel(item.type)}
+        {item.type}
       </MDTypography>
     ),
     status: (
       <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
-        {mapStatus(item.status)}
+        {item.status}
       </MDTypography>
     ),
     quantity: (
@@ -174,5 +162,5 @@ export default function DataTable() {
     ),
   }));
 
-  return { columns, rows };
+  return { columns, rows, hasNextPageMealkit };
 }

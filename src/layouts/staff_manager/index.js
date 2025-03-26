@@ -6,14 +6,29 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
 import authorsTableData from "layouts/staff_manager/data/authorsTableData";
-import { Icon } from "@mui/material";
+import { Box, Icon, IconButton, Typography } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
 
 function Staff() {
-  const { columns, rows } = authorsTableData();
-
   const navigate = useNavigate();
+
+  const [pageStaff, setPageStaff] = useState(1);
+  const rowsPerPageStaff = 6;
+  const { columns, rows, hasNextPageStaff } = authorsTableData(pageStaff, rowsPerPageStaff);
+
+  const handlePrevPageStaff = () => {
+    if (pageStaff > 1) {
+      setPageStaff((prev) => prev - 1);
+    }
+  };
+
+  const handleNextPageStaff = () => {
+    if (hasNextPageStaff) {
+      setPageStaff((prev) => prev + 1);
+    }
+  };
 
   useEffect(() => {
     const token = sessionStorage.getItem("jwtToken");
@@ -51,6 +66,71 @@ function Staff() {
                   showTotalEntries={false}
                   noEndBorder
                 />
+              </MDBox>
+              <MDBox
+                display="flex"
+                justifyContent="flex-end"
+                alignItems="center"
+                mt={2}
+                pb={2}
+                mx={5}
+              >
+                {/* Nút Previous */}
+                <IconButton
+                  onClick={handlePrevPageStaff}
+                  disabled={pageStaff === 1}
+                  sx={{
+                    bgcolor: "black",
+                    fontSize: "0.6em",
+                    color: "white",
+                    width: "30px",
+                    height: "30px",
+                    minWidth: "30px",
+                    borderRadius: "50%",
+                    "&:hover, &:focus": { bgcolor: "#333 !important", color: "white !important" },
+                    opacity: pageStaff === 1 ? 0.3 : 1,
+                  }}
+                >
+                  <ArrowBackIos sx={{ fontSize: "14px" }} />
+                </IconButton>
+
+                {/* Số trang */}
+                <Box
+                  sx={{
+                    mx: 2,
+                    width: 30,
+                    height: 30,
+                    display: "flex",
+                    border: "1px solid white",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "50%",
+                    bgcolor: "#1b98e0",
+                  }}
+                >
+                  <Typography color="white" fontWeight="bold">
+                    <p style={{ fontSize: "0.7em", color: "white" }}>{pageStaff}</p>
+                  </Typography>
+                </Box>
+
+                {/* Nút Next */}
+                <IconButton
+                  onClick={handleNextPageStaff}
+                  disabled={!hasNextPageStaff}
+                  sx={{
+                    bgcolor: "black",
+                    fontSize: "0.6em",
+                    color: "white",
+                    width: "30px",
+                    height: "30px",
+                    minWidth: "30px",
+                    borderRadius: "50%",
+                    "&:hover, &:focus": { bgcolor: "#333 !important", color: "white !important" },
+                    opacity: hasNextPageStaff ? 1 : 0.3,
+                  }}
+                >
+                  <ArrowForwardIos sx={{ fontSize: "14px" }} />
+                </IconButton>
               </MDBox>
             </Card>
           </Grid>

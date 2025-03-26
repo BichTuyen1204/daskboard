@@ -375,7 +375,7 @@ function OrderProcessingToShipping() {
                 <Card style={{ marginTop: "20px" }}>
                   <Grid p={2}>
                     <div style={{ fontWeight: "500", fontSize: "0.8em" }}>Order summary</div>
-                    <div style={{ display: "flex", marginTop: "15px" }}>
+                    {/* <div style={{ display: "flex", marginTop: "15px" }}>
                       <div
                         style={{
                           fontSize: "0.6em",
@@ -418,19 +418,15 @@ function OrderProcessingToShipping() {
                           fontSize: "0.6em",
                           width: "25%",
                         }}
-                      >
-                        {/* {orderDetail.coupon} */}
-                      </div>
+                      ></div>
                       <div
                         style={{
                           fontSize: "0.6em",
                           width: "25%",
                           marginLeft: "-7px",
                         }}
-                      >
-                        {/* - $1500 */}
-                      </div>
-                    </div>
+                      ></div>
+                    </div> */}
                     <div style={{ display: "flex", marginTop: "15px" }}>
                       <div
                         style={{

@@ -138,21 +138,6 @@ function DashboardNavbar({ absolute, light, isMini }) {
                 <Icon sx={iconsStyle}>settings</Icon>
               </IconButton>
               {/* Icon setting end */}
-
-              {/* Icon notification start */}
-              {/* <IconButton
-                size="small"
-                disableRipple
-                color="inherit"
-                sx={navbarIconButton}
-                aria-controls="notification-menu"
-                aria-haspopup="true"
-                variant="contained"
-                onClick={handleOpenMenu}
-              >
-                <Icon sx={iconsStyle}>notifications</Icon>
-              </IconButton> */}
-              {/* Icon notification end */}
               {renderMenu()}
             </MDBox>
           </MDBox>

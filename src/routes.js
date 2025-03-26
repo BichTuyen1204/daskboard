@@ -30,7 +30,8 @@ import Edit_Staff from "layouts/edit_staff";
 import Edit_Mealkit from "layouts/edit_mealkit";
 import History_Product from "layouts/history_product";
 import History_Mealkit from "layouts/history_mealkit";
-import Chat_box from "layouts/chat_box/ChatBox";
+import Chat from "layouts/chat_box_manager/index";
+import Chat_With_User from "layouts/chat_box/ChatBox";
 import Order from "layouts/order_manager";
 import List_Order from "layouts/order_manager/data/list_order/index";
 import Processing_Order from "layouts/order_manager/data/processing_order/index";
@@ -118,7 +119,11 @@ const routes = [
     key: "chat box",
     icon: <Icon fontSize="small">forum</Icon>,
     route: "/chat",
-    component: <Chat_box />,
+    component: <Chat />,
+  },
+  {
+    route: "/chat_with_user/:id",
+    component: <Chat_With_User />,
   },
   {
     route: "/profile",

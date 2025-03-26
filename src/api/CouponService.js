@@ -16,16 +16,6 @@ class CouponService {
       });
       return response.data;
     } catch (error) {
-      if (error.response) {
-        console.error("Error when adding staff:", error.response.data);
-        if (error.response.data.message) {
-          console.log("API Error Message:", error.response.data.message);
-        }
-      } else if (error.request) {
-        console.error("No response from server:", error.request);
-      } else {
-        console.error("Unexpected error:", error.message);
-      }
       throw error;
     }
   }
@@ -35,7 +25,6 @@ class CouponService {
       const response = await axios.get(`${API_BASE_URL_2}/fetch/all`);
       return response.data;
     } catch (error) {
-      console.error("Error when API calls:", error.message);
       throw error;
     }
   }
@@ -49,7 +38,6 @@ class CouponService {
       });
       return response.data;
     } catch (error) {
-      console.error("Error when API calls:", error.message);
       throw error;
     }
   }
@@ -68,7 +56,6 @@ class CouponService {
       });
       return response.data;
     } catch (error) {
-      console.error("Error when API calls:", error.message);
       throw error;
     }
   }

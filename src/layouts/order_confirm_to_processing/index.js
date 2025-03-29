@@ -69,7 +69,7 @@ function OrderDetail() {
         setTimeout(() => {
           setPopupCancelOrderSuccess(false);
           navigate("/confirm_order");
-        }, 4000);
+        }, 2000);
       } else {
         console.log("Failed to cancel order:", response);
       }
@@ -856,20 +856,6 @@ function OrderDetail() {
         )}
         {popupProcessingOrderSuccess && (
           <>
-            {/* Popup nội dung */}
-            <div
-              style={{
-                position: "fixed",
-                top: "0",
-                left: "0",
-                width: "100vw",
-                height: "100vh",
-                backgroundColor: "rgba(87, 87, 87, 0.5)",
-                backdropFilter: "blur(0.05em)",
-                zIndex: "999",
-              }}
-              onClick={cancelProcessingOrder}
-            ></div>
             <div
               style={{
                 position: "fixed",
@@ -896,18 +882,6 @@ function OrderDetail() {
               >
                 You have successfully processing the order.
               </p>
-              <Icon
-                onClick={cancelProcessingOrder}
-                style={{
-                  position: "absolute",
-                  top: "10px",
-                  right: "10px",
-                  cursor: "pointer",
-                  color: "#555",
-                }}
-              >
-                close
-              </Icon>
             </div>
           </>
         )}

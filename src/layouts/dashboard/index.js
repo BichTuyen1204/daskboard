@@ -15,55 +15,50 @@ import { Box, Typography } from "@mui/material";
 import { RestaurantMenu } from "@mui/icons-material";
 function Dashboard() {
   const navigate = useNavigate();
-  const [account, setAccount] = useState("");
-  const [customer, setCustomer] = useState([]);
+  const [account, setAccount] = useState(null);
+  // const [totalCustomer, setTotalCustomer] = useState(0);
+  // const [pageCustomer, setPageCustomer] = useState(1);
+  // const rowsPerPageCustomer = 7;
+  // const [customer, setCustomer] = useState("");
   const jwtToken = sessionStorage.getItem("jwtToken");
 
   useEffect(() => {
     if (!jwtToken) {
-      alert("Your session has expired. Please log in again.");
-      navigate("/sign-in");
+      navigate("/sign-in", { replace: true });
     }
   }, [jwtToken, navigate]);
 
-  // useEffect(() => {
-  //   const getAllCustomer = async () => {
-  //     if (jwtToken) {
-  //       try {
-  //         const response = await AccountService.getAllCustomer(jwtToken);
-  //         if (Array.isArray(response)) {
-  //           setCustomer(response);
-  //         } else {
-  //           setCustomer([]);
-  //         }
-  //       } catch (error) {
-  //         setCustomer([]);
-  //       }
-  //     }
-  //   };
-  //   getAllCustomer();
-  // }, [jwtToken]);
-
+  // Lấy thông tin tài khoản nếu có jwtToken
   useEffect(() => {
     const getProfile = async () => {
-      if (!jwtToken) {
-        return;
-      } else {
-        try {
-          const response = await AccountService.getProfile(jwtToken);
+      if (!jwtToken) return;
+
+      try {
+        const response = await AccountService.getProfile(jwtToken);
+        if (response) {
           setAccount(response);
-        } catch (error) {}
+        } else {
+          setAccount(null);
+        }
+      } catch (error) {
+        console.error(error);
+        setAccount(null);
       }
     };
+
     getProfile();
   }, [jwtToken]);
 
-  // useEffect(() => {
-  //   if (account?.type === null) {
-  //     alert("Your session has expired. Please log in again.");
-  //     navigate("/logout", { replace: true });
-  //   }
-  // }, [account, navigate]);
+  useEffect(() => {
+    if (account !== null && account?.type == null) {
+      alert("Your session has expired. Please log in again.");
+      navigate("/sign-in", { replace: true });
+    }
+  }, [account, navigate]);
+
+  if (!jwtToken || account === null) {
+    return null;
+  }
 
   return account.type === 2 ? (
     <Box
@@ -73,7 +68,7 @@ function Dashboard() {
       alignItems="center"
       height="100vh"
       sx={{
-        background: "linear-gradient(135deg, #A2D5F2 20%, #89CFF0 80%)", // Màu xanh nhẹ nhàng
+        background: "linear-gradient(135deg, #A2D5F2 20%, #89CFF0 80%)",
         position: "relative",
         overflow: "hidden",
       }}
@@ -192,7 +187,7 @@ function Dashboard() {
                 color="primary"
                 icon="person_add"
                 title="Followers"
-                count={customer ? customer.length : 0}
+                // count={totalCustomer}
                 percentage={{
                   color: "success",
                   amount: "",

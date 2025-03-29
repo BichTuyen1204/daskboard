@@ -302,58 +302,6 @@ function OrderShipped() {
                 <Card style={{ marginTop: "20px" }}>
                   <Grid p={2}>
                     <div style={{ fontWeight: "500", fontSize: "0.8em" }}>Order summary</div>
-                    {/* <div style={{ display: "flex", marginTop: "15px" }}>
-                      <div
-                        style={{
-                          fontSize: "0.6em",
-                          width: "50%",
-                        }}
-                      >
-                        <strong>Subtotal:</strong>
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "0.6em",
-                          width: "25%",
-                        }}
-                      >
-                        {orderDetail.items && orderDetail.items.length > 0
-                          ? orderDetail.items.length
-                          : 0}{" "}
-                        items
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "0.6em",
-                          width: "25%",
-                        }}
-                      >
-                        ${orderDetail.total_price}
-                      </div>
-                    </div>
-                    <div style={{ display: "flex", marginTop: "15px" }}>
-                      <div
-                        style={{
-                          fontSize: "0.6em",
-                          width: "50%",
-                        }}
-                      >
-                        <strong>Coupon:</strong>
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "0.6em",
-                          width: "25%",
-                        }}
-                      ></div>
-                      <div
-                        style={{
-                          fontSize: "0.6em",
-                          width: "25%",
-                          marginLeft: "-7px",
-                        }}
-                      ></div>
-                    </div> */}
                     <div style={{ display: "flex", marginTop: "15px" }}>
                       <div
                         style={{

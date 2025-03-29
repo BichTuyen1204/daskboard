@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import OrderService from "api/OrderService";
 import MDTypography from "components/MDTypography";
+import { useNavigate } from "react-router-dom";
 
 export default function listOrder(page, rowsPerPage) {
   const [orders, setOrders] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const jwtToken = sessionStorage.getItem("jwtToken");
+  const [account, setAccount] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -16,6 +19,7 @@ export default function listOrder(page, rowsPerPage) {
         const response = await OrderService.getAllOrder(page, rowsPerPage);
         console.log("ALL order:", response);
         if (response && Array.isArray(response.content)) {
+          console.log("Orders received:", response.content);
           setOrders(response.content);
           setTotalPages(response.total_page || 1);
         } else {
@@ -31,10 +35,38 @@ export default function listOrder(page, rowsPerPage) {
     fetchOrders();
   }, [jwtToken, page, rowsPerPage]);
 
+  useEffect(() => {
+    const getProfile = async () => {
+      if (!jwtToken) return;
+
+      try {
+        const response = await AccountService.getProfile(jwtToken);
+        if (response) {
+          setAccount(response);
+          console.log(account);
+        } else {
+          setAccount(null);
+        }
+      } catch (error) {
+        console.error(error);
+        setAccount(null);
+      }
+    };
+
+    getProfile();
+  }, [jwtToken]);
+
+  useEffect(() => {
+    if (account !== null && account?.type == null) {
+      alert("Your session has expired. Please log in again.");
+      navigate("/sign-in", { replace: true });
+    }
+  }, [account, navigate]);
+
   const columns = [
-    { Header: "Receiver", accessor: "receiver", align: "center" },
-    { Header: "Order Date", accessor: "order_date", align: "center" },
-    { Header: "Address", accessor: "delivery_address", align: "center" },
+    { Header: "Receiver", accessor: "receiver", align: "left" },
+    { Header: "Order Date", accessor: "order_date", align: "left" },
+    { Header: "Address", accessor: "delivery_address", align: "left" },
     { Header: "Phone", accessor: "phonenumber", align: "center" },
     { Header: "Payment Status", accessor: "payment_status", align: "center" },
     { Header: "Total Price", accessor: "total_price", align: "center" },
@@ -76,7 +108,7 @@ export default function listOrder(page, rowsPerPage) {
           fontWeight: "bold",
         }}
       >
-        {item.order_status.replace("_", " ").toUpperCase()}{" "}
+        {item.order_status.replace("_", " ")}
       </MDTypography>
     ),
   }));

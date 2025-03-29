@@ -51,7 +51,7 @@ function OrderShippingToShipped() {
         setTimeout(() => {
           setPopupShippedOrderSuccess(false);
           navigate("/shipping_order");
-        }, 4000);
+        }, 2000);
       } else {
         console.log("Failed to cancel order:", response);
       }
@@ -339,58 +339,6 @@ function OrderShippingToShipped() {
                 <Card style={{ marginTop: "20px" }}>
                   <Grid p={2}>
                     <div style={{ fontWeight: "500", fontSize: "0.8em" }}>Order summary</div>
-                    {/* <div style={{ display: "flex", marginTop: "15px" }}>
-                      <div
-                        style={{
-                          fontSize: "0.6em",
-                          width: "50%",
-                        }}
-                      >
-                        <strong>Subtotal:</strong>
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "0.6em",
-                          width: "25%",
-                        }}
-                      >
-                        {orderDetail.items && orderDetail.items.length > 0
-                          ? orderDetail.items.length
-                          : 0}{" "}
-                        items
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "0.6em",
-                          width: "25%",
-                        }}
-                      >
-                        ${orderDetail.total_price}
-                      </div>
-                    </div>
-                    <div style={{ display: "flex", marginTop: "15px" }}>
-                      <div
-                        style={{
-                          fontSize: "0.6em",
-                          width: "50%",
-                        }}
-                      >
-                        <strong>Coupon:</strong>
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "0.6em",
-                          width: "25%",
-                        }}
-                      ></div>
-                      <div
-                        style={{
-                          fontSize: "0.6em",
-                          width: "25%",
-                          marginLeft: "-7px",
-                        }}
-                      ></div>
-                    </div> */}
                     <div style={{ display: "flex", marginTop: "15px" }}>
                       <div
                         style={{
@@ -533,7 +481,6 @@ function OrderShippingToShipped() {
               onClick={cancelShippedOrder}
             ></div>
 
-            {/* Popup nội dung */}
             <div
               style={{
                 position: "fixed",
@@ -629,20 +576,6 @@ function OrderShippingToShipped() {
         )}
         {popupShippedOrderSuccess && (
           <>
-            {/* Popup nội dung */}
-            <div
-              style={{
-                position: "fixed",
-                top: "0",
-                left: "0",
-                width: "100vw",
-                height: "100vh",
-                backgroundColor: "rgba(87, 87, 87, 0.5)",
-                backdropFilter: "blur(0.05em)",
-                zIndex: "999",
-              }}
-              onClick={cancelShippedOrder}
-            ></div>
             <div
               style={{
                 position: "fixed",
@@ -669,18 +602,6 @@ function OrderShippingToShipped() {
               >
                 You have successfully delivered the order.
               </p>
-              <Icon
-                onClick={cancelShippedOrder}
-                style={{
-                  position: "absolute",
-                  top: "10px",
-                  right: "10px",
-                  cursor: "pointer",
-                  color: "#555",
-                }}
-              >
-                close
-              </Icon>
             </div>
           </>
         )}

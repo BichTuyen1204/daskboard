@@ -16,7 +16,7 @@ function Order() {
 
   // Delivered
   const [pageDelivered, setPageDelivered] = useState(1);
-  const rowsPerPageDelivered = 6;
+  const rowsPerPageDelivered = 10;
   const {
     columns: deliveredColumns,
     rows: deliveredRows,

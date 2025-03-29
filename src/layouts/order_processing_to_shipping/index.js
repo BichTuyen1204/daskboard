@@ -69,7 +69,7 @@ function OrderProcessingToShipping() {
         setTimeout(() => {
           setPopupCancelOrderSuccess(false);
           navigate("/processing_order");
-        }, 4000);
+        }, 2000);
       } else {
         console.log("Failed to cancel order:", response);
       }
@@ -846,20 +846,6 @@ function OrderProcessingToShipping() {
         )}
         {popupShippingOrderSuccess && (
           <>
-            {/* Popup nội dung */}
-            <div
-              style={{
-                position: "fixed",
-                top: "0",
-                left: "0",
-                width: "100vw",
-                height: "100vh",
-                backgroundColor: "rgba(87, 87, 87, 0.5)",
-                backdropFilter: "blur(0.05em)",
-                zIndex: "999",
-              }}
-              onClick={cancelShippingOrder}
-            ></div>
             <div
               style={{
                 position: "fixed",
@@ -886,18 +872,6 @@ function OrderProcessingToShipping() {
               >
                 You have successfully transitioned the order to shipping.
               </p>
-              <Icon
-                onClick={cancelShippingOrder}
-                style={{
-                  position: "absolute",
-                  top: "10px",
-                  right: "10px",
-                  cursor: "pointer",
-                  color: "#555",
-                }}
-              >
-                close
-              </Icon>
             </div>
           </>
         )}

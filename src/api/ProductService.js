@@ -183,11 +183,29 @@ class ProductService {
     }
   }
 
-  async getHistoryProduct(prod_id) {
+  async getHistoryProduct(prod_id, index, size) {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.get(
-        `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/product/history/stock?prod_id=${prod_id}`,
+        `${API_BASE_URL}/product/history/stock?prod_id=${prod_id}&index=${index - 1}&size=${size}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getHistoryUpdate(prod_id, index, size) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.get(
+        `${API_BASE_URL}/product/history/price?prod_id=${prod_id}&index=${index}&size=${size}`,
         {
           headers: {
             "Content-Type": "application/json",

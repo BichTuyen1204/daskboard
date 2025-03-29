@@ -21,7 +21,10 @@ export default function deliveredOrder(pageDelivered, rowsPerPageDelivered) {
         console.log("Confirm Response:", response);
 
         if (Array.isArray(response.content)) {
-          setOrders(response.content);
+          const sortedOrders = response.content.sort(
+            (a, b) => new Date(b.order_date) - new Date(a.order_date)
+          );
+          setOrders(sortedOrders);
           setTotalPages(response.total_page || 1);
         } else {
           setOrders([]);

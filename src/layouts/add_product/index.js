@@ -1,10 +1,11 @@
 import { useState } from "react";
 import Card from "@mui/material/Card";
-import { Grid, TextField, Button, Icon, Snackbar, Alert, MenuItem } from "@mui/material";
+import { Grid, TextField, Button, Icon, MenuItem, IconButton } from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link } from "react-router-dom";
+import ClearIcon from "@mui/icons-material/Delete";
 import ProductService from "api/ProductService";
 
 function AddProduct() {
@@ -185,6 +186,11 @@ function AddProduct() {
     const newPreviews = validFiles.map((file) => URL.createObjectURL(file));
     setAdditionalImagePreviews((prev) => [...prev, ...newPreviews]);
     setAdditionalImagesError("");
+  };
+
+  const handleRemoveImage = (index) => {
+    setAdditionalImages((prev) => prev.filter((_, i) => i !== index));
+    setAdditionalImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const validateForm = () => {
@@ -425,6 +431,7 @@ function AddProduct() {
                               <Grid item key={index} xs={4} sm={3} md={2}>
                                 <MDBox
                                   sx={{
+                                    position: "relative",
                                     width: "100%",
                                     height: "5rem",
                                     borderRadius: "4px",
@@ -441,6 +448,24 @@ function AddProduct() {
                                       objectFit: "cover",
                                     }}
                                   />
+                                  <IconButton
+                                    onClick={() => handleRemoveImage(index)}
+                                    sx={{
+                                      position: "absolute",
+                                      top: 4,
+                                      right: 4,
+                                      backgroundColor: "rgba(255, 255, 255, 0.8)",
+                                      color: "black",
+                                      padding: "4px",
+                                      borderRadius: "50%",
+                                      "&:hover": {
+                                        backgroundColor: "red",
+                                        color: "white",
+                                      },
+                                    }}
+                                  >
+                                    <ClearIcon fontSize="small" />
+                                  </IconButton>
                                 </MDBox>
                               </Grid>
                             ))
@@ -458,8 +483,8 @@ function AddProduct() {
                         <p
                           style={{
                             color: "red",
-                            fontSize: "0.6em",
-                            fontWeight: "450",
+                            fontSize: "0.8em",
+                            fontWeight: "500",
                             marginLeft: "5px",
                           }}
                         >

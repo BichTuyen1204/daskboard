@@ -1,26 +1,27 @@
 import { useState } from "react";
 import Card from "@mui/material/Card";
-import { Grid, TextField, Button, Icon, Snackbar, Alert, MenuItem } from "@mui/material";
+import { Grid, TextField, Button, Icon, Box, Chip, IconButton } from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link } from "react-router-dom";
 import ProductService from "api/ProductService";
+import ClearIcon from "@mui/icons-material/Delete";
 
 function AddMealkit() {
   const [product, setProduct] = useState({
     article_md: "",
-    ingredients: [],
+    ingredients: [""],
     infos: {
       weight: "",
       made_in: "",
       storage_instructions: "",
     },
-    instructions: [],
+    instructions: [""],
     price: 0,
     product_type: "MK",
     sale_percent: 0,
-    day_before_expiry: "",
+    day_before_expiry: 0,
     product_name: "",
     description: "",
   });
@@ -44,6 +45,44 @@ function AddMealkit() {
   const [instructionsError, setInstructionsError] = useState("");
   const [storageInstructionsError, setStorageInstructionsError] = useState("");
   const [madeInError, setMadeInError] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  const [instructionInput, setInstructionInput] = useState("");
+
+  const handleIngredientKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      setProduct((prev) => ({
+        ...prev,
+        ingredients: [...prev.ingredients, inputValue.trim()],
+      }));
+      setInputValue("");
+    }
+  };
+
+  const handleInstructionKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      setProduct((prev) => ({
+        ...prev,
+        instructions: [...prev.instructions, instructionInput.trim()],
+      }));
+      setInstructionInput("");
+    }
+  };
+
+  const handleDeleteIngredient = (ingredient) => {
+    setProduct((prev) => ({
+      ...prev,
+      ingredients: prev.ingredients.filter((item) => item !== ingredient),
+    }));
+  };
+
+  const handleDeleteInstruction = (instruction) => {
+    setProduct((prev) => ({
+      ...prev,
+      instructions: prev.instructions.filter((item) => item !== instruction),
+    }));
+  };
 
   const handleChange = (field, value) => {
     if (["price", "sale_percent"].includes(field) && value === "") {
@@ -177,11 +216,22 @@ function AddMealkit() {
 
   const handleAdditionalImagesChange = (e) => {
     const files = Array.from(e.target.files);
-    setAdditionalImages((prev) => [...prev, ...files]);
-    const newPreviews = files.map((file) => URL.createObjectURL(file));
+    const validFiles = files.filter((file) => ["image/jpeg", "image/png"].includes(file.type));
+
+    if (validFiles.length !== files.length) {
+      setAdditionalImagesError("Only JPG or PNG files are accepted.");
+      return;
+    }
+
+    setAdditionalImages((prev) => [...prev, ...validFiles]);
+    const newPreviews = validFiles.map((file) => URL.createObjectURL(file));
     setAdditionalImagePreviews((prev) => [...prev, ...newPreviews]);
-    setErrorMessage("");
-    setSuccessMessage("");
+    setAdditionalImagesError("");
+  };
+
+  const handleRemoveImage = (index) => {
+    setAdditionalImages((prev) => prev.filter((_, i) => i !== index));
+    setAdditionalImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const validateForm = () => {
@@ -254,14 +304,29 @@ function AddMealkit() {
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
+
     const formData = new FormData();
     formData.append("main_image", mainImage);
     additionalImages.forEach((image) => {
       formData.append("additional_images", image);
     });
     formData.append("product_detail", JSON.stringify(product));
+
+    // 🛠 In dữ liệu để kiểm tra trước khi gửi
+    console.log("==== FormData Debug ====");
+    for (const pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+    console.log("Product Detail JSON:", JSON.stringify(product, null, 2));
+    console.log("Main Image:", mainImage);
+    additionalImages.forEach((image, index) => {
+      console.log(`Additional Image ${index + 1}:`, image.name);
+    });
+    console.log("========================");
+
     try {
       const response = await ProductService.createMealkit(formData);
+      console.log("MEALKIT Response:", response);
       setSuccessMessage("Mealkit added successfully!");
     } catch (error) {
       if (error.response) {
@@ -275,7 +340,7 @@ function AddMealkit() {
       } else {
         setErrorMessage("Network or server error.");
       }
-      console.error(error.message || "Something went wrong.");
+      console.error("API Error:", error.message || "Something went wrong.");
     }
   };
 
@@ -422,6 +487,7 @@ function AddMealkit() {
                               <Grid item key={index} xs={4} sm={3} md={2}>
                                 <MDBox
                                   sx={{
+                                    position: "relative",
                                     width: "100%",
                                     height: "5rem",
                                     borderRadius: "4px",
@@ -438,6 +504,24 @@ function AddMealkit() {
                                       objectFit: "cover",
                                     }}
                                   />
+                                  <IconButton
+                                    onClick={() => handleRemoveImage(index)}
+                                    sx={{
+                                      position: "absolute",
+                                      top: 4,
+                                      right: 4,
+                                      backgroundColor: "rgba(255, 255, 255, 0.8)",
+                                      color: "black",
+                                      padding: "4px",
+                                      borderRadius: "50%",
+                                      "&:hover": {
+                                        backgroundColor: "red",
+                                        color: "white",
+                                      },
+                                    }}
+                                  >
+                                    <ClearIcon fontSize="small" />
+                                  </IconButton>
                                 </MDBox>
                               </Grid>
                             ))
@@ -455,8 +539,8 @@ function AddMealkit() {
                         <p
                           style={{
                             color: "red",
-                            fontSize: "0.6em",
-                            fontWeight: "450",
+                            fontSize: "0.8em",
+                            fontWeight: "500",
                             marginLeft: "5px",
                           }}
                         >
@@ -555,9 +639,11 @@ function AddMealkit() {
                       <TextField
                         fullWidth
                         label="Day Before Expiry"
-                        type="text"
+                        type="number"
                         value={product.day_before_expiry}
                         onChange={(e) => handleChange("day_before_expiry", e.target.value)}
+                        onFocus={() => handleFocus("day_before_expiry")}
+                        onBlur={() => handleBlur("day_before_expiry")}
                         onKeyDown={(e) => {
                           if (e.key.toLowerCase() === "e") {
                             e.preventDefault();
@@ -643,20 +729,25 @@ function AddMealkit() {
                       >
                         {weightError}
                       </p>
+
                       <TextField
                         fullWidth
                         label="Ingredients"
-                        value={
-                          Array.isArray(product.ingredients) ? product.ingredients.join(", ") : ""
-                        }
-                        onChange={(e) =>
-                          handleChange(
-                            "ingredients",
-                            e.target.value.split(",").map((item) => item.trim())
-                          )
-                        }
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyDown={handleIngredientKeyDown}
                         margin="normal"
+                        placeholder="Enter ingredients, press Enter to add an ingredient."
                       />
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
+                        {product.ingredients.map((ingredient, index) => (
+                          <Chip
+                            key={index}
+                            label={ingredient}
+                            onDelete={() => handleDeleteIngredient(ingredient)}
+                          />
+                        ))}
+                      </Box>
 
                       <p
                         style={{
@@ -668,20 +759,25 @@ function AddMealkit() {
                       >
                         {ingredientsError}
                       </p>
+
                       <TextField
                         fullWidth
-                        label="Cooking Instructions"
-                        value={
-                          Array.isArray(product.instructions) ? product.instructions.join(", ") : ""
-                        }
-                        onChange={(e) =>
-                          handleChange(
-                            "instructions",
-                            e.target.value.split(",").map((item) => item.trim())
-                          )
-                        }
+                        label="Instructions"
+                        value={instructionInput}
+                        onChange={(e) => setInstructionInput(e.target.value)}
+                        onKeyDown={handleInstructionKeyDown}
                         margin="normal"
+                        placeholder="Enter instructions, press Enter to add an instruction."
                       />
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
+                        {product.instructions.map((instruction, index) => (
+                          <Chip
+                            key={index}
+                            label={instruction}
+                            onDelete={() => handleDeleteInstruction(instruction)}
+                          />
+                        ))}
+                      </Box>
 
                       <p
                         style={{

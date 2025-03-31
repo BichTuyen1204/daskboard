@@ -205,7 +205,7 @@ class ProductService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.get(
-        `${API_BASE_URL}/product/history/price?prod_id=${prod_id}&index=${index}&size=${size}`,
+        `${API_BASE_URL}/product/history/price?prod_id=${prod_id}&index=${index - 1}&size=${size}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -213,6 +213,7 @@ class ProductService {
           },
         }
       );
+      console.log("History update", response.data);
       return response.data;
     } catch (error) {
       throw error;

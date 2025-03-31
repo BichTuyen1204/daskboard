@@ -8,7 +8,6 @@ const Logout = () => {
     sessionStorage.removeItem("jwtToken");
     console.log("Token removed");
     navigate("/sign-in");
-    window.location.reload();
   }, []);
 
   return null;

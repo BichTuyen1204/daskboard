@@ -131,11 +131,15 @@ const routes = [
   },
   {
     type: "collapse",
-    name: token ? "Logout" : "Sign In",
+    name: "Logout",
     key: "sign-in",
-    icon: <Icon fontSize="small">{token ? "logout" : "login"}</Icon>,
-    route: token ? "/logout" : "/sign-in",
-    component: token ? <Logout /> : <SignIn />,
+    icon: <Icon fontSize="small">logout</Icon>,
+    route: "/logout",
+    component: <Logout />,
+  },
+  {
+    route: "/sign-in",
+    component: <SignIn />,
   },
   {
     route: "/product_detail/:prod_id",

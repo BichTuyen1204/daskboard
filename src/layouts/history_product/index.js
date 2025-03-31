@@ -128,7 +128,7 @@ function HistoryProduct() {
             rowsPerPageHistoryUpdate
           );
           if (Array.isArray(response.content)) {
-            console.log(response);
+            console.log(response.content);
             setHistorUpdate(response.content);
             setTotalPagesUpdate(response.total_page || 1);
           } else {
@@ -148,7 +148,9 @@ function HistoryProduct() {
   // Sort purchase history by descending date
   const sortedHistory = [...history].sort((a, b) => new Date(b.in_date) - new Date(a.in_date));
 
-  const sortedHistoryUpdate = [...history].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const sortedHistoryUpdate = [...historyUpdate].sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  );
 
   return (
     <DashboardLayout>

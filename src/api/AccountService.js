@@ -17,7 +17,9 @@ class AccountService {
       const response = await axios.post(`${API_BASE_URL}/login`, account, { headers });
       const jwtToken = response.data.access_token;
       sessionStorage.setItem("jwtToken", jwtToken);
-    } catch (error) {}
+    } catch (error) {
+      error;
+    }
   }
 
   async addStaff(staff) {

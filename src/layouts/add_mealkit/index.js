@@ -1,12 +1,28 @@
 import { useState } from "react";
 import Card from "@mui/material/Card";
-import { Grid, TextField, Button, Icon, Box, Chip, IconButton } from "@mui/material";
+import {
+  Grid,
+  TextField,
+  Button,
+  Icon,
+  Box,
+  Chip,
+  IconButton,
+  TableCell,
+  TableRow,
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  Paper,
+} from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link } from "react-router-dom";
 import ProductService from "api/ProductService";
 import ClearIcon from "@mui/icons-material/Delete";
+import ReactQuill from "react-quill";
 
 function AddMealkit() {
   const [product, setProduct] = useState({
@@ -14,8 +30,10 @@ function AddMealkit() {
     ingredients: [""],
     infos: {
       weight: "",
-      made_in: "",
+      brand: "",
       storage_instructions: "",
+      usage_instruction: "",
+      made_in: "",
     },
     instructions: [""],
     price: 0,
@@ -47,6 +65,8 @@ function AddMealkit() {
   const [madeInError, setMadeInError] = useState("");
   const [inputValue, setInputValue] = useState("");
   const [instructionInput, setInstructionInput] = useState("");
+  const [brandError, setBrandError] = useState("");
+  const [usageInstructionsError, setUsageInstructionsError] = useState("");
 
   const handleIngredientKeyDown = (e) => {
     if (e.key === "Enter") {
@@ -179,6 +199,20 @@ function AddMealkit() {
             setWeightError("Weight is required.");
           } else {
             setWeightError("");
+          }
+          break;
+        case "brand":
+          if (!value.trim()) {
+            setBrandError("Brand are required.");
+          } else {
+            setBrandError("");
+          }
+          break;
+        case "usage_instruction":
+          if (!value.trim()) {
+            setUsageInstructionsError("Usage instructions are required.");
+          } else {
+            setUsageInstructionsError("");
           }
           break;
         case "made_in":
@@ -571,6 +605,36 @@ function AddMealkit() {
                           />
                         </Button>
                       </MDBox>
+
+                      <TextField
+                        fullWidth
+                        label="Ingredients"
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyDown={handleIngredientKeyDown}
+                        margin="normal"
+                        placeholder="Enter ingredients, press Enter to add an ingredient."
+                      />
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
+                        {product.ingredients.map((ingredient, index) => (
+                          <Chip
+                            key={index}
+                            label={ingredient}
+                            onDelete={() => handleDeleteIngredient(ingredient)}
+                          />
+                        ))}
+                      </Box>
+
+                      <p
+                        style={{
+                          color: "red",
+                          fontSize: "0.6em",
+                          fontWeight: "450",
+                          marginLeft: "5px",
+                        }}
+                      >
+                        {ingredientsError}
+                      </p>
                     </MDBox>
                   </Grid>
 
@@ -706,7 +770,235 @@ function AddMealkit() {
                         {descriptionError}
                       </p>
 
-                      <TextField
+                      <TableContainer
+                        component={Paper}
+                        style={{
+                          borderRadius: "12px",
+                          overflow: "hidden",
+                          boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
+                          marginTop: "15px",
+                        }}
+                      >
+                        <Table>
+                          <TableHead>
+                            <TableRow style={{ backgroundColor: "#1976d2" }}></TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {/* Weight */}
+                            <TableRow style={{ backgroundColor: "#fafafa" }}>
+                              <TableCell
+                                style={{
+                                  borderBottom: "1px solid #ddd",
+                                  fontSize: "14px",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                Weight (gam)
+                              </TableCell>
+                              <TableCell style={{ borderBottom: "1px solid #ddd" }}>
+                                <TextField
+                                  fullWidth
+                                  type="number"
+                                  value={product.infos.weight}
+                                  onChange={(e) =>
+                                    handleNestedChange("infos", "weight", e.target.value)
+                                  }
+                                  onKeyDown={(e) => {
+                                    if (e.key.toLowerCase() === "e") {
+                                      e.preventDefault();
+                                    }
+                                  }}
+                                  margin="normal"
+                                  variant="outlined"
+                                />
+                                {weightError && (
+                                  <p
+                                    style={{
+                                      color: "red",
+                                      fontSize: "0.7em",
+                                      margin: "3px 0",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    {weightError}
+                                  </p>
+                                )}
+                              </TableCell>
+                            </TableRow>
+
+                            {/* Brand */}
+                            <TableRow style={{ backgroundColor: "#fafafa" }}>
+                              <TableCell
+                                style={{
+                                  borderBottom: "1px solid #ddd",
+                                  fontSize: "14px",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                Brand
+                              </TableCell>
+                              <TableCell style={{ borderBottom: "1px solid #ddd" }}>
+                                <TextField
+                                  fullWidth
+                                  type="text"
+                                  value={product.infos.brand}
+                                  onChange={(e) =>
+                                    handleNestedChange("infos", "brand", e.target.value)
+                                  }
+                                  onKeyDown={(e) => {
+                                    if (e.key.toLowerCase() === "e") {
+                                      e.preventDefault();
+                                    }
+                                  }}
+                                  margin="normal"
+                                  variant="outlined"
+                                />
+                                {brandError && (
+                                  <p
+                                    style={{
+                                      color: "red",
+                                      fontSize: "0.7em",
+                                      margin: "3px 0",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    {brandError}
+                                  </p>
+                                )}
+                              </TableCell>
+                            </TableRow>
+
+                            {/* Storage Instructions */}
+                            <TableRow>
+                              <TableCell
+                                style={{
+                                  borderBottom: "1px solid #ddd",
+                                  fontSize: "14px",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                Storage Instructions
+                              </TableCell>
+                              <TableCell style={{ borderBottom: "1px solid #ddd" }}>
+                                <ReactQuill
+                                  theme="snow"
+                                  value={product.infos.storage_instructions}
+                                  onChange={(value) =>
+                                    handleNestedChange("infos", "storage_instructions", value)
+                                  }
+                                  style={{
+                                    marginTop: "-10px",
+                                    width: "500px",
+                                    height: "200px",
+                                    marginBottom: "35px",
+                                    backgroundColor: "white",
+                                    borderRadius: "8px",
+                                  }}
+                                />
+                                {storageInstructionsError && (
+                                  <p
+                                    style={{
+                                      color: "red",
+                                      fontSize: "0.7em",
+                                      margin: "3px 0",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    {storageInstructionsError}
+                                  </p>
+                                )}
+                              </TableCell>
+                            </TableRow>
+
+                            {/* Usage Instructions */}
+                            <TableRow>
+                              <TableCell
+                                style={{
+                                  borderBottom: "1px solid #ddd",
+                                  fontSize: "14px",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                Usage Instructions
+                              </TableCell>
+                              <TableCell style={{ borderBottom: "1px solid #ddd" }}>
+                                <ReactQuill
+                                  theme="snow"
+                                  value={product.infos.usage_instruction}
+                                  onChange={(value) =>
+                                    handleNestedChange("infos", "usage_instruction", value)
+                                  }
+                                  style={{
+                                    marginTop: "-10px",
+                                    width: "500px",
+                                    height: "200px",
+                                    marginBottom: "35px",
+                                    backgroundColor: "white",
+                                    borderRadius: "8px",
+                                  }}
+                                />
+                                {usageInstructionsError && (
+                                  <p
+                                    style={{
+                                      color: "red",
+                                      fontSize: "0.7em",
+                                      margin: "3px 0",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    {usageInstructionsError}
+                                  </p>
+                                )}
+                              </TableCell>
+                            </TableRow>
+
+                            {/* Made in */}
+                            <TableRow style={{ backgroundColor: "#fafafa" }}>
+                              <TableCell
+                                style={{
+                                  borderBottom: "1px solid #ddd",
+                                  fontSize: "14px",
+                                  padding: "12px",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                Made in
+                              </TableCell>
+                              <TableCell style={{ borderBottom: "1px solid #ddd" }}>
+                                <TextField
+                                  fullWidth
+                                  type="text"
+                                  value={product.infos.brand}
+                                  onChange={(e) =>
+                                    handleNestedChange("infos", "brand", e.target.value)
+                                  }
+                                  onKeyDown={(e) => {
+                                    if (e.key.toLowerCase() === "e") {
+                                      e.preventDefault();
+                                    }
+                                  }}
+                                  margin="normal"
+                                  variant="outlined"
+                                />
+                                {madeInError && (
+                                  <p
+                                    style={{
+                                      color: "red",
+                                      fontSize: "0.7em",
+                                      margin: "3px 0",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    {madeInError}
+                                  </p>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+
+                      {/* <TextField
                         fullWidth
                         type="number"
                         label="Weight (gam)"
@@ -728,39 +1020,9 @@ function AddMealkit() {
                         }}
                       >
                         {weightError}
-                      </p>
+                      </p> */}
 
-                      <TextField
-                        fullWidth
-                        label="Ingredients"
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyDown={handleIngredientKeyDown}
-                        margin="normal"
-                        placeholder="Enter ingredients, press Enter to add an ingredient."
-                      />
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
-                        {product.ingredients.map((ingredient, index) => (
-                          <Chip
-                            key={index}
-                            label={ingredient}
-                            onDelete={() => handleDeleteIngredient(ingredient)}
-                          />
-                        ))}
-                      </Box>
-
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {ingredientsError}
-                      </p>
-
-                      <TextField
+                      {/* <TextField
                         fullWidth
                         label="Instructions"
                         value={instructionInput}
@@ -788,8 +1050,8 @@ function AddMealkit() {
                         }}
                       >
                         {instructionsError}
-                      </p>
-                      <TextField
+                      </p> */}
+                      {/* <TextField
                         fullWidth
                         label="Storage Instructions"
                         value={product.infos.storage_instructions}
@@ -807,8 +1069,8 @@ function AddMealkit() {
                         }}
                       >
                         {storageInstructionsError}
-                      </p>
-                      <TextField
+                      </p> */}
+                      {/* <TextField
                         fullWidth
                         label="Made in"
                         value={product.infos.made_in}
@@ -824,7 +1086,7 @@ function AddMealkit() {
                         }}
                       >
                         {madeInError}
-                      </p>
+                      </p> */}
                       <p
                         style={{
                           color: "green",

@@ -78,12 +78,12 @@ function Basic() {
     if (!userNameError && !passwordError && username && password) {
       try {
         const response = await AccountService.signin(account);
-        console.log("Login successful", response);
+        // console.log("Login successful", response);
         setFormSubmitted(true);
         setLoginError("");
         setTimeout(() => {
           navigate("/dashboard");
-          window.location.reload();
+          // window.location.reload();
         }, 1500);
       } catch (error) {
         console.error(

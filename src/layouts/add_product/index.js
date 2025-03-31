@@ -1,12 +1,30 @@
 import { useState } from "react";
 import Card from "@mui/material/Card";
-import { Grid, TextField, Button, Icon, MenuItem, IconButton } from "@mui/material";
+import {
+  Grid,
+  TextField,
+  Button,
+  Icon,
+  MenuItem,
+  IconButton,
+  FormLabel,
+  FormControl,
+  TableCell,
+  TableRow,
+  TableBody,
+  TableContainer,
+  TableHead,
+  Table,
+  Paper,
+} from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link } from "react-router-dom";
 import ClearIcon from "@mui/icons-material/Delete";
 import ProductService from "api/ProductService";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 function AddProduct() {
   const [mainImage, setMainImage] = useState(null);
@@ -26,13 +44,17 @@ function AddProduct() {
   const [descriptionError, setDescriptionError] = useState("");
   const [weightError, setWeightError] = useState("");
   const [storageInstructionsError, setStorageInstructionsError] = useState("");
+  const [brandError, setBrandError] = useState("");
+  const [usageInstructionsError, setUsageInstructionsError] = useState("");
   const [madeInError, setMadeInError] = useState("");
 
   const [product, setProduct] = useState({
     article_md: "",
     infos: {
       weight: "",
+      brand: "",
       storage_instructions: "",
+      usage_instruction: "",
       made_in: "",
     },
     price: 0,
@@ -138,7 +160,20 @@ function AddProduct() {
             setWeightError("");
           }
           break;
-
+        case "brand":
+          if (!value.trim()) {
+            setBrandError("Brand are required.");
+          } else {
+            setBrandError("");
+          }
+          break;
+        case "usage_instruction":
+          if (!value.trim()) {
+            setUsageInstructionsError("Usage instructions are required.");
+          } else {
+            setUsageInstructionsError("");
+          }
+          break;
         case "made_in":
           if (!value.trim()) {
             setMadeInError("Made in is required.");
@@ -538,23 +573,7 @@ function AddProduct() {
                       >
                         {productNameError}
                       </p>
-                      <TextField
-                        fullWidth
-                        label="Article MD"
-                        value={product.article_md}
-                        onChange={(e) => handleChange("article_md", e.target.value)}
-                        margin="normal"
-                      />
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {articleMDError}
-                      </p>
+
                       <TextField
                         fullWidth
                         label="Price ($)"
@@ -580,6 +599,7 @@ function AddProduct() {
                       >
                         {priceError}
                       </p>
+
                       <TextField
                         fullWidth
                         label="Day Before Expiry (days)"
@@ -603,6 +623,7 @@ function AddProduct() {
                       >
                         {dayBeforeExpiryError}
                       </p>
+
                       <TextField
                         fullWidth
                         label="Sale Percent (%)"
@@ -628,6 +649,7 @@ function AddProduct() {
                       >
                         {salePercentError}
                       </p>
+
                       <TextField
                         fullWidth
                         select
@@ -655,7 +677,19 @@ function AddProduct() {
                         {productTypeError}
                       </p>
 
-                      <TextField
+                      <FormControl fullWidth>
+                        <FormLabel style={{ fontSize: "0.7em", marginTop: "15px" }}>
+                          Description
+                        </FormLabel>
+                        <ReactQuill
+                          theme="snow"
+                          value={product.description}
+                          onChange={(value) => handleChange("description", value)}
+                          style={{ height: "200px", marginBottom: "60px", borderRadius: "15px" }}
+                        />
+                      </FormControl>
+
+                      {/* <TextField
                         fullWidth
                         label="Description"
                         value={product.description}
@@ -663,7 +697,7 @@ function AddProduct() {
                         margin="normal"
                         multiline
                         rows={4}
-                      />
+                      /> */}
                       <p
                         style={{
                           color: "red",
@@ -674,19 +708,25 @@ function AddProduct() {
                       >
                         {descriptionError}
                       </p>
-                      <TextField
+
+                      <FormControl fullWidth>
+                        <FormLabel style={{ fontSize: "0.7em", marginTop: "15px" }}>
+                          Article
+                        </FormLabel>
+                        <ReactQuill
+                          theme="snow"
+                          value={product.article_md}
+                          onChange={(value) => handleChange("article_md", value)}
+                          style={{ height: "200px", marginBottom: "60px", borderRadius: "15px" }}
+                        />
+                      </FormControl>
+                      {/* <TextField
                         fullWidth
-                        type="number"
-                        label="Weight (gam)"
-                        value={product.infos.weight}
-                        onChange={(e) => handleNestedChange("infos", "weight", e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key.toLowerCase() === "e") {
-                            e.preventDefault();
-                          }
-                        }}
+                        label="Article MD"
+                        value={product.article_md}
+                        onChange={(e) => handleChange("article_md", e.target.value)}
                         margin="normal"
-                      />
+                      /> */}
                       <p
                         style={{
                           color: "red",
@@ -695,65 +735,255 @@ function AddProduct() {
                           marginLeft: "5px",
                         }}
                       >
-                        {weightError}
-                      </p>
-                      <TextField
-                        fullWidth
-                        label="Storage Instructions"
-                        value={product.infos.storage_instructions}
-                        onChange={(e) =>
-                          handleNestedChange("infos", "storage_instructions", e.target.value)
-                        }
-                        margin="normal"
-                      />
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {storageInstructionsError}
+                        {articleMDError}
                       </p>
 
-                      <TextField
-                        fullWidth
-                        label="Made in"
-                        value={product.infos.made_in}
-                        onChange={(e) => handleNestedChange("infos", "made_in", e.target.value)}
-                        margin="normal"
-                      />
-                      <p
+                      <TableContainer
+                        component={Paper}
                         style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
+                          borderRadius: "12px",
+                          overflow: "hidden",
+                          boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
+                          marginTop: "15px",
                         }}
                       >
-                        {madeInError}
-                      </p>
-                      <p
-                        style={{
-                          color: "green",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {successMessage}
-                      </p>
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          marginBottom: "-18px",
-                          marginTop: "35px",
-                        }}
-                      >
-                        {errorMessage}
-                      </p>
+                        <Table>
+                          <TableHead>
+                            <TableRow style={{ backgroundColor: "#1976d2" }}></TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {/* Weight */}
+                            <TableRow style={{ backgroundColor: "#fafafa" }}>
+                              <TableCell
+                                style={{
+                                  borderBottom: "1px solid #ddd",
+                                  fontSize: "14px",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                Weight (gam)
+                              </TableCell>
+                              <TableCell style={{ borderBottom: "1px solid #ddd" }}>
+                                <TextField
+                                  fullWidth
+                                  type="number"
+                                  value={product.infos.weight}
+                                  onChange={(e) =>
+                                    handleNestedChange("infos", "weight", e.target.value)
+                                  }
+                                  onKeyDown={(e) => {
+                                    if (e.key.toLowerCase() === "e") {
+                                      e.preventDefault();
+                                    }
+                                  }}
+                                  margin="normal"
+                                  variant="outlined"
+                                />
+                                {weightError && (
+                                  <p
+                                    style={{
+                                      color: "red",
+                                      fontSize: "0.7em",
+                                      margin: "3px 0",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    {weightError}
+                                  </p>
+                                )}
+                              </TableCell>
+                            </TableRow>
+
+                            {/* Brand */}
+                            <TableRow style={{ backgroundColor: "#fafafa" }}>
+                              <TableCell
+                                style={{
+                                  borderBottom: "1px solid #ddd",
+                                  fontSize: "14px",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                Brand
+                              </TableCell>
+                              <TableCell style={{ borderBottom: "1px solid #ddd" }}>
+                                <TextField
+                                  fullWidth
+                                  type="text"
+                                  value={product.infos.brand}
+                                  onChange={(e) =>
+                                    handleNestedChange("infos", "brand", e.target.value)
+                                  }
+                                  onKeyDown={(e) => {
+                                    if (e.key.toLowerCase() === "e") {
+                                      e.preventDefault();
+                                    }
+                                  }}
+                                  margin="normal"
+                                  variant="outlined"
+                                />
+                                {brandError && (
+                                  <p
+                                    style={{
+                                      color: "red",
+                                      fontSize: "0.7em",
+                                      margin: "3px 0",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    {brandError}
+                                  </p>
+                                )}
+                              </TableCell>
+                            </TableRow>
+
+                            {/* Storage Instructions */}
+                            <TableRow>
+                              <TableCell
+                                style={{
+                                  borderBottom: "1px solid #ddd",
+                                  fontSize: "14px",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                Storage Instructions
+                              </TableCell>
+                              <TableCell style={{ borderBottom: "1px solid #ddd" }}>
+                                <ReactQuill
+                                  theme="snow"
+                                  value={product.infos.storage_instructions}
+                                  onChange={(value) =>
+                                    handleNestedChange("infos", "storage_instructions", value)
+                                  }
+                                  style={{
+                                    marginTop: "-10px",
+                                    width: "500px",
+                                    height: "200px",
+                                    marginBottom: "35px",
+                                    backgroundColor: "white",
+                                    borderRadius: "8px",
+                                  }}
+                                />
+                                {storageInstructionsError && (
+                                  <p
+                                    style={{
+                                      color: "red",
+                                      fontSize: "0.7em",
+                                      margin: "3px 0",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    {storageInstructionsError}
+                                  </p>
+                                )}
+                              </TableCell>
+                            </TableRow>
+
+                            {/* Usage Instructions */}
+                            <TableRow>
+                              <TableCell
+                                style={{
+                                  borderBottom: "1px solid #ddd",
+                                  fontSize: "14px",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                Usage Instructions
+                              </TableCell>
+                              <TableCell style={{ borderBottom: "1px solid #ddd" }}>
+                                <ReactQuill
+                                  theme="snow"
+                                  value={product.infos.usage_instruction}
+                                  onChange={(value) =>
+                                    handleNestedChange("infos", "usage_instruction", value)
+                                  }
+                                  style={{
+                                    marginTop: "-10px",
+                                    width: "500px",
+                                    height: "200px",
+                                    marginBottom: "35px",
+                                    backgroundColor: "white",
+                                    borderRadius: "8px",
+                                  }}
+                                />
+                                {usageInstructionsError && (
+                                  <p
+                                    style={{
+                                      color: "red",
+                                      fontSize: "0.7em",
+                                      margin: "3px 0",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    {usageInstructionsError}
+                                  </p>
+                                )}
+                              </TableCell>
+                            </TableRow>
+
+                            {/* Made in */}
+                            <TableRow style={{ backgroundColor: "#fafafa" }}>
+                              <TableCell
+                                style={{
+                                  borderBottom: "1px solid #ddd",
+                                  fontSize: "14px",
+                                  padding: "12px",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                Made in
+                              </TableCell>
+                              <TableCell style={{ borderBottom: "1px solid #ddd" }}>
+                                <TextField
+                                  fullWidth
+                                  type="text"
+                                  value={product.infos.brand}
+                                  onChange={(e) =>
+                                    handleNestedChange("infos", "brand", e.target.value)
+                                  }
+                                  onKeyDown={(e) => {
+                                    if (e.key.toLowerCase() === "e") {
+                                      e.preventDefault();
+                                    }
+                                  }}
+                                  margin="normal"
+                                  variant="outlined"
+                                />
+                                {madeInError && (
+                                  <p
+                                    style={{
+                                      color: "red",
+                                      fontSize: "0.7em",
+                                      margin: "3px 0",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    {madeInError}
+                                  </p>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+
+                      {/* Success & Error Messages */}
+                      {successMessage && (
+                        <p
+                          style={{
+                            color: "green",
+                            fontSize: "0.9em",
+                            fontWeight: "bold",
+                            marginTop: "10px",
+                          }}
+                        >
+                          {successMessage}
+                        </p>
+                      )}
+                      {errorMessage && (
+                        <p style={{ color: "red", fontSize: "0.9em", marginTop: "10px" }}>
+                          {errorMessage}
+                        </p>
+                      )}
                       <MDBox mt={3} display="flex" justifyContent="space-between">
                         <Button
                           variant="contained"

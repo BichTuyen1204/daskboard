@@ -633,7 +633,75 @@ function AddProduct() {
                       >
                         {articleMDError}
                       </p>
+                      <TableContainer
+                        component={Paper}
+                        style={{
+                          borderRadius: "12px",
+                          overflow: "hidden",
+                          boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
+                          marginTop: "15px",
+                        }}
+                      >
+                        <Table>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>Instructions</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {product.instructions?.map((instruction, index) => (
+                              <TableRow key={index}>
+                                <TableCell>
+                                  <TextField
+                                    fullWidth
+                                    label={`Instruction ${index + 1}`}
+                                    value={instruction}
+                                    onChange={(e) => {
+                                      const updatedInstructions = [...product.instructions];
+                                      updatedInstructions[index] = e.target.value;
+                                      setProduct((prev) => ({
+                                        ...prev,
+                                        instructions: updatedInstructions,
+                                      }));
+                                    }}
+                                  />
+                                </TableCell>
+                                <TableCell>
+                                  <Button
+                                    variant="contained"
+                                    color="error"
+                                    onClick={() => {
+                                      const updatedInstructions = product.instructions.filter(
+                                        (_, i) => i !== index
+                                      );
+                                      setProduct((prev) => ({
+                                        ...prev,
+                                        instructions: updatedInstructions,
+                                      }));
+                                    }}
+                                  >
+                                    Remove
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
 
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => {
+                            setProduct((prev) => ({
+                              ...prev,
+                              instructions: [...(prev.instructions || []), ""],
+                            }));
+                          }}
+                          style={{ backgroundColor: "green", color: "white", margin: "10px" }}
+                        >
+                          Add Instruction
+                        </Button>
+                      </TableContainer>
                       <TableContainer
                         component={Paper}
                         style={{
@@ -681,6 +749,7 @@ function AddProduct() {
                             ))}
                           </TableBody>
                         </Table>
+
                         <Button
                           variant="contained"
                           color="primary"

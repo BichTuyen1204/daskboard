@@ -1,4 +1,6 @@
 import { useState } from "react";
+import PropTypes from "prop-types";
+
 import Card from "@mui/material/Card";
 import {
   Grid,
@@ -47,19 +49,11 @@ function AddProduct() {
   const [brandError, setBrandError] = useState("");
   const [usageInstructionsError, setUsageInstructionsError] = useState("");
   const [madeInError, setMadeInError] = useState("");
-
+  const [infoRows, setInfoRows] = useState([{ key: "", value: "" }]);
   const [product, setProduct] = useState({
     article_md: "",
-    infos: {
-      weight: "",
-      brand: "",
-      storage_instructions: "",
-      usage_instruction: "",
-      made_in: "",
-    },
-    price: 0,
+    infos: {},
     product_type: "",
-    sale_percent: 0,
     day_before_expiry: "",
     product_name: "",
     description: "",
@@ -138,65 +132,6 @@ function AddProduct() {
     setSuccessMessage("");
   };
 
-  const handleNestedChange = (field, nestedField, value) => {
-    setProduct((prev) => ({
-      ...prev,
-      [field]: {
-        ...prev[field],
-        [nestedField]: value,
-      },
-    }));
-
-    if (field === "infos") {
-      switch (nestedField) {
-        case "weight":
-          if (!value.trim()) {
-            setWeightError("Weight is required.");
-          } else if (/^0\d*/.test(value)) {
-            setWeightError("Weight cannot start with 0.");
-          } else if (value < 1) {
-            setWeightError("Weight must be greater than 0.");
-          } else {
-            setWeightError("");
-          }
-          break;
-        case "brand":
-          if (!value.trim()) {
-            setBrandError("Brand are required.");
-          } else {
-            setBrandError("");
-          }
-          break;
-        case "usage_instruction":
-          if (!value.trim()) {
-            setUsageInstructionsError("Usage instructions are required.");
-          } else {
-            setUsageInstructionsError("");
-          }
-          break;
-        case "made_in":
-          if (!value.trim()) {
-            setMadeInError("Made in is required.");
-          } else {
-            setMadeInError("");
-          }
-          break;
-        case "storage_instructions":
-          if (!value.trim()) {
-            setStorageInstructionsError("Storage instructions are required.");
-          } else {
-            setStorageInstructionsError("");
-          }
-          break;
-        default:
-          break;
-      }
-    }
-
-    setErrorMessage("");
-    setSuccessMessage("");
-  };
-
   const handleMainImageChange = (e) => {
     const file = e.target.files[0];
     if (file && !["image/jpeg", "image/png"].includes(file.type)) {
@@ -244,22 +179,12 @@ function AddProduct() {
       setProductNameError("Product name is required.");
       return false;
     }
-    if (!article_md.trim()) {
-      setArticleMDError("Article MD is required.");
-      return false;
-    }
-    if (!price || price <= 0) {
-      setPriceError("Price is required and must be greater than 0.");
-      return false;
-    }
+
     if (!day_before_expiry) {
       setDayBeforeExpiryError("Day Before Expiry is required");
       return false;
     }
-    if (!sale_percent || sale_percent < 0 || sale_percent > 100) {
-      setSalePercentError("Sale Percent must be between 0 and 100.");
-      return false;
-    }
+
     if (!product_type.trim()) {
       setProductTypeError("Product Type is required.");
       return false;
@@ -267,30 +192,16 @@ function AddProduct() {
     if (!description.trim()) {
       setDescriptionError("Description is required.");
       return false;
-    }
-    if (!infos.weight.trim()) {
-      setWeightError("Weight is required.");
+    } else if (description.length > 255) {
+      setDescriptionError("Description cannot be longer than 255 characters.");
       return false;
     }
-    if (infos.weight < 1) {
-      setWeightError("Weight must be greater than 0.");
-      return false;
-    }
-    if (!infos.storage_instructions.trim()) {
-      setStorageInstructionsError("Storage instruction is required.");
-      return false;
-    }
-    if (!infos.made_in.trim()) {
-      setMadeInError("Made in is required.");
-      return false;
-    }
+
     if (!mainImage) {
       setMainImageError("The main image is required.");
       return false;
     }
-    if (!additionalImages) {
-      setAdditionalImagesError("The additional image is required.");
-    }
+
     setErrorMessage("");
     return true;
   };
@@ -337,6 +248,55 @@ function AddProduct() {
       [field]: prev[field] === "" ? 0 : prev[field],
     }));
   };
+
+  const handleKeyChange = (index, key) => {
+    const updatedRows = [...infoRows];
+    updatedRows[index].key = key;
+    setInfoRows(updatedRows);
+
+    setProduct((prev) => ({
+      ...prev,
+      infos: {
+        ...prev.infos,
+        [key]: updatedRows[index].value,
+      },
+    }));
+  };
+
+  const handleValueChange = (index, value) => {
+    const updatedRows = [...infoRows];
+    updatedRows[index].value = value;
+    setInfoRows(updatedRows);
+
+    setProduct((prev) => ({
+      ...prev,
+      infos: {
+        ...prev.infos,
+        [updatedRows[index].key]: value,
+      },
+    }));
+  };
+
+  const handleRemoveRow = (index) => {
+    const updatedRows = infoRows.filter((_, i) => i !== index);
+    const removedKey = infoRows[index].key;
+    setInfoRows(updatedRows);
+
+    setProduct((prev) => {
+      const updatedInfos = { ...prev.infos };
+      delete updatedInfos[removedKey];
+      return {
+        ...prev,
+        infos: updatedInfos,
+      };
+    });
+  };
+
+  const addInfoRow = () => {
+    setInfoRows((prev) => [...prev, { key: "", value: "" }]);
+  };
+
+  function InfoRow({ product }) {}
 
   return (
     <DashboardLayout>
@@ -576,32 +536,6 @@ function AddProduct() {
 
                       <TextField
                         fullWidth
-                        label="Price ($)"
-                        type="number"
-                        value={product.price}
-                        onChange={(e) => handleChange("price", e.target.value)}
-                        onFocus={() => handleFocus("price")}
-                        onBlur={() => handleBlur("price")}
-                        onKeyDown={(e) => {
-                          if (e.key.toLowerCase() === "e") {
-                            e.preventDefault();
-                          }
-                        }}
-                        margin="normal"
-                      />
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {priceError}
-                      </p>
-
-                      <TextField
-                        fullWidth
                         label="Day Before Expiry (days)"
                         type="number"
                         value={product.day_before_expiry}
@@ -622,32 +556,6 @@ function AddProduct() {
                         }}
                       >
                         {dayBeforeExpiryError}
-                      </p>
-
-                      <TextField
-                        fullWidth
-                        label="Sale Percent (%)"
-                        type="number"
-                        value={product.sale_percent}
-                        onChange={(e) => handleChange("sale_percent", e.target.value)}
-                        onFocus={() => handleFocus("sale_percent")}
-                        onBlur={() => handleBlur("sale_percent")}
-                        onKeyDown={(e) => {
-                          if (e.key.toLowerCase() === "e") {
-                            e.preventDefault();
-                          }
-                        }}
-                        margin="normal"
-                      />
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {salePercentError}
                       </p>
 
                       <TextField
@@ -677,19 +585,7 @@ function AddProduct() {
                         {productTypeError}
                       </p>
 
-                      <FormControl fullWidth>
-                        <FormLabel style={{ fontSize: "0.7em", marginTop: "15px" }}>
-                          Description
-                        </FormLabel>
-                        <ReactQuill
-                          theme="snow"
-                          value={product.description}
-                          onChange={(value) => handleChange("description", value)}
-                          style={{ height: "200px", marginBottom: "60px", borderRadius: "15px" }}
-                        />
-                      </FormControl>
-
-                      {/* <TextField
+                      <TextField
                         fullWidth
                         label="Description"
                         value={product.description}
@@ -697,7 +593,7 @@ function AddProduct() {
                         margin="normal"
                         multiline
                         rows={4}
-                      /> */}
+                      />
                       <p
                         style={{
                           color: "red",
@@ -749,221 +645,120 @@ function AddProduct() {
                       >
                         <Table>
                           <TableHead>
-                            <TableRow style={{ backgroundColor: "#1976d2" }}></TableRow>
+                            <TableRow>
+                              <TableCell>Instructions</TableCell>
+                            </TableRow>
                           </TableHead>
                           <TableBody>
-                            {/* Weight */}
-                            <TableRow style={{ backgroundColor: "#fafafa" }}>
-                              <TableCell
-                                style={{
-                                  borderBottom: "1px solid #ddd",
-                                  fontSize: "14px",
-                                  fontWeight: "500",
-                                }}
-                              >
-                                Weight (gam)
-                              </TableCell>
-                              <TableCell style={{ borderBottom: "1px solid #ddd" }}>
-                                <TextField
-                                  fullWidth
-                                  type="number"
-                                  value={product.infos.weight}
-                                  onChange={(e) =>
-                                    handleNestedChange("infos", "weight", e.target.value)
-                                  }
-                                  onKeyDown={(e) => {
-                                    if (e.key.toLowerCase() === "e") {
-                                      e.preventDefault();
-                                    }
-                                  }}
-                                  margin="normal"
-                                  variant="outlined"
-                                />
-                                {weightError && (
-                                  <p
-                                    style={{
-                                      color: "red",
-                                      fontSize: "0.7em",
-                                      margin: "3px 0",
-                                      fontWeight: 500,
+                            {product.instructions?.map((instruction, index) => (
+                              <TableRow key={index}>
+                                <TableCell>
+                                  <TextField
+                                    fullWidth
+                                    label={`Instruction ${index + 1}`}
+                                    value={instruction}
+                                    onChange={(e) => {
+                                      const updatedInstructions = [...product.instructions];
+                                      updatedInstructions[index] = e.target.value;
+                                      setProduct((prev) => ({
+                                        ...prev,
+                                        instructions: updatedInstructions,
+                                      }));
+                                    }}
+                                  />
+                                </TableCell>
+                                <TableCell>
+                                  <Button
+                                    variant="contained"
+                                    color="error"
+                                    onClick={() => {
+                                      const updatedInstructions = product.instructions.filter(
+                                        (_, i) => i !== index
+                                      );
+                                      setProduct((prev) => ({
+                                        ...prev,
+                                        instructions: updatedInstructions,
+                                      }));
                                     }}
                                   >
-                                    {weightError}
-                                  </p>
-                                )}
-                              </TableCell>
-                            </TableRow>
-
-                            {/* Brand */}
-                            <TableRow style={{ backgroundColor: "#fafafa" }}>
-                              <TableCell
-                                style={{
-                                  borderBottom: "1px solid #ddd",
-                                  fontSize: "14px",
-                                  fontWeight: "500",
-                                }}
-                              >
-                                Brand
-                              </TableCell>
-                              <TableCell style={{ borderBottom: "1px solid #ddd" }}>
-                                <TextField
-                                  fullWidth
-                                  type="text"
-                                  value={product.infos.brand}
-                                  onChange={(e) =>
-                                    handleNestedChange("infos", "brand", e.target.value)
-                                  }
-                                  onKeyDown={(e) => {
-                                    if (e.key.toLowerCase() === "e") {
-                                      e.preventDefault();
-                                    }
-                                  }}
-                                  margin="normal"
-                                  variant="outlined"
-                                />
-                                {brandError && (
-                                  <p
-                                    style={{
-                                      color: "red",
-                                      fontSize: "0.7em",
-                                      margin: "3px 0",
-                                      fontWeight: 500,
-                                    }}
-                                  >
-                                    {brandError}
-                                  </p>
-                                )}
-                              </TableCell>
-                            </TableRow>
-
-                            {/* Storage Instructions */}
-                            <TableRow>
-                              <TableCell
-                                style={{
-                                  borderBottom: "1px solid #ddd",
-                                  fontSize: "14px",
-                                  fontWeight: "500",
-                                }}
-                              >
-                                Storage Instructions
-                              </TableCell>
-                              <TableCell style={{ borderBottom: "1px solid #ddd" }}>
-                                <ReactQuill
-                                  theme="snow"
-                                  value={product.infos.storage_instructions}
-                                  onChange={(value) =>
-                                    handleNestedChange("infos", "storage_instructions", value)
-                                  }
-                                  style={{
-                                    marginTop: "-10px",
-                                    width: "500px",
-                                    height: "200px",
-                                    marginBottom: "35px",
-                                    backgroundColor: "white",
-                                    borderRadius: "8px",
-                                  }}
-                                />
-                                {storageInstructionsError && (
-                                  <p
-                                    style={{
-                                      color: "red",
-                                      fontSize: "0.7em",
-                                      margin: "3px 0",
-                                      fontWeight: 500,
-                                    }}
-                                  >
-                                    {storageInstructionsError}
-                                  </p>
-                                )}
-                              </TableCell>
-                            </TableRow>
-
-                            {/* Usage Instructions */}
-                            <TableRow>
-                              <TableCell
-                                style={{
-                                  borderBottom: "1px solid #ddd",
-                                  fontSize: "14px",
-                                  fontWeight: "500",
-                                }}
-                              >
-                                Usage Instructions
-                              </TableCell>
-                              <TableCell style={{ borderBottom: "1px solid #ddd" }}>
-                                <ReactQuill
-                                  theme="snow"
-                                  value={product.infos.usage_instruction}
-                                  onChange={(value) =>
-                                    handleNestedChange("infos", "usage_instruction", value)
-                                  }
-                                  style={{
-                                    marginTop: "-10px",
-                                    width: "500px",
-                                    height: "200px",
-                                    marginBottom: "35px",
-                                    backgroundColor: "white",
-                                    borderRadius: "8px",
-                                  }}
-                                />
-                                {usageInstructionsError && (
-                                  <p
-                                    style={{
-                                      color: "red",
-                                      fontSize: "0.7em",
-                                      margin: "3px 0",
-                                      fontWeight: 500,
-                                    }}
-                                  >
-                                    {usageInstructionsError}
-                                  </p>
-                                )}
-                              </TableCell>
-                            </TableRow>
-
-                            {/* Made in */}
-                            <TableRow style={{ backgroundColor: "#fafafa" }}>
-                              <TableCell
-                                style={{
-                                  borderBottom: "1px solid #ddd",
-                                  fontSize: "14px",
-                                  padding: "12px",
-                                  fontWeight: "500",
-                                }}
-                              >
-                                Made in
-                              </TableCell>
-                              <TableCell style={{ borderBottom: "1px solid #ddd" }}>
-                                <TextField
-                                  fullWidth
-                                  type="text"
-                                  value={product.infos.brand}
-                                  onChange={(e) =>
-                                    handleNestedChange("infos", "brand", e.target.value)
-                                  }
-                                  onKeyDown={(e) => {
-                                    if (e.key.toLowerCase() === "e") {
-                                      e.preventDefault();
-                                    }
-                                  }}
-                                  margin="normal"
-                                  variant="outlined"
-                                />
-                                {madeInError && (
-                                  <p
-                                    style={{
-                                      color: "red",
-                                      fontSize: "0.7em",
-                                      margin: "3px 0",
-                                      fontWeight: 500,
-                                    }}
-                                  >
-                                    {madeInError}
-                                  </p>
-                                )}
-                              </TableCell>
-                            </TableRow>
+                                    Remove
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
                           </TableBody>
                         </Table>
+
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => {
+                            setProduct((prev) => ({
+                              ...prev,
+                              instructions: [...(prev.instructions || []), ""],
+                            }));
+                          }}
+                          style={{ backgroundColor: "green", color: "white", margin: "10px" }}
+                        >
+                          Add Instruction
+                        </Button>
+                      </TableContainer>
+                      <TableContainer
+                        component={Paper}
+                        style={{
+                          borderRadius: "12px",
+                          overflow: "hidden",
+                          boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
+                          marginTop: "15px",
+                        }}
+                      >
+                        <Table>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell colSpan={2}>Additional Informations</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {infoRows.map((row, index) => (
+                              <TableRow key={index}>
+                                <TableCell>
+                                  <TextField
+                                    fullWidth
+                                    label="Key"
+                                    value={row.key}
+                                    onChange={(e) => handleKeyChange(index, e.target.value)}
+                                  />
+                                </TableCell>
+                                <TableCell>
+                                  <TextField
+                                    fullWidth
+                                    label="Value"
+                                    value={row.value}
+                                    onChange={(e) => handleValueChange(index, e.target.value)}
+                                  />
+                                </TableCell>
+                                <TableCell>
+                                  <Button
+                                    variant="contained"
+                                    color="error"
+                                    onClick={() => handleRemoveRow(index)}
+                                  >
+                                    Remove
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={addInfoRow}
+                          style={{ backgroundColor: "green", color: "white", margin: "10px" }}
+                        >
+                          Add Info Row
+                        </Button>
                       </TableContainer>
 
                       {/* Success & Error Messages */}

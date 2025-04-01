@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import debounce from "lodash.debounce"; // Install lodash.debounce if not already installed
-import PropTypes from "prop-types";
-
+import debounce from "lodash.debounce";
 import Card from "@mui/material/Card";
 import {
   Grid,
@@ -35,7 +33,7 @@ import ReactQuill from "react-quill";
 function AddMealkit() {
   const [product, setProduct] = useState({
     article_md: "",
-    ingredients: {}, // Changed to a dictionary
+    ingredients: {},
     infos: {},
     instructions: [""],
     product_type: "MK",
@@ -706,6 +704,16 @@ function AddMealkit() {
                       </MDBox>
 
                       <MDBox>
+                        <p
+                          style={{
+                            marginTop: "20px",
+                            fontSize: "0.7em",
+                            fontWeight: "500",
+                            marginBottom: "-10px",
+                          }}
+                        >
+                          Ingredient
+                        </p>
                         {/* Search Bar */}
                         <Autocomplete
                           freeSolo
@@ -719,7 +727,7 @@ function AddMealkit() {
                           onChange={(e, value) => value && handleAddIngredient(value)}
                           ListboxProps={{
                             style: {
-                              maxHeight: "200px", // Set a maximum height for the dropdown
+                              maxHeight: "100px", // Set a maximum height for the dropdown
                               overflow: "auto", // Enable scrolling
                             },
                             onScroll: (event) => {
@@ -743,7 +751,7 @@ function AddMealkit() {
                               }}
                             >
                               <img
-                                src={option.image} // Use the image field from the JSON
+                                src={option.image}
                                 alt={option.name}
                                 style={{
                                   width: "40px",
@@ -757,6 +765,7 @@ function AddMealkit() {
                           )}
                           renderInput={(params) => (
                             <TextField
+                              style={{ marginTop: "15px" }}
                               {...params}
                               label="Search Ingredients"
                               placeholder="Type to search..."

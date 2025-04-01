@@ -40,7 +40,22 @@ class ProductService {
     }
   }
 
-  async allProduct(page, size) {
+  async allProduct(type, page, size) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.get(
+        `${API_BASE_URL_2}/fetch_all?type=${type}&index=${page - 1}&size=${size}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return { content: [], total_page: 1 };
+    }
+  }
+
+  async allAllProduct(page, size) {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.get(

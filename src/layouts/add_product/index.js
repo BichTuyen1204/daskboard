@@ -633,6 +633,7 @@ function AddProduct() {
                       >
                         {articleMDError}
                       </p>
+
                       <TableContainer
                         component={Paper}
                         style={{

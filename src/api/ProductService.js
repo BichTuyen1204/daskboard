@@ -59,7 +59,7 @@ class ProductService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.get(
-        `${REACT_APP_BACKEND_API_ENDPOINT}/api/general/mealkit/fetch_all?index=${
+        `${REACT_APP_BACKEND_API_ENDPOINT}/api/general/product/fetch_all?type=MK&index=${
           page - 1
         }&size=${size}`,
         {
@@ -217,6 +217,26 @@ class ProductService {
       return response.data;
     } catch (error) {
       throw error;
+    }
+  }
+
+  async searchProducts(query, page) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.get(`${API_BASE_URL}/mealkit/create/fetch/ingredients`, {
+        params: {
+          search: query, // Updated to match the API parameter name
+          index: page, // Page index (0-based)
+          size: 7, // Number of items per page
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data; // Return the API response
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      return { content: [], total_page: 1 }; // Return default structure on error
     }
   }
 }

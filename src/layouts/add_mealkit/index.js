@@ -1,49 +1,49 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import debounce from "lodash.debounce"; // Install lodash.debounce if not already installed
+import PropTypes from "prop-types";
+
 import Card from "@mui/material/Card";
 import {
   Grid,
   TextField,
   Button,
   Icon,
-  Box,
-  Chip,
+  MenuItem,
   IconButton,
+  FormLabel,
+  FormControl,
   TableCell,
   TableRow,
-  TableContainer,
-  Table,
-  TableHead,
   TableBody,
+  TableContainer,
+  TableHead,
+  Table,
+  Box,
+  Chip,
   Paper,
+  Autocomplete,
+  CircularProgress,
 } from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link } from "react-router-dom";
-import ProductService from "api/ProductService";
 import ClearIcon from "@mui/icons-material/Delete";
+import ProductService from "api/ProductService";
 import ReactQuill from "react-quill";
 
 function AddMealkit() {
   const [product, setProduct] = useState({
     article_md: "",
-    ingredients: [""],
-    infos: {
-      weight: "",
-      brand: "",
-      storage_instructions: "",
-      usage_instruction: "",
-      made_in: "",
-    },
+    ingredients: {}, // Changed to a dictionary
+    infos: {},
     instructions: [""],
-    price: 0,
     product_type: "MK",
-    sale_percent: 0,
     day_before_expiry: 0,
     product_name: "",
     description: "",
   });
-
+  const [infoRows, setInfoRows] = useState([{ key: "", value: "" }]);
   const [mainImage, setMainImage] = useState(null);
   const [mainImageError, setMainImageError] = useState("");
   const [mainImagePreview, setMainImagePreview] = useState("");
@@ -63,20 +63,108 @@ function AddMealkit() {
   const [instructionsError, setInstructionsError] = useState("");
   const [storageInstructionsError, setStorageInstructionsError] = useState("");
   const [madeInError, setMadeInError] = useState("");
-  const [inputValue, setInputValue] = useState("");
   const [instructionInput, setInstructionInput] = useState("");
   const [brandError, setBrandError] = useState("");
   const [usageInstructionsError, setUsageInstructionsError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState(""); // Debounced query
+  const [searchResults, setSearchResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(0); // Start from page 0
+  const [totalPages, setTotalPages] = useState(1); // Total pages from API
+  const [selectedProducts, setSelectedProducts] = useState({}); // Store selected product details
 
-  const handleIngredientKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      setProduct((prev) => ({
-        ...prev,
-        ingredients: [...prev.ingredients, inputValue.trim()],
-      }));
-      setInputValue("");
+  // Fetch products from API
+  const fetchProducts = async (query, page) => {
+    if (page >= totalPages && page !== 0) return; // Stop fetching if we've reached the last page
+    setLoading(true);
+
+    try {
+      // Add a 1-second delay before making the API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const response = await ProductService.searchProducts(query, page); // Call the real API
+      const { content = [], total_page = 1 } = response || {};
+
+      setSearchResults((prev) => {
+        // If it's a new query (page 0), replace the results; otherwise, append
+        if (page === 0) {
+          return content; // Replace results for a new query
+        }
+        return [...prev, ...content]; // Append results for pagination
+      });
+
+      setTotalPages(total_page); // Update total pages
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setSearchResults([]); // Clear results on error
+    } finally {
+      setLoading(false);
     }
+  };
+
+  // Debounce the search query
+  const debounceSearch = useCallback(
+    debounce((query) => {
+      setDebouncedQuery(query); // Update the debounced query
+      setPage(0); // Reset to the first page for a new query
+    }, 500), // 500ms debounce delay
+    []
+  );
+
+  // Update the debounced query when the user types
+  useEffect(() => {
+    debounceSearch(searchQuery);
+  }, [searchQuery, debounceSearch]);
+
+  // Fetch products when the debounced query or page changes
+  useEffect(() => {
+    if (debouncedQuery.trim() !== "") {
+      fetchProducts(debouncedQuery, page);
+    }
+  }, [debouncedQuery, page]);
+
+  const handleAddIngredient = (selectedProduct) => {
+    setProduct((prev) => {
+      if (prev.ingredients[selectedProduct.id]) {
+        console.warn("Ingredient already exists:", selectedProduct.id);
+        return prev; // Do not add duplicate ingredients
+      }
+      return {
+        ...prev,
+        ingredients: {
+          ...prev.ingredients,
+          [selectedProduct.id]: "", // Initialize with an empty amount
+        },
+      };
+    });
+    setSelectedProducts((prev) => ({
+      ...prev,
+      [selectedProduct.id]: selectedProduct, // Store full product details
+    }));
+  };
+
+  const handleAmountChange = (id, amount) => {
+    setProduct((prev) => ({
+      ...prev,
+      ingredients: {
+        ...prev.ingredients,
+        [id]: amount,
+      },
+    }));
+  };
+
+  const handleDeleteIngredient = (id) => {
+    setProduct((prev) => {
+      const updatedIngredients = { ...prev.ingredients };
+      delete updatedIngredients[id];
+      return { ...prev, ingredients: updatedIngredients };
+    });
+    setSelectedProducts((prev) => {
+      const updatedProducts = { ...prev };
+      delete updatedProducts[id];
+      return updatedProducts;
+    });
   };
 
   const handleInstructionKeyDown = (e) => {
@@ -88,13 +176,6 @@ function AddMealkit() {
       }));
       setInstructionInput("");
     }
-  };
-
-  const handleDeleteIngredient = (ingredient) => {
-    setProduct((prev) => ({
-      ...prev,
-      ingredients: prev.ingredients.filter((item) => item !== ingredient),
-    }));
   };
 
   const handleDeleteInstruction = (instruction) => {
@@ -130,7 +211,7 @@ function AddMealkit() {
       case "price":
         if (!value) {
           setPriceError("Price is required.");
-        } else if (value <= 0) {
+        } else if (value < 0) {
           setPriceError("Price must be greater than 0.");
         } else {
           setPriceError("");
@@ -164,7 +245,7 @@ function AddMealkit() {
         }
         break;
       case "ingredients":
-        if (!value || value.length === 0 || value.some((item) => item.trim() === "")) {
+        if (!value || Object.keys(value).length === 0) {
           setIngredientsError("Ingredients cannot be empty values.");
         } else {
           setIngredientsError("");
@@ -285,53 +366,22 @@ function AddMealkit() {
       setProductNameError("The mealkit name is required.");
       return false;
     }
-    if (!article_md.trim()) {
-      setArticleMDError("The article MD is required.");
-      return false;
-    }
-    if (!price || price <= 0) {
-      setPriceError("The rice is required and must be greater than 0.");
-      return false;
-    }
+
     if (!day_before_expiry) {
-      setDayBeforeExpiryError("The day before expiry is required");
+      setDayBeforeExpiryError("Day Before Expiry is required");
       return false;
     }
-    if (!sale_percent || sale_percent < 0 || sale_percent > 100) {
-      setSalePercentError("The sale percent must be between 0 and 100.");
-      return false;
-    }
+
     if (!description.trim()) {
       setDescriptionError("The description is required.");
       return false;
     }
-    if (!infos.weight.trim()) {
-      setWeightError("The weight is required.");
-      return false;
-    }
-    if (!ingredients.length) {
-      setIngredientsError("The ingredients is required.");
-      return false;
-    }
-    if (!instructions.length) {
-      setInstructionsError("The instructions is required.");
-      return false;
-    }
-    if (!infos.storage_instructions.trim()) {
-      setStorageInstructionsError("The storage instructions is required.");
-      return false;
-    }
-    if (!infos.made_in.trim()) {
-      setMadeInError("The made in is required.");
-      return false;
-    }
+
     if (!mainImage) {
       setMainImageError("The main image is required.");
       return false;
     }
-    if (!additionalImages) {
-      setAdditionalImagesError("The additional image is required.");
-    }
+
     setErrorMessage("");
     return true;
   };
@@ -391,6 +441,55 @@ function AddMealkit() {
       [field]: prev[field] === "" ? 0 : prev[field],
     }));
   };
+
+  const handleKeyChange = (index, key) => {
+    const updatedRows = [...infoRows];
+    updatedRows[index].key = key;
+    setInfoRows(updatedRows);
+
+    setProduct((prev) => ({
+      ...prev,
+      infos: {
+        ...prev.infos,
+        [key]: updatedRows[index].value,
+      },
+    }));
+  };
+
+  const handleValueChange = (index, value) => {
+    const updatedRows = [...infoRows];
+    updatedRows[index].value = value;
+    setInfoRows(updatedRows);
+
+    setProduct((prev) => ({
+      ...prev,
+      infos: {
+        ...prev.infos,
+        [updatedRows[index].key]: value,
+      },
+    }));
+  };
+
+  const handleRemoveRow = (index) => {
+    const updatedRows = infoRows.filter((_, i) => i !== index);
+    const removedKey = infoRows[index].key;
+    setInfoRows(updatedRows);
+
+    setProduct((prev) => {
+      const updatedInfos = { ...prev.infos };
+      delete updatedInfos[removedKey];
+      return {
+        ...prev,
+        infos: updatedInfos,
+      };
+    });
+  };
+
+  const addInfoRow = () => {
+    setInfoRows((prev) => [...prev, { key: "", value: "" }]);
+  };
+
+  function InfoRow({ product }) {}
 
   return (
     <DashboardLayout>
@@ -606,35 +705,109 @@ function AddMealkit() {
                         </Button>
                       </MDBox>
 
-                      <TextField
-                        fullWidth
-                        label="Ingredients"
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyDown={handleIngredientKeyDown}
-                        margin="normal"
-                        placeholder="Enter ingredients, press Enter to add an ingredient."
-                      />
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
-                        {product.ingredients.map((ingredient, index) => (
-                          <Chip
-                            key={index}
-                            label={ingredient}
-                            onDelete={() => handleDeleteIngredient(ingredient)}
-                          />
-                        ))}
-                      </Box>
+                      <MDBox>
+                        {/* Search Bar */}
+                        <Autocomplete
+                          freeSolo
+                          options={searchResults}
+                          getOptionLabel={(option) => option.name || ""}
+                          loading={loading}
+                          onInputChange={(e, value) => {
+                            setSearchQuery(value); // Update the search query
+                            setSearchResults([]); // Clear previous results
+                          }}
+                          onChange={(e, value) => value && handleAddIngredient(value)}
+                          ListboxProps={{
+                            style: {
+                              maxHeight: "200px", // Set a maximum height for the dropdown
+                              overflow: "auto", // Enable scrolling
+                            },
+                            onScroll: (event) => {
+                              const listboxNode = event.currentTarget;
+                              if (
+                                listboxNode.scrollTop + listboxNode.clientHeight ===
+                                listboxNode.scrollHeight
+                              ) {
+                                setPage((prevPage) => prevPage + 1); // Load the next page
+                              }
+                            },
+                          }}
+                          renderOption={(props, option) => (
+                            <Box
+                              {...props}
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 2,
+                                padding: "8px",
+                              }}
+                            >
+                              <img
+                                src={option.image} // Use the image field from the JSON
+                                alt={option.name}
+                                style={{
+                                  width: "40px",
+                                  height: "40px",
+                                  borderRadius: "4px",
+                                  objectFit: "cover",
+                                }}
+                              />
+                              <span>{option.name}</span>
+                            </Box>
+                          )}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Search Ingredients"
+                              placeholder="Type to search..."
+                              InputProps={{
+                                ...params.InputProps,
+                                endAdornment: (
+                                  <>
+                                    {loading ? (
+                                      <CircularProgress color="inherit" size={20} />
+                                    ) : null}
+                                    {params.InputProps.endAdornment}
+                                  </>
+                                ),
+                              }}
+                            />
+                          )}
+                        />
 
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {ingredientsError}
-                      </p>
+                        {/* Selected Ingredients */}
+                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
+                          {Object.entries(product.ingredients).map(([id, amount]) => {
+                            const productDetails = selectedProducts[id]; // Get full product details
+                            return (
+                              <Box key={id} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                <Chip
+                                  label={productDetails?.name || id} // Display the product name or fallback to id
+                                  onDelete={() => handleDeleteIngredient(id)} // Allow deletion
+                                />
+                                <TextField
+                                  type="number"
+                                  label="Amount"
+                                  value={amount}
+                                  onChange={(e) => handleAmountChange(id, e.target.value)} // Update the amount
+                                  size="small"
+                                />
+                              </Box>
+                            );
+                          })}
+                        </Box>
+
+                        <p
+                          style={{
+                            color: "red",
+                            fontSize: "0.6em",
+                            fontWeight: "450",
+                            marginLeft: "5px",
+                          }}
+                        >
+                          {ingredientsError}
+                        </p>
+                      </MDBox>
                     </MDBox>
                   </Grid>
 
@@ -658,48 +831,7 @@ function AddMealkit() {
                       >
                         {productNameError}
                       </p>
-                      <TextField
-                        fullWidth
-                        label="Article MD"
-                        value={product.article_md}
-                        onChange={(e) => handleChange("article_md", e.target.value)}
-                        margin="normal"
-                      />
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {articleMDError}
-                      </p>
-                      <TextField
-                        fullWidth
-                        label="Price ($)"
-                        type="number"
-                        value={product.price}
-                        onChange={(e) => handleChange("price", e.target.value)}
-                        onFocus={() => handleFocus("price")}
-                        onBlur={() => handleBlur("price")}
-                        onKeyDown={(e) => {
-                          if (e.key.toLowerCase() === "e") {
-                            e.preventDefault();
-                          }
-                        }}
-                        margin="normal"
-                      />
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {priceError}
-                      </p>
+
                       <TextField
                         fullWidth
                         label="Day Before Expiry"
@@ -725,31 +857,7 @@ function AddMealkit() {
                       >
                         {dayBeforeExpiryError}
                       </p>
-                      <TextField
-                        fullWidth
-                        label="Sale Percent (%)"
-                        type="number"
-                        value={product.sale_percent}
-                        onChange={(e) => handleChange("sale_percent", e.target.value)}
-                        onFocus={() => handleFocus("sale_percent")}
-                        onBlur={() => handleBlur("sale_percent")}
-                        onKeyDown={(e) => {
-                          if (e.key.toLowerCase() === "e") {
-                            e.preventDefault();
-                          }
-                        }}
-                        margin="normal"
-                      />
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {salePercentError}
-                      </p>
+
                       <TextField
                         fullWidth
                         label="Description"
@@ -770,6 +878,35 @@ function AddMealkit() {
                         {descriptionError}
                       </p>
 
+                      <FormControl fullWidth>
+                        <FormLabel style={{ fontSize: "0.7em", marginTop: "15px" }}>
+                          Article
+                        </FormLabel>
+                        <ReactQuill
+                          theme="snow"
+                          value={product.article_md}
+                          onChange={(value) => handleChange("article_md", value)}
+                          style={{ height: "200px", marginBottom: "60px", borderRadius: "15px" }}
+                        />
+                      </FormControl>
+                      {/* <TextField
+                        fullWidth
+                        label="Article MD"
+                        value={product.article_md}
+                        onChange={(e) => handleChange("article_md", e.target.value)}
+                        margin="normal"
+                      /> */}
+                      <p
+                        style={{
+                          color: "red",
+                          fontSize: "0.6em",
+                          fontWeight: "450",
+                          marginLeft: "5px",
+                        }}
+                      >
+                        {articleMDError}
+                      </p>
+
                       <TableContainer
                         component={Paper}
                         style={{
@@ -781,312 +918,121 @@ function AddMealkit() {
                       >
                         <Table>
                           <TableHead>
-                            <TableRow style={{ backgroundColor: "#1976d2" }}></TableRow>
+                            <TableRow>
+                              <TableCell>Instructions</TableCell>
+                            </TableRow>
                           </TableHead>
                           <TableBody>
-                            {/* Weight */}
-                            <TableRow style={{ backgroundColor: "#fafafa" }}>
-                              <TableCell
-                                style={{
-                                  borderBottom: "1px solid #ddd",
-                                  fontSize: "14px",
-                                  fontWeight: "500",
-                                }}
-                              >
-                                Weight (gam)
-                              </TableCell>
-                              <TableCell style={{ borderBottom: "1px solid #ddd" }}>
-                                <TextField
-                                  fullWidth
-                                  type="number"
-                                  value={product.infos.weight}
-                                  onChange={(e) =>
-                                    handleNestedChange("infos", "weight", e.target.value)
-                                  }
-                                  onKeyDown={(e) => {
-                                    if (e.key.toLowerCase() === "e") {
-                                      e.preventDefault();
-                                    }
-                                  }}
-                                  margin="normal"
-                                  variant="outlined"
-                                />
-                                {weightError && (
-                                  <p
-                                    style={{
-                                      color: "red",
-                                      fontSize: "0.7em",
-                                      margin: "3px 0",
-                                      fontWeight: 500,
+                            {product.instructions?.map((instruction, index) => (
+                              <TableRow key={index}>
+                                <TableCell>
+                                  <TextField
+                                    fullWidth
+                                    label={`Instruction ${index + 1}`}
+                                    value={instruction}
+                                    onChange={(e) => {
+                                      const updatedInstructions = [...product.instructions];
+                                      updatedInstructions[index] = e.target.value;
+                                      setProduct((prev) => ({
+                                        ...prev,
+                                        instructions: updatedInstructions,
+                                      }));
+                                    }}
+                                  />
+                                </TableCell>
+                                <TableCell>
+                                  <Button
+                                    variant="contained"
+                                    color="error"
+                                    onClick={() => {
+                                      const updatedInstructions = product.instructions.filter(
+                                        (_, i) => i !== index
+                                      );
+                                      setProduct((prev) => ({
+                                        ...prev,
+                                        instructions: updatedInstructions,
+                                      }));
                                     }}
                                   >
-                                    {weightError}
-                                  </p>
-                                )}
-                              </TableCell>
-                            </TableRow>
-
-                            {/* Brand */}
-                            <TableRow style={{ backgroundColor: "#fafafa" }}>
-                              <TableCell
-                                style={{
-                                  borderBottom: "1px solid #ddd",
-                                  fontSize: "14px",
-                                  fontWeight: "500",
-                                }}
-                              >
-                                Brand
-                              </TableCell>
-                              <TableCell style={{ borderBottom: "1px solid #ddd" }}>
-                                <TextField
-                                  fullWidth
-                                  type="text"
-                                  value={product.infos.brand}
-                                  onChange={(e) =>
-                                    handleNestedChange("infos", "brand", e.target.value)
-                                  }
-                                  onKeyDown={(e) => {
-                                    if (e.key.toLowerCase() === "e") {
-                                      e.preventDefault();
-                                    }
-                                  }}
-                                  margin="normal"
-                                  variant="outlined"
-                                />
-                                {brandError && (
-                                  <p
-                                    style={{
-                                      color: "red",
-                                      fontSize: "0.7em",
-                                      margin: "3px 0",
-                                      fontWeight: 500,
-                                    }}
-                                  >
-                                    {brandError}
-                                  </p>
-                                )}
-                              </TableCell>
-                            </TableRow>
-
-                            {/* Storage Instructions */}
-                            <TableRow>
-                              <TableCell
-                                style={{
-                                  borderBottom: "1px solid #ddd",
-                                  fontSize: "14px",
-                                  fontWeight: "500",
-                                }}
-                              >
-                                Storage Instructions
-                              </TableCell>
-                              <TableCell style={{ borderBottom: "1px solid #ddd" }}>
-                                <ReactQuill
-                                  theme="snow"
-                                  value={product.infos.storage_instructions}
-                                  onChange={(value) =>
-                                    handleNestedChange("infos", "storage_instructions", value)
-                                  }
-                                  style={{
-                                    marginTop: "-10px",
-                                    width: "500px",
-                                    height: "200px",
-                                    marginBottom: "35px",
-                                    backgroundColor: "white",
-                                    borderRadius: "8px",
-                                  }}
-                                />
-                                {storageInstructionsError && (
-                                  <p
-                                    style={{
-                                      color: "red",
-                                      fontSize: "0.7em",
-                                      margin: "3px 0",
-                                      fontWeight: 500,
-                                    }}
-                                  >
-                                    {storageInstructionsError}
-                                  </p>
-                                )}
-                              </TableCell>
-                            </TableRow>
-
-                            {/* Usage Instructions */}
-                            <TableRow>
-                              <TableCell
-                                style={{
-                                  borderBottom: "1px solid #ddd",
-                                  fontSize: "14px",
-                                  fontWeight: "500",
-                                }}
-                              >
-                                Usage Instructions
-                              </TableCell>
-                              <TableCell style={{ borderBottom: "1px solid #ddd" }}>
-                                <ReactQuill
-                                  theme="snow"
-                                  value={product.infos.usage_instruction}
-                                  onChange={(value) =>
-                                    handleNestedChange("infos", "usage_instruction", value)
-                                  }
-                                  style={{
-                                    marginTop: "-10px",
-                                    width: "500px",
-                                    height: "200px",
-                                    marginBottom: "35px",
-                                    backgroundColor: "white",
-                                    borderRadius: "8px",
-                                  }}
-                                />
-                                {usageInstructionsError && (
-                                  <p
-                                    style={{
-                                      color: "red",
-                                      fontSize: "0.7em",
-                                      margin: "3px 0",
-                                      fontWeight: 500,
-                                    }}
-                                  >
-                                    {usageInstructionsError}
-                                  </p>
-                                )}
-                              </TableCell>
-                            </TableRow>
-
-                            {/* Made in */}
-                            <TableRow style={{ backgroundColor: "#fafafa" }}>
-                              <TableCell
-                                style={{
-                                  borderBottom: "1px solid #ddd",
-                                  fontSize: "14px",
-                                  padding: "12px",
-                                  fontWeight: "500",
-                                }}
-                              >
-                                Made in
-                              </TableCell>
-                              <TableCell style={{ borderBottom: "1px solid #ddd" }}>
-                                <TextField
-                                  fullWidth
-                                  type="text"
-                                  value={product.infos.brand}
-                                  onChange={(e) =>
-                                    handleNestedChange("infos", "brand", e.target.value)
-                                  }
-                                  onKeyDown={(e) => {
-                                    if (e.key.toLowerCase() === "e") {
-                                      e.preventDefault();
-                                    }
-                                  }}
-                                  margin="normal"
-                                  variant="outlined"
-                                />
-                                {madeInError && (
-                                  <p
-                                    style={{
-                                      color: "red",
-                                      fontSize: "0.7em",
-                                      margin: "3px 0",
-                                      fontWeight: 500,
-                                    }}
-                                  >
-                                    {madeInError}
-                                  </p>
-                                )}
-                              </TableCell>
-                            </TableRow>
+                                    Remove
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
                           </TableBody>
                         </Table>
+
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => {
+                            setProduct((prev) => ({
+                              ...prev,
+                              instructions: [...(prev.instructions || []), ""],
+                            }));
+                          }}
+                          style={{ backgroundColor: "green", color: "white", margin: "10px" }}
+                        >
+                          Add Instruction
+                        </Button>
                       </TableContainer>
+                      <TableContainer
+                        component={Paper}
+                        style={{
+                          borderRadius: "12px",
+                          overflow: "hidden",
+                          boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
+                          marginTop: "15px",
+                        }}
+                      >
+                        <Table>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell colSpan={2}>Additional Informations</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {infoRows.map((row, index) => (
+                              <TableRow key={index}>
+                                <TableCell>
+                                  <TextField
+                                    fullWidth
+                                    label="Key"
+                                    value={row.key}
+                                    onChange={(e) => handleKeyChange(index, e.target.value)}
+                                  />
+                                </TableCell>
+                                <TableCell>
+                                  <TextField
+                                    fullWidth
+                                    label="Value"
+                                    value={row.value}
+                                    onChange={(e) => handleValueChange(index, e.target.value)}
+                                  />
+                                </TableCell>
+                                <TableCell>
+                                  <Button
+                                    variant="contained"
+                                    color="error"
+                                    onClick={() => handleRemoveRow(index)}
+                                  >
+                                    Remove
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
 
-                      {/* <TextField
-                        fullWidth
-                        type="number"
-                        label="Weight (gam)"
-                        value={product.infos.weight}
-                        onChange={(e) => handleNestedChange("infos", "weight", e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key.toLowerCase() === "e") {
-                            e.preventDefault();
-                          }
-                        }}
-                        margin="normal"
-                      />
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {weightError}
-                      </p> */}
-
-                      {/* <TextField
-                        fullWidth
-                        label="Instructions"
-                        value={instructionInput}
-                        onChange={(e) => setInstructionInput(e.target.value)}
-                        onKeyDown={handleInstructionKeyDown}
-                        margin="normal"
-                        placeholder="Enter instructions, press Enter to add an instruction."
-                      />
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
-                        {product.instructions.map((instruction, index) => (
-                          <Chip
-                            key={index}
-                            label={instruction}
-                            onDelete={() => handleDeleteInstruction(instruction)}
-                          />
-                        ))}
-                      </Box>
-
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {instructionsError}
-                      </p> */}
-                      {/* <TextField
-                        fullWidth
-                        label="Storage Instructions"
-                        value={product.infos.storage_instructions}
-                        onChange={(e) =>
-                          handleNestedChange("infos", "storage_instructions", e.target.value)
-                        }
-                        margin="normal"
-                      />
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {storageInstructionsError}
-                      </p> */}
-                      {/* <TextField
-                        fullWidth
-                        label="Made in"
-                        value={product.infos.made_in}
-                        onChange={(e) => handleNestedChange("infos", "made_in", e.target.value)}
-                        margin="normal"
-                      />
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {madeInError}
-                      </p> */}
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={addInfoRow}
+                          style={{ backgroundColor: "green", color: "white", margin: "10px" }}
+                        >
+                          Add Info Row
+                        </Button>
+                      </TableContainer>
                       <p
                         style={{
                           color: "green",

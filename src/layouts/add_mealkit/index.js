@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import debounce from "lodash.debounce"; // Install lodash.debounce if not already installed
 import PropTypes from "prop-types";
 
 import Card from "@mui/material/Card";
@@ -20,6 +21,8 @@ import {
   Box,
   Chip,
   Paper,
+  Autocomplete,
+  CircularProgress,
 } from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
@@ -32,7 +35,7 @@ import ReactQuill from "react-quill";
 function AddMealkit() {
   const [product, setProduct] = useState({
     article_md: "",
-    ingredients: [""],
+    ingredients: {}, // Changed to a dictionary
     infos: {},
     instructions: [""],
     product_type: "MK",
@@ -60,20 +63,108 @@ function AddMealkit() {
   const [instructionsError, setInstructionsError] = useState("");
   const [storageInstructionsError, setStorageInstructionsError] = useState("");
   const [madeInError, setMadeInError] = useState("");
-  const [inputValue, setInputValue] = useState("");
   const [instructionInput, setInstructionInput] = useState("");
   const [brandError, setBrandError] = useState("");
   const [usageInstructionsError, setUsageInstructionsError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState(""); // Debounced query
+  const [searchResults, setSearchResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(0); // Start from page 0
+  const [totalPages, setTotalPages] = useState(1); // Total pages from API
+  const [selectedProducts, setSelectedProducts] = useState({}); // Store selected product details
 
-  const handleIngredientKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      setProduct((prev) => ({
-        ...prev,
-        ingredients: [...prev.ingredients, inputValue.trim()],
-      }));
-      setInputValue("");
+  // Fetch products from API
+  const fetchProducts = async (query, page) => {
+    if (page >= totalPages && page !== 0) return; // Stop fetching if we've reached the last page
+    setLoading(true);
+
+    try {
+      // Add a 1-second delay before making the API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const response = await ProductService.searchProducts(query, page); // Call the real API
+      const { content = [], total_page = 1 } = response || {};
+
+      setSearchResults((prev) => {
+        // If it's a new query (page 0), replace the results; otherwise, append
+        if (page === 0) {
+          return content; // Replace results for a new query
+        }
+        return [...prev, ...content]; // Append results for pagination
+      });
+
+      setTotalPages(total_page); // Update total pages
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setSearchResults([]); // Clear results on error
+    } finally {
+      setLoading(false);
     }
+  };
+
+  // Debounce the search query
+  const debounceSearch = useCallback(
+    debounce((query) => {
+      setDebouncedQuery(query); // Update the debounced query
+      setPage(0); // Reset to the first page for a new query
+    }, 500), // 500ms debounce delay
+    []
+  );
+
+  // Update the debounced query when the user types
+  useEffect(() => {
+    debounceSearch(searchQuery);
+  }, [searchQuery, debounceSearch]);
+
+  // Fetch products when the debounced query or page changes
+  useEffect(() => {
+    if (debouncedQuery.trim() !== "") {
+      fetchProducts(debouncedQuery, page);
+    }
+  }, [debouncedQuery, page]);
+
+  const handleAddIngredient = (selectedProduct) => {
+    setProduct((prev) => {
+      if (prev.ingredients[selectedProduct.id]) {
+        console.warn("Ingredient already exists:", selectedProduct.id);
+        return prev; // Do not add duplicate ingredients
+      }
+      return {
+        ...prev,
+        ingredients: {
+          ...prev.ingredients,
+          [selectedProduct.id]: "", // Initialize with an empty amount
+        },
+      };
+    });
+    setSelectedProducts((prev) => ({
+      ...prev,
+      [selectedProduct.id]: selectedProduct, // Store full product details
+    }));
+  };
+
+  const handleAmountChange = (id, amount) => {
+    setProduct((prev) => ({
+      ...prev,
+      ingredients: {
+        ...prev.ingredients,
+        [id]: amount,
+      },
+    }));
+  };
+
+  const handleDeleteIngredient = (id) => {
+    setProduct((prev) => {
+      const updatedIngredients = { ...prev.ingredients };
+      delete updatedIngredients[id];
+      return { ...prev, ingredients: updatedIngredients };
+    });
+    setSelectedProducts((prev) => {
+      const updatedProducts = { ...prev };
+      delete updatedProducts[id];
+      return updatedProducts;
+    });
   };
 
   const handleInstructionKeyDown = (e) => {
@@ -85,13 +176,6 @@ function AddMealkit() {
       }));
       setInstructionInput("");
     }
-  };
-
-  const handleDeleteIngredient = (ingredient) => {
-    setProduct((prev) => ({
-      ...prev,
-      ingredients: prev.ingredients.filter((item) => item !== ingredient),
-    }));
   };
 
   const handleDeleteInstruction = (instruction) => {
@@ -161,7 +245,7 @@ function AddMealkit() {
         }
         break;
       case "ingredients":
-        if (!value || value.length === 0 || value.some((item) => item.trim() === "")) {
+        if (!value || Object.keys(value).length === 0) {
           setIngredientsError("Ingredients cannot be empty values.");
         } else {
           setIngredientsError("");
@@ -290,15 +374,6 @@ function AddMealkit() {
 
     if (!description.trim()) {
       setDescriptionError("The description is required.");
-      return false;
-    }
-
-    if (!ingredients.length) {
-      setIngredientsError("The ingredients is required.");
-      return false;
-    }
-    if (!instructions.length) {
-      setInstructionsError("The instructions is required.");
       return false;
     }
 
@@ -630,35 +705,109 @@ function AddMealkit() {
                         </Button>
                       </MDBox>
 
-                      <TextField
-                        fullWidth
-                        label="Ingredients"
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyDown={handleIngredientKeyDown}
-                        margin="normal"
-                        placeholder="Enter ingredients, press Enter to add an ingredient."
-                      />
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
-                        {product.ingredients.map((ingredient, index) => (
-                          <Chip
-                            key={index}
-                            label={ingredient}
-                            onDelete={() => handleDeleteIngredient(ingredient)}
-                          />
-                        ))}
-                      </Box>
+                      <MDBox>
+                        {/* Search Bar */}
+                        <Autocomplete
+                          freeSolo
+                          options={searchResults}
+                          getOptionLabel={(option) => option.name || ""}
+                          loading={loading}
+                          onInputChange={(e, value) => {
+                            setSearchQuery(value); // Update the search query
+                            setSearchResults([]); // Clear previous results
+                          }}
+                          onChange={(e, value) => value && handleAddIngredient(value)}
+                          ListboxProps={{
+                            style: {
+                              maxHeight: "200px", // Set a maximum height for the dropdown
+                              overflow: "auto", // Enable scrolling
+                            },
+                            onScroll: (event) => {
+                              const listboxNode = event.currentTarget;
+                              if (
+                                listboxNode.scrollTop + listboxNode.clientHeight ===
+                                listboxNode.scrollHeight
+                              ) {
+                                setPage((prevPage) => prevPage + 1); // Load the next page
+                              }
+                            },
+                          }}
+                          renderOption={(props, option) => (
+                            <Box
+                              {...props}
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 2,
+                                padding: "8px",
+                              }}
+                            >
+                              <img
+                                src={option.image} // Use the image field from the JSON
+                                alt={option.name}
+                                style={{
+                                  width: "40px",
+                                  height: "40px",
+                                  borderRadius: "4px",
+                                  objectFit: "cover",
+                                }}
+                              />
+                              <span>{option.name}</span>
+                            </Box>
+                          )}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Search Ingredients"
+                              placeholder="Type to search..."
+                              InputProps={{
+                                ...params.InputProps,
+                                endAdornment: (
+                                  <>
+                                    {loading ? (
+                                      <CircularProgress color="inherit" size={20} />
+                                    ) : null}
+                                    {params.InputProps.endAdornment}
+                                  </>
+                                ),
+                              }}
+                            />
+                          )}
+                        />
 
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {ingredientsError}
-                      </p>
+                        {/* Selected Ingredients */}
+                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
+                          {Object.entries(product.ingredients).map(([id, amount]) => {
+                            const productDetails = selectedProducts[id]; // Get full product details
+                            return (
+                              <Box key={id} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                <Chip
+                                  label={productDetails?.name || id} // Display the product name or fallback to id
+                                  onDelete={() => handleDeleteIngredient(id)} // Allow deletion
+                                />
+                                <TextField
+                                  type="number"
+                                  label="Amount"
+                                  value={amount}
+                                  onChange={(e) => handleAmountChange(id, e.target.value)} // Update the amount
+                                  size="small"
+                                />
+                              </Box>
+                            );
+                          })}
+                        </Box>
+
+                        <p
+                          style={{
+                            color: "red",
+                            fontSize: "0.6em",
+                            fontWeight: "450",
+                            marginLeft: "5px",
+                          }}
+                        >
+                          {ingredientsError}
+                        </p>
+                      </MDBox>
                     </MDBox>
                   </Grid>
 
@@ -681,23 +830,6 @@ function AddMealkit() {
                         }}
                       >
                         {productNameError}
-                      </p>
-                      <TextField
-                        fullWidth
-                        label="Article MD"
-                        value={product.article_md}
-                        onChange={(e) => handleChange("article_md", e.target.value)}
-                        margin="normal"
-                      />
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {articleMDError}
                       </p>
 
                       <TextField

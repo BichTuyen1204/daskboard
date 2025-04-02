@@ -456,21 +456,21 @@ function AddProduct() {
                                 objectFit: "contain",
                               }}
                             />
-                            <Button
-                              variant="outlined"
+                            <IconButton
                               sx={{
                                 position: "absolute",
                                 bottom: "10px",
                                 right: "10px",
                                 backgroundColor: "white",
+                                border: "black solid 1px",
                                 "&:hover": {
                                   backgroundColor: "#f0f0f0",
                                 },
                               }}
                               onClick={() => setCropModalOpen(true)} // Re-open the crop modal
                             >
-                              Adjust Crop
-                            </Button>
+                              <Icon>crop</Icon>
+                            </IconButton>
                           </>
                         ) : (
                           <MDTypography variant="body2" color="textSecondary" textAlign="center">
@@ -557,12 +557,16 @@ function AddProduct() {
                             sx={{ mt: 2 }}
                           />
                           <Box display="flex" justifyContent="space-between" mt={2}>
-                            <Button variant="outlined" onClick={() => setCropModalOpen(false)}>
+                            <Button
+                              variant="outlined"
+                              color="error"
+                              onClick={() => setCropModalOpen(false)}
+                            >
                               Cancel
                             </Button>
                             <Button
                               variant="contained"
-                              color="primary"
+                              style={{ color: "white", margin: "10px" }}
                               onClick={
                                 currentAdditionalImageIndex !== null
                                   ? handleAdditionalImageCropSave // Use the additional image crop save function

@@ -6,7 +6,6 @@ import Card from "@mui/material/Card";
 import {
   Grid,
   TextField,
-  Button,
   Icon,
   MenuItem,
   IconButton,
@@ -26,6 +25,7 @@ import {
   Modal,
   Slider,
 } from "@mui/material";
+import Button from "@mui/material/Button";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -617,6 +617,7 @@ function AddMealkit() {
 
                     <MDBox>
                       {/* Main Image */}
+
                       <MDTypography variant="h6" mb={2}>
                         Main Image
                       </MDTypography>
@@ -647,21 +648,21 @@ function AddMealkit() {
                                 objectFit: "contain",
                               }}
                             />
-                            <Button
-                              variant="outlined"
+                            <IconButton
                               sx={{
                                 position: "absolute",
                                 bottom: "10px",
                                 right: "10px",
                                 backgroundColor: "white",
+                                border: "black solid 1px",
                                 "&:hover": {
                                   backgroundColor: "#f0f0f0",
                                 },
                               }}
                               onClick={() => setCropModalOpen(true)} // Re-open the crop modal
                             >
-                              Adjust Crop
-                            </Button>
+                              <Icon>crop</Icon>
+                            </IconButton>
                           </>
                         ) : (
                           <MDTypography variant="body2" color="textSecondary" textAlign="center">
@@ -1217,12 +1218,12 @@ function AddMealkit() {
             sx={{ mt: 2 }}
           />
           <Box display="flex" justifyContent="space-between" mt={2}>
-            <Button variant="outlined" onClick={() => setCropModalOpen(false)}>
+            <Button variant="outlined" color="error" onClick={() => setCropModalOpen(false)}>
               Cancel
             </Button>
             <Button
               variant="contained"
-              color="primary"
+              style={{ color: "white", margin: "10px" }}
               onClick={
                 currentAdditionalImageIndex !== null
                   ? handleAdditionalImageCropSave // Use the additional image crop save function

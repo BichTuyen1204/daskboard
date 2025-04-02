@@ -4,7 +4,6 @@ import Card from "@mui/material/Card";
 import {
   Grid,
   TextField,
-  Button,
   Icon,
   MenuItem,
   IconButton,
@@ -21,7 +20,10 @@ import {
   Paper,
   Autocomplete,
   CircularProgress,
+  Modal,
+  Slider,
 } from "@mui/material";
+import Button from "@mui/material/Button";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -29,6 +31,8 @@ import { Link } from "react-router-dom";
 import ClearIcon from "@mui/icons-material/Delete";
 import ProductService from "api/ProductService";
 import ReactQuill from "react-quill";
+import Cropper from "react-easy-crop";
+import getCroppedImg from "utils/cropImage"; // Utility function to crop the image
 
 function AddMealkit() {
   const [product, setProduct] = useState({
@@ -71,6 +75,113 @@ function AddMealkit() {
   const [page, setPage] = useState(0); // Start from page 0
   const [totalPages, setTotalPages] = useState(1); // Total pages from API
   const [selectedProducts, setSelectedProducts] = useState({}); // Store selected product details
+
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState(null);
+  const [currentAdditionalImageIndex, setCurrentAdditionalImageIndex] = useState(null); // Track the index of the additional image being cropped
+
+  const onCropComplete = (croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  };
+
+  const handleCropSave = async () => {
+    try {
+      const croppedImage = await getCroppedImg(imageToCrop, croppedAreaPixels);
+
+      if (currentAdditionalImageIndex !== null) {
+        // Update the cropped additional image
+        const updatedPreviews = [...additionalImagePreviews];
+        updatedPreviews[currentAdditionalImageIndex] = URL.createObjectURL(croppedImage);
+        setAdditionalImagePreviews(updatedPreviews);
+
+        const updatedImages = [...additionalImages];
+        updatedImages[currentAdditionalImageIndex] = croppedImage;
+        setAdditionalImages(updatedImages);
+
+        setCurrentAdditionalImageIndex(null); // Reset the index
+      } else {
+        // Update the cropped main image
+        setMainImage(croppedImage);
+        setMainImagePreview(URL.createObjectURL(croppedImage));
+      }
+
+      setCropModalOpen(false);
+      setMainImageError("");
+    } catch (error) {
+      console.error("Error cropping the image:", error);
+    }
+  };
+
+  const handleMainImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      setMainImageError("No file selected.");
+      return;
+    }
+    if (!["image/jpeg", "image/png"].includes(file.type)) {
+      setMainImageError("Only JPG or PNG files are accepted.");
+      return;
+    }
+    try {
+      const objectUrl = URL.createObjectURL(file);
+      setImageToCrop(objectUrl); // Set the image URL for cropping
+      setCropModalOpen(true); // Open the cropping modal
+      setMainImageError(""); // Clear any previous errors
+    } catch (error) {
+      console.error("Error creating object URL:", error);
+      setMainImageError("Failed to load the image. Please try again.");
+    }
+  };
+
+  const handleAdditionalImagesChange = (e) => {
+    const files = Array.from(e.target.files);
+    const validFiles = files.filter((file) => ["image/jpeg", "image/png"].includes(file.type));
+
+    if (validFiles.length !== files.length) {
+      setAdditionalImagesError("Only JPG or PNG files are accepted.");
+      return;
+    }
+
+    const newPreviews = validFiles.map((file) => URL.createObjectURL(file));
+    setAdditionalImagePreviews((prev) => [...prev, ...newPreviews]);
+    setAdditionalImages((prev) => [...prev, ...validFiles]);
+
+    // Open the crop modal for the first new image
+    if (newPreviews.length > 0) {
+      setImageToCrop(newPreviews[0]);
+      setCurrentAdditionalImageIndex(additionalImagePreviews.length); // Set the index of the image being cropped
+      setCropModalOpen(true);
+    }
+
+    setAdditionalImagesError("");
+  };
+
+  const handleAdditionalImageCropSave = async () => {
+    try {
+      const croppedImage = await getCroppedImg(imageToCrop, croppedAreaPixels);
+
+      if (currentAdditionalImageIndex !== null) {
+        // Update the cropped additional image
+        const updatedPreviews = [...additionalImagePreviews];
+        updatedPreviews[currentAdditionalImageIndex] = URL.createObjectURL(croppedImage);
+        setAdditionalImagePreviews(updatedPreviews);
+
+        const updatedImages = [...additionalImages];
+        updatedImages[currentAdditionalImageIndex] = croppedImage;
+        setAdditionalImages(updatedImages);
+
+        setCurrentAdditionalImageIndex(null); // Reset the index
+      }
+
+      setCropModalOpen(false);
+      setAdditionalImagesError("");
+    } catch (error) {
+      console.error("Error cropping the additional image:", error);
+    }
+  };
 
   // Fetch products from API
   const fetchProducts = async (query, page) => {
@@ -316,32 +427,6 @@ function AddMealkit() {
     setSuccessMessage("");
   };
 
-  const handleMainImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setMainImage(file);
-      setMainImagePreview(URL.createObjectURL(file));
-      setMainImageError("");
-      setErrorMessage("");
-      setSuccessMessage("");
-    }
-  };
-
-  const handleAdditionalImagesChange = (e) => {
-    const files = Array.from(e.target.files);
-    const validFiles = files.filter((file) => ["image/jpeg", "image/png"].includes(file.type));
-
-    if (validFiles.length !== files.length) {
-      setAdditionalImagesError("Only JPG or PNG files are accepted.");
-      return;
-    }
-
-    setAdditionalImages((prev) => [...prev, ...validFiles]);
-    const newPreviews = validFiles.map((file) => URL.createObjectURL(file));
-    setAdditionalImagePreviews((prev) => [...prev, ...newPreviews]);
-    setAdditionalImagesError("");
-  };
-
   const handleRemoveImage = (index) => {
     setAdditionalImages((prev) => prev.filter((_, i) => i !== index));
     setAdditionalImagePreviews((prev) => prev.filter((_, i) => i !== index));
@@ -530,6 +615,7 @@ function AddMealkit() {
 
                     <MDBox>
                       {/* Main Image */}
+
                       <MDTypography variant="h6" mb={2}>
                         Main Image
                       </MDTypography>
@@ -550,15 +636,32 @@ function AddMealkit() {
                         }}
                       >
                         {mainImagePreview ? (
-                          <img
-                            src={mainImagePreview}
-                            alt="Main Preview"
-                            style={{
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "contain",
-                            }}
-                          />
+                          <>
+                            <img
+                              src={mainImagePreview}
+                              alt="Main Preview"
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "contain",
+                              }}
+                            />
+                            <IconButton
+                              sx={{
+                                position: "absolute",
+                                bottom: "10px",
+                                right: "10px",
+                                backgroundColor: "white",
+                                border: "black solid 1px",
+                                "&:hover": {
+                                  backgroundColor: "#f0f0f0",
+                                },
+                              }}
+                              onClick={() => setCropModalOpen(true)} // Re-open the crop modal
+                            >
+                              <Icon>crop</Icon>
+                            </IconButton>
+                          </>
                         ) : (
                           <MDTypography variant="body2" color="textSecondary" textAlign="center">
                             No Main Image Selected
@@ -1070,7 +1173,7 @@ function AddMealkit() {
                           onClick={handleSubmit}
                           style={{ backgroundColor: "green", color: "white" }}
                         >
-                          Add Mealit
+                          Add Mealkit
                         </Button>
                       </MDBox>
                     </form>
@@ -1081,6 +1184,66 @@ function AddMealkit() {
           </Grid>
         </Grid>
       </MDBox>
+
+      <Modal open={cropModalOpen} onClose={() => setCropModalOpen(false)}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "90%",
+            maxWidth: "500px",
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: "8px",
+          }}
+        >
+          <Box
+            sx={{
+              position: "relative",
+              width: "100%",
+              height: "300px", // Fixed height for the cropper
+              background: "#333", // Optional: Add a background color
+            }}
+          >
+            <Cropper
+              image={imageToCrop}
+              crop={crop}
+              zoom={zoom}
+              aspect={1} // Adjust aspect ratio as needed
+              onCropChange={setCrop}
+              onZoomChange={setZoom}
+              onCropComplete={onCropComplete}
+            />
+          </Box>
+          <Slider
+            value={zoom}
+            min={1}
+            max={3}
+            step={0.1}
+            onChange={(e, zoom) => setZoom(zoom)}
+            sx={{ mt: 2 }}
+          />
+          <Box display="flex" justifyContent="space-between" mt={2}>
+            <Button variant="outlined" color="error" onClick={() => setCropModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              style={{ color: "white", margin: "10px" }}
+              onClick={
+                currentAdditionalImageIndex !== null
+                  ? handleAdditionalImageCropSave // Use the additional image crop save function
+                  : handleCropSave // Use the main image crop save function
+              }
+            >
+              Save
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
     </DashboardLayout>
   );
 }

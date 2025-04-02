@@ -198,6 +198,30 @@ function AddProduct() {
     }
   };
 
+  const handleAdditionalImageCropSave = async () => {
+    try {
+      const croppedImage = await getCroppedImg(imageToCrop, croppedAreaPixels);
+
+      if (currentAdditionalImageIndex !== null) {
+        // Update the cropped additional image
+        const updatedPreviews = [...additionalImagePreviews];
+        updatedPreviews[currentAdditionalImageIndex] = URL.createObjectURL(croppedImage);
+        setAdditionalImagePreviews(updatedPreviews);
+
+        const updatedImages = [...additionalImages];
+        updatedImages[currentAdditionalImageIndex] = croppedImage;
+        setAdditionalImages(updatedImages);
+
+        setCurrentAdditionalImageIndex(null); // Reset the index
+      }
+
+      setCropModalOpen(false);
+      setAdditionalImagesError("");
+    } catch (error) {
+      console.error("Error cropping the additional image:", error);
+    }
+  };
+
   const handleAdditionalImagesChange = (e) => {
     const files = Array.from(e.target.files);
     const validFiles = files.filter((file) => ["image/jpeg", "image/png"].includes(file.type));
@@ -536,7 +560,15 @@ function AddProduct() {
                             <Button variant="outlined" onClick={() => setCropModalOpen(false)}>
                               Cancel
                             </Button>
-                            <Button variant="contained" color="primary" onClick={handleCropSave}>
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              onClick={
+                                currentAdditionalImageIndex !== null
+                                  ? handleAdditionalImageCropSave // Use the additional image crop save function
+                                  : handleCropSave // Use the main image crop save function
+                              }
+                            >
                               Save
                             </Button>
                           </Box>

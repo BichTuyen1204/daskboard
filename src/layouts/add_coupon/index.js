@@ -77,8 +77,18 @@ function AddCoupon() {
       setIdError("");
     }
 
-    setCoupon((prevCoupon) => ({ ...prevCoupon, [name]: value }));
+    if (name === "minimum_price") {
+      const numericValue = value.replace(/[^0-9.]/g, "");
 
+      if ((numericValue.match(/\./g) || []).length > 1) {
+        return;
+      }
+
+      setCoupon((prevCoupon) => ({ ...prevCoupon, [name]: numericValue }));
+      validateField(name, numericValue);
+      return;
+    }
+    setCoupon((prevCoupon) => ({ ...prevCoupon, [name]: value }));
     validateField(name, value);
   };
 

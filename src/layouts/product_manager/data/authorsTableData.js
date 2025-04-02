@@ -7,7 +7,7 @@ import { Icon } from "@mui/material";
 import { Link } from "react-router-dom";
 import ProductService from "api/ProductService";
 
-export default function DataTable(page, rowsPerPage) {
+export default function DataTable(page, rowsPerPage, selectedType) {
   const [product, setProduct] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const jwtToken = sessionStorage.getItem("jwtToken");
@@ -17,7 +17,14 @@ export default function DataTable(page, rowsPerPage) {
       if (!jwtToken) return;
 
       try {
-        const response = await ProductService.allProduct(page, rowsPerPage);
+        let response;
+
+        if (selectedType === "ALL") {
+          response = await ProductService.allAllProduct(page, rowsPerPage);
+          console.log("All product", response);
+        } else {
+          response = await ProductService.allProduct(selectedType, page, rowsPerPage);
+        }
         if (Array.isArray(response.content)) {
           setProduct(response.content);
           setTotalPages(response.total_page || 1);
@@ -32,13 +39,12 @@ export default function DataTable(page, rowsPerPage) {
     };
 
     getAllProduct();
-  }, [jwtToken, page, rowsPerPage]);
+  }, [jwtToken, page, rowsPerPage, selectedType]);
 
   const mapTypeToLabel = (type) => {
     const typeMap = {
       VEG: "Vegetable",
       MEAT: "Meat",
-      MK: "Mealkit",
       SS: "Season",
     };
     return typeMap[type] || type;

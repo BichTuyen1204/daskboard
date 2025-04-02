@@ -20,7 +20,7 @@ export default function DataTable(pageMealkit, rowsPerPageMealkit) {
         return;
       } else {
         try {
-          const response = await ProductService.allMealkit(pageMealkit, rowsPerPageMealkit);
+          const response = await ProductService.allProduct("MK", pageMealkit, rowsPerPageMealkit);
           if (Array.isArray(response.content)) {
             setMealkit(response.content);
             setTotalPages(response.total_page || 1);
@@ -36,6 +36,12 @@ export default function DataTable(pageMealkit, rowsPerPageMealkit) {
     };
     getAllMealkit();
   }, [jwtToken, pageMealkit, rowsPerPageMealkit]);
+
+  const statusMapping = {
+    IN_STOCK: "In stock",
+    OUT_OF_STOCK: "Out of stock",
+    NO_LONGER_IN_SALE: "No longer in sale",
+  };
 
   const CostPrice = ({ title }) => (
     <MDBox lineHeight={1} textAlign="left" fontSize="0.8em">
@@ -82,9 +88,10 @@ export default function DataTable(pageMealkit, rowsPerPageMealkit) {
     ),
     status: (
       <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
-        {item.status}
+        {statusMapping[item.status] || "Unknown"}
       </MDTypography>
     ),
+
     quantity: (
       <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
         {item.available_quantity}

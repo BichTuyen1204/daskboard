@@ -30,7 +30,7 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link } from "react-router-dom";
 import ClearIcon from "@mui/icons-material/Delete";
 import ProductService from "api/ProductService";
-import ReactQuill from "react-quill";
+import MDEditor from "@uiw/react-md-editor";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "utils/cropImage"; // Utility function to crop the image
 
@@ -994,20 +994,13 @@ function AddMealkit() {
                         <FormLabel style={{ fontSize: "0.7em", marginTop: "15px" }}>
                           Article
                         </FormLabel>
-                        <ReactQuill
-                          theme="snow"
-                          value={product.article_md}
-                          onChange={(value) => handleChange("article_md", value)}
-                          style={{ height: "200px", marginBottom: "60px", borderRadius: "15px" }}
-                        />
+                        <div style={{ marginBottom: "20px" }}>
+                          <MDEditor
+                            value={product.article_md}
+                            onChange={(value) => handleChange("article_md", value || "")}
+                          />
+                        </div>
                       </FormControl>
-                      {/* <TextField
-                        fullWidth
-                        label="Article MD"
-                        value={product.article_md}
-                        onChange={(e) => handleChange("article_md", e.target.value)}
-                        margin="normal"
-                      /> */}
                       <p
                         style={{
                           color: "red",

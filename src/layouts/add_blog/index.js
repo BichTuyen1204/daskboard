@@ -27,7 +27,8 @@ import { Link } from "react-router-dom";
 import BlogService from "api/BlogService";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "utils/cropImage";
-import ReactQuill from "react-quill";
+import ReactMarkdown from "react-markdown";
+import MDEditor from "@uiw/react-md-editor";
 import "react-quill/dist/quill.snow.css";
 
 function AddBlog() {
@@ -110,27 +111,6 @@ function AddBlog() {
       [field]: value,
     }));
     switch (field) {
-      //   case "title":
-      //     if (!value.trim()) {
-      //       setTitleError("Title is required.");
-      //     } else {
-      //       setTitleError("");
-      //     }
-      //     break;
-      //   case "description":
-      //     if (!value.trim()) {
-      //       setDescriptionError("Description is required.");
-      //     } else {
-      //       setDescriptionError("");
-      //     }
-      //     break;
-      //   case "markdown_text":
-      //     if (!value.trim()) {
-      //       setMarkdownTextError("Article is required.");
-      //     } else {
-      //       setMarkdownTextError("");
-      //     }
-      //     break;
       default:
         break;
     }
@@ -139,25 +119,6 @@ function AddBlog() {
   };
 
   const validateForm = () => {
-    // const { title, description, markdown_text, infos } = blog;
-
-    // if (!title.trim()) {
-    //   setTitleError("Title is required.");
-    //   return false;
-    // }
-    // if (!description.trim()) {
-    //   setDescriptionError("Description is required.");
-    //   return false;
-    // }
-    // if (!markdown_text) {
-    //   setMarkdownTextError("Markdown text is required.");
-    //   return false;
-    // }
-    // if (!mainImage) {
-    //   setMainImageError("The main image is required.");
-    //   return false;
-    // }
-    // setErrorMessage("");
     return true;
   };
 
@@ -502,12 +463,12 @@ function AddBlog() {
                         <FormLabel style={{ fontSize: "0.7em", marginTop: "15px" }}>
                           Article
                         </FormLabel>
-                        <ReactQuill
-                          theme="snow"
-                          value={blog.markdown_text}
-                          onChange={(value) => handleChange("markdown_text", value)}
-                          style={{ height: "200px", marginBottom: "60px", borderRadius: "15px" }}
-                        />
+                        <div style={{ marginBottom: "20px" }}>
+                          <MDEditor
+                            value={blog.markdown_text}
+                            onChange={(value) => handleChange("markdown_text", value || "")}
+                          />
+                        </div>
                       </FormControl>
                       <p
                         style={{

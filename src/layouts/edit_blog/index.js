@@ -1,11 +1,30 @@
 import { useEffect, useState } from "react";
 import Card from "@mui/material/Card";
-import { Grid, TextField, Button, Icon } from "@mui/material";
+import {
+  Grid,
+  TextField,
+  Button,
+  Icon,
+  IconButton,
+  Modal,
+  Box,
+  Slider,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  FormControl,
+  FormLabel,
+} from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import BlogService from "api/BlogService";
+import MDEditor from "@uiw/react-md-editor";
 
 function EditBlog() {
   const navigate = useNavigate();
@@ -25,6 +44,11 @@ function EditBlog() {
   const [tagsError, setTagsError] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [mainImage, setMainImage] = useState(null);
+  const [mainImagePreview, setMainImagePreview] = useState("");
+  const [mainImageError, setMainImageError] = useState("");
+  const [zoom, setZoom] = useState(1);
+  const [infoRows, setInfoRows] = useState([{ key: "", value: "" }]);
 
   // Ensure user is authenticated
   useEffect(() => {
@@ -35,11 +59,7 @@ function EditBlog() {
     title: "",
     description: "",
     markdown_text: "",
-    infos: {
-      serves: "",
-      cook_time: "",
-      tags: "",
-    },
+    infos: {},
   });
 
   const getBlogDetail = async () => {
@@ -53,15 +73,25 @@ function EditBlog() {
       setServes(response.infos?.serves);
       setCookTime(response.infos?.cook_time);
 
+      // Dynamically load additional info rows from JSON
+      const additionalInfoRows = Object.entries(response.infos || {}).map(([key, value]) => ({
+        key,
+        value,
+      }));
+      setInfoRows(additionalInfoRows);
+
+      // Load thumbnail from JSON response
+      if (response.thumbnail) {
+        setMainImagePreview(response.thumbnail); // Set the thumbnail preview
+      } else {
+        setMainImagePreview(""); // Fallback if no image URL is provided
+      }
+
       setBlog({
         title: response.title || "",
         description: response.description || "",
         markdown_text: response.article || "",
-        infos: {
-          serves: response.infos?.serves || "",
-          cook_time: response.infos?.cook_time || "",
-          tags: response.infos?.tags || "",
-        },
+        infos: response.infos || {},
       });
     } catch (error) {
       console.error("Can't access the server", error);
@@ -87,6 +117,53 @@ function EditBlog() {
         [field]: value !== undefined && value !== null ? value : prevState.infos[field],
       },
     }));
+  };
+
+  const handleKeyChange = (index, key) => {
+    const updatedRows = [...infoRows];
+    updatedRows[index].key = key;
+    setInfoRows(updatedRows);
+
+    setBlog((prev) => ({
+      ...prev,
+      infos: {
+        ...prev.infos,
+        [key]: updatedRows[index].value,
+      },
+    }));
+  };
+
+  const handleValueChange = (index, value) => {
+    const updatedRows = [...infoRows];
+    updatedRows[index].value = value;
+    setInfoRows(updatedRows);
+
+    setBlog((prev) => ({
+      ...prev,
+      infos: {
+        ...prev.infos,
+        [updatedRows[index].key]: value,
+      },
+    }));
+  };
+
+  const handleRemoveRow = (index) => {
+    const updatedRows = infoRows.filter((_, i) => i !== index);
+    const removedKey = infoRows[index].key;
+    setInfoRows(updatedRows);
+
+    setBlog((prev) => {
+      const updatedInfos = { ...prev.infos };
+      delete updatedInfos[removedKey];
+      return {
+        ...prev,
+        infos: updatedInfos,
+      };
+    });
+  };
+
+  const addInfoRow = () => {
+    setInfoRows((prev) => [...prev, { key: "", value: "" }]);
   };
 
   const TitleChange = (e) => {
@@ -134,81 +211,27 @@ function EditBlog() {
     }
   };
 
-  const ServesChange = (e) => {
-    const { value } = e.target;
-    setServes(value);
-    updateInfoField("serves", value);
-    setSuccessMessage(false);
-  };
-
-  const ServesBlur = (e) => {
-    if (serves === "") {
-      setServesError("Please input the serves");
-    } else if (serves < 1) {
-      setServesError("Please input the cook time greater than 0");
-    } else {
-      setServesError("");
-    }
-  };
-
-  const CookTimeChange = (e) => {
-    const { value } = e.target;
-    setCookTime(value);
-    updateInfoField("cook_time", value);
-    setSuccessMessage(false);
-  };
-
-  const CookTimeBlur = (e) => {
-    if (cookTime === "") {
-      setCookTimeError("Please input the cook time");
-    } else if (cookTime < 1) {
-      setCookTimeError("Please input the cook time greater than 0");
-    } else {
-      setCookTimeError("");
-    }
-  };
-
-  const TagsChange = (e) => {
-    const { value } = e.target;
-    setTags(value);
-    updateInfoField("tags", value);
-    setSuccessMessage(false);
-  };
-
-  const TagsBlur = (e) => {
-    if (tags === "") {
-      setTagsError("Please input the tags");
-    } else {
-      setTagsError("");
-    }
-  };
-
   const UpdateBlog = async (e) => {
     e.preventDefault();
     TitleBlur();
     DescriptionBlur();
     MarkdownBlur();
-    ServesBlur();
-    CookTimeBlur();
-    TagsBlur();
     if (
       !id ||
       titleError ||
       descriptionError ||
       markdownTextError ||
-      servesError ||
-      cookTimeError ||
-      tagsError ||
       !title ||
       !description ||
-      !markdownText ||
-      !serves ||
-      !cookTime ||
-      !tags
+      !markdownText
     ) {
       return;
     } else {
+      const formData = new FormData();
+      formData.append("main_image", mainImage);
+      formData.append("blog_info", JSON.stringify(blog));
       try {
+        console.log(formData);
         await BlogService.updateBlog(id, blog);
         setSuccessMessage("Blog updated successfully!");
         setErrorMessage("");
@@ -248,136 +271,202 @@ function EditBlog() {
               {/* Content */}
               <MDBox p={3}>
                 <Grid container spacing={3}>
-                  <Grid item xs={12} md={12}>
+                  <Grid item xs={12} md={5}>
                     <Link to="/blog">
                       <Icon sx={{ cursor: "pointer", "&:hover": { color: "gray" } }}>
                         arrow_back
                       </Icon>
                     </Link>
-                    <form>
-                      {/* Title */}
-                      <TextField
-                        fullWidth
-                        label="Title"
-                        type="text"
-                        value={blog.title || ""}
-                        margin="normal"
-                        onChange={TitleChange}
-                        onBlur={TitleBlur}
-                      />
-                      {titleError && (
-                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
-                          {titleError}
-                        </p>
-                      )}
 
-                      {/* Description */}
-                      <TextField
-                        fullWidth
-                        label="Description"
-                        type="text"
-                        value={blog.description || ""}
-                        margin="normal"
-                        onChange={DescriptionChange}
-                        onBlur={DescriptionBlur}
-                      />
-                      {descriptionError && (
-                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
-                          {descriptionError}
-                        </p>
-                      )}
+                    <MDBox>
+                      {/* Thumbnail */}
+                      <MDTypography variant="h6" mb={2}>
+                        Thumbnail
+                      </MDTypography>
+                      <MDBox
+                        sx={{
+                          width: "100%",
+                          maxWidth: "20rem",
+                          height: "20rem",
+                          borderRadius: "8px",
+                          border: "2px dashed #ccc",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          backgroundColor: mainImagePreview ? "transparent" : "#f9f9f9",
+                          overflow: "hidden",
+                          position: "relative",
+                          marginBottom: "16px",
+                        }}
+                      >
+                        {mainImagePreview ? (
+                          <img
+                            src={mainImagePreview}
+                            alt="Thumbnail Preview"
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "contain",
+                            }}
+                          />
+                        ) : (
+                          <MDTypography variant="body2" color="textSecondary" textAlign="center">
+                            No Thumbnail Available
+                          </MDTypography>
+                        )}
+                      </MDBox>
+                    </MDBox>
 
-                      {/* Markdown Text */}
-                      <TextField
-                        fullWidth
-                        label="Markdown Text"
-                        type="text"
-                        value={blog.markdown_text || ""}
-                        margin="normal"
-                        onChange={MarkdownChange}
-                        onBlur={MarkdownBlur}
-                      />
-                      {markdownTextError && (
-                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
-                          {markdownTextError}
-                        </p>
-                      )}
+                    {/* Additional Info Table */}
+                    <TableContainer
+                      component={Paper}
+                      style={{
+                        borderRadius: "12px",
+                        overflow: "hidden",
+                        boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
+                        marginTop: "15px",
+                      }}
+                    >
+                      <Table>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell colSpan={2}>Additional Informations</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {infoRows.map((row, index) => (
+                            <TableRow key={index}>
+                              <TableCell>
+                                <TextField
+                                  fullWidth
+                                  label="Key"
+                                  value={row.key}
+                                  onChange={(e) => handleKeyChange(index, e.target.value)}
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <TextField
+                                  fullWidth
+                                  label="Value"
+                                  value={row.value}
+                                  onChange={(e) => handleValueChange(index, e.target.value)}
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="contained"
+                                  color="error"
+                                  onClick={() => handleRemoveRow(index)}
+                                >
+                                  Remove
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
 
-                      {/* Serves */}
-                      <TextField
-                        fullWidth
-                        label="Serves"
-                        type="number"
-                        value={blog.infos?.serves || ""}
-                        margin="normal"
-                        onChange={ServesChange}
-                        onBlur={ServesBlur}
-                      />
-                      {servesError && (
-                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
-                          {servesError}
-                        </p>
-                      )}
-
-                      {/* Cook Time */}
-                      <TextField
-                        fullWidth
-                        label="Cook Time (minutes)"
-                        type="number"
-                        value={blog.infos?.cook_time || ""}
-                        margin="normal"
-                        onChange={CookTimeChange}
-                        onBlur={CookTimeBlur}
-                      />
-                      {cookTimeError && (
-                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
-                          {cookTimeError}
-                        </p>
-                      )}
-
-                      {/* Tags */}
-                      <TextField
-                        fullWidth
-                        label="Tags"
-                        type="text"
-                        value={blog.infos?.tags || ""}
-                        margin="normal"
-                        onChange={TagsChange}
-                        onBlur={TagsBlur}
-                      />
-                      {tagsError && (
-                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
-                          {tagsError}
-                        </p>
-                      )}
-                      {/* Messages */}
-                      {errorMessage && (
-                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
-                          {errorMessage}
-                        </p>
-                      )}
-                      {successMessage && (
-                        <p
-                          style={{
-                            color: "green",
-                            fontSize: "0.6em",
-                            fontWeight: "600",
-                            marginLeft: "5px",
-                            marginBottom: "5px",
-                          }}
-                        >
-                          {successMessage}
-                        </p>
-                      )}
                       <Button
                         variant="contained"
                         color="primary"
-                        onClick={UpdateBlog}
-                        sx={{ mt: 2 }}
-                        style={{ color: "white" }}
+                        onClick={addInfoRow}
+                        style={{ backgroundColor: "green", color: "white", margin: "10px" }}
                       >
-                        Update Blog
+                        Add Info Row
                       </Button>
+                    </TableContainer>
+                  </Grid>
+
+                  <Grid item xs={12} md={7}>
+                    <form>
+                      <TextField
+                        fullWidth
+                        label="Title"
+                        value={blog.title}
+                        onChange={TitleChange}
+                        margin="normal"
+                      />
+                      <p
+                        style={{
+                          color: "red",
+                          fontSize: "0.6em",
+                          fontWeight: "450",
+                          marginLeft: "5px",
+                        }}
+                      >
+                        {titleError}
+                      </p>
+
+                      <TextField
+                        fullWidth
+                        label="Content"
+                        value={blog.description}
+                        onChange={DescriptionChange}
+                        margin="normal"
+                      />
+                      <p
+                        style={{
+                          color: "red",
+                          fontSize: "0.6em",
+                          fontWeight: "450",
+                          marginLeft: "5px",
+                        }}
+                      >
+                        {descriptionError}
+                      </p>
+
+                      <FormControl fullWidth>
+                        <FormLabel style={{ fontSize: "0.7em", marginTop: "15px" }}>
+                          Article
+                        </FormLabel>
+                        <div style={{ marginBottom: "20px" }}>
+                          <MDEditor
+                            value={blog.markdown_text}
+                            onChange={(value) => MarkdownChange({ target: { value } })}
+                          />
+                        </div>
+                      </FormControl>
+                      <p
+                        style={{
+                          color: "red",
+                          fontSize: "0.6em",
+                          fontWeight: "450",
+                          marginLeft: "5px",
+                        }}
+                      >
+                        {markdownTextError}
+                      </p>
+
+                      <p
+                        style={{
+                          color: "green",
+                          fontSize: "0.6em",
+                          fontWeight: "450",
+                          marginLeft: "5px",
+                        }}
+                      >
+                        {successMessage}
+                      </p>
+                      <p
+                        style={{
+                          color: "red",
+                          fontSize: "0.6em",
+                          marginBottom: "-18px",
+                          marginTop: "35px",
+                        }}
+                      >
+                        {errorMessage}
+                      </p>
+                      <MDBox mt={3} display="flex" justifyContent="space-between">
+                        <Button
+                          variant="contained"
+                          color="success"
+                          onClick={UpdateBlog}
+                          style={{ backgroundColor: "green", color: "white" }}
+                        >
+                          Update Blog
+                        </Button>
+                      </MDBox>
                     </form>
                   </Grid>
                 </Grid>

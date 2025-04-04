@@ -1,11 +1,34 @@
 import { useState } from "react";
 import Card from "@mui/material/Card";
-import { Grid, TextField, Button, Icon, MenuItem } from "@mui/material";
+import {
+  Grid,
+  TextField,
+  Button,
+  Icon,
+  MenuItem,
+  Modal,
+  Slider,
+  Box,
+  IconButton,
+  TableCell,
+  TableRow,
+  TableBody,
+  TableContainer,
+  TableHead,
+  Table,
+  Paper,
+  FormControl,
+  FormLabel,
+} from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link } from "react-router-dom";
 import BlogService from "api/BlogService";
+import Cropper from "react-easy-crop";
+import getCroppedImg from "utils/cropImage";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 function AddBlog() {
   const [mainImage, setMainImage] = useState(null);
@@ -23,12 +46,63 @@ function AddBlog() {
     title: "",
     description: "",
     markdown_text: "",
-    infos: {
-      serves: "",
-      cook_time: "",
-      tags: "",
-    },
+    infos: {},
   });
+
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState(null);
+
+  const [infoRows, setInfoRows] = useState([{ key: "", value: "" }]);
+
+  const handleKeyChange = (index, key) => {
+    const updatedRows = [...infoRows];
+    updatedRows[index].key = key;
+    setInfoRows(updatedRows);
+
+    setBlog((prev) => ({
+      ...prev,
+      infos: {
+        ...prev.infos,
+        [key]: updatedRows[index].value,
+      },
+    }));
+  };
+
+  const handleValueChange = (index, value) => {
+    const updatedRows = [...infoRows];
+    updatedRows[index].value = value;
+    setInfoRows(updatedRows);
+
+    setBlog((prev) => ({
+      ...prev,
+      infos: {
+        ...prev.infos,
+        [updatedRows[index].key]: value,
+      },
+    }));
+  };
+
+  const handleRemoveRow = (index) => {
+    const updatedRows = infoRows.filter((_, i) => i !== index);
+    const removedKey = infoRows[index].key;
+    setInfoRows(updatedRows);
+
+    setBlog((prev) => {
+      const updatedInfos = { ...prev.infos };
+      delete updatedInfos[removedKey];
+      return {
+        ...prev,
+        infos: updatedInfos,
+      };
+    });
+  };
+
+  const addInfoRow = () => {
+    setInfoRows((prev) => [...prev, { key: "", value: "" }]);
+  };
 
   const handleChange = (field, value) => {
     setBlog((prev) => ({
@@ -36,27 +110,27 @@ function AddBlog() {
       [field]: value,
     }));
     switch (field) {
-      case "title":
-        if (!value.trim()) {
-          setTitleError("Title is required.");
-        } else {
-          setTitleError("");
-        }
-        break;
-      case "description":
-        if (!value.trim()) {
-          setDescriptionError("Description is required.");
-        } else {
-          setDescriptionError("");
-        }
-        break;
-      case "markdown_text":
-        if (!value.trim()) {
-          setMarkdownTextError("Markdown text is required.");
-        } else {
-          setMarkdownTextError("");
-        }
-        break;
+      //   case "title":
+      //     if (!value.trim()) {
+      //       setTitleError("Title is required.");
+      //     } else {
+      //       setTitleError("");
+      //     }
+      //     break;
+      //   case "description":
+      //     if (!value.trim()) {
+      //       setDescriptionError("Description is required.");
+      //     } else {
+      //       setDescriptionError("");
+      //     }
+      //     break;
+      //   case "markdown_text":
+      //     if (!value.trim()) {
+      //       setMarkdownTextError("Article is required.");
+      //     } else {
+      //       setMarkdownTextError("");
+      //     }
+      //     break;
       default:
         break;
     }
@@ -64,95 +138,64 @@ function AddBlog() {
     setSuccessMessage("");
   };
 
-  const handleNestedChange = (field, nestedField, value) => {
-    setBlog((prev) => ({
-      ...prev,
-      [field]: {
-        ...prev[field],
-        [nestedField]: value,
-      },
-    }));
-    if (field === "infos") {
-      switch (nestedField) {
-        case "serves":
-          if (!value.trim()) {
-            setServesError("Serves is required.");
-          } else {
-            setServesError("");
-          }
-          break;
-        case "cook_time":
-          if (!value.trim()) {
-            setCookTimeError("Cook time is required.");
-          } else {
-            setCookTimeError("");
-          }
-          break;
-        case "tags":
-          if (!value.trim()) {
-            setTagsError("Tags are required.");
-          } else {
-            setTagsError("");
-          }
-          break;
-        default:
-          break;
-      }
-    }
-    setErrorMessage("");
-    setSuccessMessage("");
-  };
-
   const validateForm = () => {
-    const { title, description, markdown_text, infos } = blog;
+    // const { title, description, markdown_text, infos } = blog;
 
-    if (!title.trim()) {
-      setTitleError("Title is required.");
-      return false;
-    }
-    if (!description.trim()) {
-      setDescriptionError("Description is required.");
-      return false;
-    }
-    if (!markdown_text) {
-      setMarkdownTextError("Markdown text is required.");
-      return false;
-    }
-    if (!infos.serves.trim()) {
-      setServesError("Serves is required.");
-      return false;
-    }
-    if (!infos.cook_time.trim()) {
-      setCookTimeError("Cook time is required.");
-      return false;
-    }
-    if (infos.cook_time < 1) {
-      setCookTimeError("Cook time must be greater than 0.");
-      return false;
-    }
-    if (!infos.tags.trim()) {
-      setTagsError("The tags are required.");
-      return false;
-    }
-    if (!mainImage) {
-      setMainImageError("The main image is required.");
-      return false;
-    }
-    setErrorMessage("");
+    // if (!title.trim()) {
+    //   setTitleError("Title is required.");
+    //   return false;
+    // }
+    // if (!description.trim()) {
+    //   setDescriptionError("Description is required.");
+    //   return false;
+    // }
+    // if (!markdown_text) {
+    //   setMarkdownTextError("Markdown text is required.");
+    //   return false;
+    // }
+    // if (!mainImage) {
+    //   setMainImageError("The main image is required.");
+    //   return false;
+    // }
+    // setErrorMessage("");
     return true;
   };
 
   const handleMainImageChange = (e) => {
     const file = e.target.files[0];
-    if (file && !["image/jpeg", "image/png"].includes(file.type)) {
+    if (!file) {
+      setMainImageError("No file selected.");
+      return;
+    }
+    if (!["image/jpeg", "image/png"].includes(file.type)) {
       setMainImageError("Only JPG or PNG files are accepted.");
       return;
     }
-    setMainImage(file);
-    setMainImagePreview(URL.createObjectURL(file));
-    setMainImageError("");
-    setErrorMessage("");
-    setSuccessMessage("");
+    try {
+      const objectUrl = URL.createObjectURL(file);
+      setImageToCrop(objectUrl); // Set the image URL for cropping
+      setCropModalOpen(true); // Open the cropping modal
+      setMainImageError(""); // Clear any previous errors
+    } catch (error) {
+      console.error("Error creating object URL:", error);
+      setMainImageError("Failed to load the image. Please try again.");
+    }
+  };
+
+  const onCropComplete = (croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  };
+
+  const handleCropSave = async () => {
+    try {
+      const croppedImage = await getCroppedImg(imageToCrop, croppedAreaPixels);
+      setMainImage(croppedImage);
+      setMainImagePreview(URL.createObjectURL(croppedImage));
+      setCropModalOpen(false);
+      setMainImageError("");
+    } catch (error) {
+      console.error("Error cropping the image:", error);
+    }
   };
 
   const handleSubmit = async () => {
@@ -234,15 +277,32 @@ function AddBlog() {
                         }}
                       >
                         {mainImagePreview ? (
-                          <img
-                            src={mainImagePreview}
-                            alt="Main Preview"
-                            style={{
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "contain",
-                            }}
-                          />
+                          <>
+                            <img
+                              src={mainImagePreview}
+                              alt="Main Preview"
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "contain",
+                              }}
+                            />
+                            <IconButton
+                              sx={{
+                                position: "absolute",
+                                bottom: "10px",
+                                right: "10px",
+                                backgroundColor: "white",
+                                border: "black solid 1px",
+                                "&:hover": {
+                                  backgroundColor: "#f0f0f0",
+                                },
+                              }}
+                              onClick={() => setCropModalOpen(true)} // Re-open the crop modal
+                            >
+                              <Icon>crop</Icon>
+                            </IconButton>
+                          </>
                         ) : (
                           <MDTypography variant="body2" color="textSecondary" textAlign="center">
                             No Main Image Selected
@@ -278,6 +338,126 @@ function AddBlog() {
                         <input type="file" hidden onChange={handleMainImageChange} />
                       </Button>
                     </MDBox>
+
+                    {/* Crop Modal */}
+                    <Modal open={cropModalOpen} onClose={() => setCropModalOpen(false)}>
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          top: "50%",
+                          left: "50%",
+                          transform: "translate(-50%, -50%)",
+                          width: "90%",
+                          maxWidth: "500px",
+                          bgcolor: "background.paper",
+                          boxShadow: 24,
+                          p: 4,
+                          borderRadius: "8px",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            position: "relative",
+                            width: "100%",
+                            height: "300px", // Fixed height for the cropper
+                            background: "#333", // Optional: Add a background color
+                          }}
+                        >
+                          <Cropper
+                            image={imageToCrop}
+                            crop={crop}
+                            zoom={zoom}
+                            aspect={1} // Adjust aspect ratio as needed
+                            onCropChange={setCrop}
+                            onZoomChange={setZoom}
+                            onCropComplete={onCropComplete}
+                          />
+                        </Box>
+                        <Slider
+                          value={zoom}
+                          min={1}
+                          max={3}
+                          step={0.1}
+                          onChange={(e, zoom) => setZoom(zoom)}
+                          sx={{ mt: 2 }}
+                        />
+                        <Box display="flex" justifyContent="space-between" mt={2}>
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            onClick={() => setCropModalOpen(false)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            variant="contained"
+                            style={{ color: "white", margin: "10px" }}
+                            onClick={handleCropSave}
+                          >
+                            Save
+                          </Button>
+                        </Box>
+                      </Box>
+                    </Modal>
+
+                    {/* Additional Info Table */}
+                    <TableContainer
+                      component={Paper}
+                      style={{
+                        borderRadius: "12px",
+                        overflow: "hidden",
+                        boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
+                        marginTop: "15px",
+                      }}
+                    >
+                      <Table>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell colSpan={2}>Additional Informations</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {infoRows.map((row, index) => (
+                            <TableRow key={index}>
+                              <TableCell>
+                                <TextField
+                                  fullWidth
+                                  label="Key"
+                                  value={row.key}
+                                  onChange={(e) => handleKeyChange(index, e.target.value)}
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <TextField
+                                  fullWidth
+                                  label="Value"
+                                  value={row.value}
+                                  onChange={(e) => handleValueChange(index, e.target.value)}
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="contained"
+                                  color="error"
+                                  onClick={() => handleRemoveRow(index)}
+                                >
+                                  Remove
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={addInfoRow}
+                        style={{ backgroundColor: "green", color: "white", margin: "10px" }}
+                      >
+                        Add Info Row
+                      </Button>
+                    </TableContainer>
                   </Grid>
 
                   <Grid item xs={12} md={7}>
@@ -318,14 +498,17 @@ function AddBlog() {
                         {descriptionError}
                       </p>
 
-                      <TextField
-                        fullWidth
-                        label="Markdown text"
-                        value={blog.markdown_text}
-                        onChange={(e) => handleChange("markdown_text", e.target.value)}
-                        margin="normal"
-                        sx={{ height: "45px", ".MuiInputBase-root": { height: "45px" } }}
-                      />
+                      <FormControl fullWidth>
+                        <FormLabel style={{ fontSize: "0.7em", marginTop: "15px" }}>
+                          Article
+                        </FormLabel>
+                        <ReactQuill
+                          theme="snow"
+                          value={blog.markdown_text}
+                          onChange={(value) => handleChange("markdown_text", value)}
+                          style={{ height: "200px", marginBottom: "60px", borderRadius: "15px" }}
+                        />
+                      </FormControl>
                       <p
                         style={{
                           color: "red",
@@ -337,61 +520,6 @@ function AddBlog() {
                         {markdownTextError}
                       </p>
 
-                      <TextField
-                        fullWidth
-                        type="text"
-                        label="Serves (people)"
-                        value={blog.infos.serves}
-                        onChange={(e) => handleNestedChange("infos", "serves", e.target.value)}
-                        margin="normal"
-                      />
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {servesError}
-                      </p>
-
-                      <TextField
-                        fullWidth
-                        type="text"
-                        label="Cook time (minutes)"
-                        value={blog.infos.cook_time}
-                        onChange={(e) => handleNestedChange("infos", "cook_time", e.target.value)}
-                        margin="normal"
-                      />
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {cookTimeError}
-                      </p>
-
-                      <TextField
-                        fullWidth
-                        label="Tags"
-                        value={blog.infos.tags}
-                        onChange={(e) => handleNestedChange("infos", "tags", e.target.value)}
-                        margin="normal"
-                      />
-                      <p
-                        style={{
-                          color: "red",
-                          fontSize: "0.6em",
-                          fontWeight: "450",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {tagsError}
-                      </p>
                       <p
                         style={{
                           color: "green",

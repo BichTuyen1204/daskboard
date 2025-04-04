@@ -21,7 +21,7 @@ function DefaultNavbarLink({ icon, name, route, light }) {
           verticalAlign: "middle",
         }}
       >
-        {icon}
+        {/* {icon} */}
       </Icon>
       <MDTypography
         variant="button"

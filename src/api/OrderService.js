@@ -7,7 +7,7 @@ class OrderService {
       const token = sessionStorage.getItem("jwtToken");
       if (!token) throw new Error("No JWT Token found!");
 
-      const response = await axios.get(`${API_BASE_URL}/fetch/all?index=${page}&size=${size}`, {
+      const response = await axios.get(`${API_BASE_URL}/fetch/all?index=${page - 1}&size=${size}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;

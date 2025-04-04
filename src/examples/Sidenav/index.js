@@ -61,70 +61,72 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     getProfile();
   }, [jwtToken]);
 
-  const renderRoutes = routes
-    .filter(({ name }) => {
-      if (account.type === 1) {
-        return name !== "Chat with customer";
-      } else if (account.type === 2) {
-        return name !== "Staff Management" && name !== "Dash board";
-      }
-      return true;
-    })
-    .map(({ type, name, icon, title, noCollapse, key, href, route }) => {
-      let returnValue;
+  const renderRoutes = account?.type
+    ? routes
+        .filter(({ name }) => {
+          if (account.type === 1) {
+            return name !== "Chat with customer";
+          } else if (account.type === 2) {
+            return name !== "Staff Management" && name !== "Dash board";
+          }
+          return true;
+        })
+        .map(({ type, name, icon, title, noCollapse, key, href, route }) => {
+          let returnValue;
 
-      if (type === "collapse") {
-        returnValue = href ? (
-          <Link
-            href={href}
-            key={key}
-            target="_blank"
-            rel="noreferrer"
-            sx={{ textDecoration: "none" }}
-          >
-            <SidenavCollapse
-              name={name}
-              icon={icon}
-              active={key === collapseName}
-              noCollapse={noCollapse}
-            />
-          </Link>
-        ) : (
-          <NavLink key={key} to={route}>
-            <SidenavCollapse name={name} icon={icon} active={key === collapseName} />
-          </NavLink>
-        );
-      } else if (type === "title") {
-        returnValue = (
-          <MDTypography
-            key={key}
-            color={textColor}
-            display="block"
-            variant="caption"
-            fontWeight="bold"
-            textTransform="uppercase"
-            pl={3}
-            mt={2}
-            mb={1}
-            ml={1}
-          >
-            {title}
-          </MDTypography>
-        );
-      } else if (type === "divider") {
-        returnValue = (
-          <Divider
-            key={key}
-            light={
-              (!darkMode && !whiteSidenav && !transparentSidenav) ||
-              (darkMode && !transparentSidenav && whiteSidenav)
-            }
-          />
-        );
-      }
+          if (type === "collapse") {
+            returnValue = href ? (
+              <Link
+                href={href}
+                key={key}
+                target="_blank"
+                rel="noreferrer"
+                sx={{ textDecoration: "none" }}
+              >
+                <SidenavCollapse
+                  name={name}
+                  icon={icon}
+                  active={key === collapseName}
+                  noCollapse={noCollapse}
+                />
+              </Link>
+            ) : (
+              <NavLink key={key} to={route}>
+                <SidenavCollapse name={name} icon={icon} active={key === collapseName} />
+              </NavLink>
+            );
+          } else if (type === "title") {
+            returnValue = (
+              <MDTypography
+                key={key}
+                color={textColor}
+                display="block"
+                variant="caption"
+                fontWeight="bold"
+                textTransform="uppercase"
+                pl={3}
+                mt={2}
+                mb={1}
+                ml={1}
+              >
+                {title}
+              </MDTypography>
+            );
+          } else if (type === "divider") {
+            returnValue = (
+              <Divider
+                key={key}
+                light={
+                  (!darkMode && !whiteSidenav && !transparentSidenav) ||
+                  (darkMode && !transparentSidenav && whiteSidenav)
+                }
+              />
+            );
+          }
 
-      return returnValue;
-    });
+          return returnValue;
+        })
+    : null;
 
   return (
     <SidenavRoot
@@ -133,16 +135,15 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
       ownerState={{ transparentSidenav, whiteSidenav, miniSidenav, darkMode }}
     >
       <MDBox pt={3} px={4} textAlign="center">
-        {account.type === 1 ? (
+        {account?.type ? (
           <MDTypography variant="h6" color="white">
-            MANAGER
+            {account.type === 2 ? "STAFF" : "MANAGER"}
           </MDTypography>
         ) : (
-          <MDTypography variant="h6" color="white">
-            STAFF
-          </MDTypography>
+          <MDTypography variant="h6" color="white" sx={{ opacity: 0.5 }}></MDTypography>
         )}
       </MDBox>
+
       <Divider
         light={
           (!darkMode && !whiteSidenav && !transparentSidenav) ||

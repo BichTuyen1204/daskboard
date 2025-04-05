@@ -150,14 +150,21 @@ function EditBlog() {
     }));
   };
 
-  // Modify handleRemoveRow to avoid direct manipulation of blog.infos
   const handleRemoveRow = (index) => {
     const updatedRows = infoRows.filter((_, i) => i !== index);
     setInfoRows(updatedRows);
 
-    // Remove direct manipulation of blog.infos
-    // Use setTimeout to ensure state update completes first
-    setTimeout(() => synchronizeInfosWithRows(), 0);
+    const updatedInfos = {};
+    updatedRows.forEach((row) => {
+      if (row.key && row.key.trim() !== "") {
+        updatedInfos[row.key] = row.value;
+      }
+    });
+
+    setBlog((prev) => ({
+      ...prev,
+      infos: updatedInfos,
+    }));
   };
 
   // Add blur handlers for key and value fields

@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import Card from "@mui/material/Card";
-import { Grid, TextField, Button, Icon } from "@mui/material";
+import { Grid, TextField, Button, Icon, List, ListItem, ListItemText, Paper } from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import ProductService from "api/ProductService";
+import MDEditor from "@uiw/react-md-editor";
 
 function ProductDetail() {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ function ProductDetail() {
   const [transitionClass, setTransitionClass] = useState("");
   const images = product?.images_url || [];
   const [latestPrice, setLatestPrice] = useState(null);
+
   useEffect(() => {
     if (images.length > 0) {
       setCurrentImageIndex(0);
@@ -81,6 +83,33 @@ function ProductDetail() {
       background: "#ccc",
       cursor: "not-allowed",
     },
+    instructionList: {
+      backgroundColor: "#f5f5f5",
+      borderRadius: "8px",
+      padding: "12px",
+      marginTop: "8px",
+      marginBottom: "16px",
+    },
+    additionalInfoTable: {
+      width: "100%",
+      border: "1px solid #e0e0e0",
+      borderCollapse: "collapse",
+      marginTop: "8px",
+      marginBottom: "16px",
+    },
+    tableRow: {
+      borderBottom: "1px solid #e0e0e0",
+    },
+    tableCell: {
+      padding: "8px 16px",
+      fontSize: "14px",
+    },
+    tableCellHeader: {
+      padding: "8px 16px",
+      fontSize: "14px",
+      fontWeight: "bold",
+      backgroundColor: "#f5f5f5",
+    },
   };
 
   useEffect(() => {
@@ -105,12 +134,6 @@ function ProductDetail() {
 
     getProductDetail();
   }, [prod_id, jwtToken]);
-
-  // const latestPrice = product?.price_list?.length
-  //   ? product.price_list.reduce((prev, current) =>
-  //       new Date(prev.date) > new Date(current.date) ? prev : current
-  //     )
-  //   : null;
 
   useEffect(() => {
     if (images.length > 0) {
@@ -256,42 +279,36 @@ function ProductDetail() {
                       <TextField
                         fullWidth
                         label="Description"
-                        value={product?.article || ""}
+                        value={product?.description || ""}
                         margin="normal"
                         multiline
-                        rows={8}
+                        rows={4}
                         variant="outlined"
-                        InputProps={{
-                          readOnly: true,
-                          inputProps: { spellCheck: "true", "data-gramm": "true" },
-                        }}
-                      />
-
-                      {/* Price - Lấy giá mới nhất */}
-                      <TextField
-                        fullWidth
-                        label="Price"
-                        value={`$${latestPrice ? latestPrice.price : 0 || ""}`}
-                        margin="normal"
                         InputProps={{ readOnly: true }}
                       />
 
-                      {/* Production Date - Lấy ngày từ giá mới nhất */}
+                      {/* Article/Content (Markdown) */}
+                      <MDBox mt={2} mb={2}>
+                        <MDTypography variant="subtitle1">Article Content</MDTypography>
+                        <Paper
+                          elevation={0}
+                          style={{ padding: "16px", backgroundColor: "#f9f9f9" }}
+                        >
+                          {product?.article ? (
+                            <MDEditor.Markdown source={product.article} />
+                          ) : (
+                            <p style={{ fontStyle: "italic", color: "#999" }}>
+                              No article content available
+                            </p>
+                          )}
+                        </Paper>
+                      </MDBox>
+
+                      {/* Price - Latest price */}
                       <TextField
                         fullWidth
-                        label="Production Date"
-                        value={
-                          latestPrice?.date
-                            ? new Date(latestPrice.date).toLocaleString("en-US", {
-                                weekday: "long",
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })
-                            : "N/A"
-                        }
+                        label="Price"
+                        value={`$${latestPrice ? latestPrice.price : 0}`}
                         margin="normal"
                         InputProps={{ readOnly: true }}
                       />
@@ -305,7 +322,7 @@ function ProductDetail() {
                         InputProps={{ readOnly: true }}
                       />
 
-                      {/* Sale Percent - Lấy % giảm giá mới nhất */}
+                      {/* Sale Percent - Latest sale percent */}
                       <TextField
                         fullWidth
                         label="Sale Percent"
@@ -314,32 +331,50 @@ function ProductDetail() {
                         InputProps={{ readOnly: true }}
                       />
 
-                      {/* Weight */}
-                      <TextField
-                        fullWidth
-                        label="Weight (gam)"
-                        value={product?.info?.weight || "N/A"}
-                        margin="normal"
-                        InputProps={{ readOnly: true }}
-                      />
+                      {/* Instructions List */}
+                      <MDBox mt={2} mb={2}>
+                        <MDTypography variant="subtitle1">Instructions</MDTypography>
+                        {product?.instructions && product.instructions.length > 0 ? (
+                          <List style={styles.instructionList}>
+                            {product.instructions.map((instruction, index) => (
+                              <ListItem key={index}>
+                                <ListItemText primary={`${index + 1}. ${instruction}`} />
+                              </ListItem>
+                            ))}
+                          </List>
+                        ) : (
+                          <p style={{ fontStyle: "italic", color: "#999" }}>
+                            No instructions available
+                          </p>
+                        )}
+                      </MDBox>
 
-                      {/* Storage instructions */}
-                      <TextField
-                        fullWidth
-                        label="Storage Instructions"
-                        value={product?.info?.storage_instructions || "N/A"}
-                        margin="normal"
-                        InputProps={{ readOnly: true }}
-                      />
-
-                      {/* Made in */}
-                      <TextField
-                        fullWidth
-                        label="Made in"
-                        value={product?.info?.made_in || "N/A"}
-                        margin="normal"
-                        InputProps={{ readOnly: true }}
-                      />
+                      {/* Additional Information */}
+                      <MDBox mt={2} mb={2}>
+                        <MDTypography variant="subtitle1">Additional Information</MDTypography>
+                        {product?.info && Object.keys(product.info).length > 0 ? (
+                          <table style={styles.additionalInfoTable}>
+                            <thead>
+                              <tr style={styles.tableRow}>
+                                <th style={styles.tableCellHeader}>Property</th>
+                                <th style={styles.tableCellHeader}>Value</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {Object.entries(product.info).map(([key, value], index) => (
+                                <tr key={index} style={styles.tableRow}>
+                                  <td style={styles.tableCell}>{key}</td>
+                                  <td style={styles.tableCell}>{value}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        ) : (
+                          <p style={{ fontStyle: "italic", color: "#999" }}>
+                            No additional information available
+                          </p>
+                        )}
+                      </MDBox>
                     </form>
                   </Grid>
                 </Grid>

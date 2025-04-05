@@ -189,6 +189,19 @@ function EditProduct() {
   const handleRemoveRow = (index) => {
     const updatedRows = infoRows.filter((_, i) => i !== index);
     setInfoRows(updatedRows);
+
+    // Update productInfo state with the new infos
+    const updatedInfos = {};
+    updatedRows.forEach((row) => {
+      if (row.key && row.key.trim() !== "") {
+        updatedInfos[row.key] = row.value;
+      }
+    });
+
+    setProductInfo((prev) => ({
+      ...prev,
+      infos: updatedInfos,
+    }));
   };
 
   const handleKeyBlur = () => {

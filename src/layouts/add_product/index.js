@@ -62,7 +62,17 @@ function AddProduct() {
     day_before_expiry: "",
     product_name: "",
     description: "",
+    instructions: [],
   });
+
+  // Load additional information rows into product.infos
+  useState(() => {
+    const initialInfos = infoRows.reduce((acc, row) => {
+      if (row.key.trim()) acc[row.key] = row.value;
+      return acc;
+    }, {});
+    setProduct((prev) => ({ ...prev, infos: initialInfos }));
+  }, []);
 
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);

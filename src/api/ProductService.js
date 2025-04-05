@@ -102,6 +102,7 @@ class ProductService {
 
   async updateProductInfo(prod_id, data) {
     try {
+      console.log("data", data);
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.post(
         `${API_BASE_URL}/product/update/info/prod?prod_id=${prod_id}`,

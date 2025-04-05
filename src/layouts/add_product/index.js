@@ -302,14 +302,33 @@ function AddProduct() {
     return true;
   };
 
+  const synchronizeInfosWithRows = () => {
+    const updatedInfos = {};
+    infoRows.forEach((row) => {
+      if (row.key && row.key.trim() !== "") {
+        updatedInfos[row.key] = row.value;
+      }
+    });
+
+    setProduct((prev) => ({
+      ...prev,
+      infos: updatedInfos,
+    }));
+  };
+
   const handleSubmit = async () => {
     if (!validateForm() || additionalImagesError || mainImageError) return;
+
+    // Synchronize infoRows with product.infos before submission
+    synchronizeInfosWithRows();
+
     const formData = new FormData();
     formData.append("main_image", mainImage);
     additionalImages.forEach((image) => {
       formData.append("additional_images", image);
     });
     formData.append("product_detail", JSON.stringify(product));
+
     try {
       await ProductService.createProduct(formData);
       setMainImageError(false);
@@ -349,47 +368,29 @@ function AddProduct() {
     const updatedRows = [...infoRows];
     updatedRows[index].key = key;
     setInfoRows(updatedRows);
-
-    setProduct((prev) => ({
-      ...prev,
-      infos: {
-        ...prev.infos,
-        [key]: updatedRows[index].value,
-      },
-    }));
   };
 
   const handleValueChange = (index, value) => {
     const updatedRows = [...infoRows];
     updatedRows[index].value = value;
     setInfoRows(updatedRows);
-
-    setProduct((prev) => ({
-      ...prev,
-      infos: {
-        ...prev.infos,
-        [updatedRows[index].key]: value,
-      },
-    }));
   };
 
   const handleRemoveRow = (index) => {
     const updatedRows = infoRows.filter((_, i) => i !== index);
-    const removedKey = infoRows[index].key;
     setInfoRows(updatedRows);
-
-    setProduct((prev) => {
-      const updatedInfos = { ...prev.infos };
-      delete updatedInfos[removedKey];
-      return {
-        ...prev,
-        infos: updatedInfos,
-      };
-    });
   };
 
   const addInfoRow = () => {
     setInfoRows((prev) => [...prev, { key: "", value: "" }]);
+  };
+
+  const handleKeyBlur = () => {
+    synchronizeInfosWithRows();
+  };
+
+  const handleValueBlur = () => {
+    synchronizeInfosWithRows();
   };
 
   function InfoRow({ product }) {}
@@ -905,6 +906,7 @@ function AddProduct() {
                                     label="Key"
                                     value={row.key}
                                     onChange={(e) => handleKeyChange(index, e.target.value)}
+                                    onBlur={handleKeyBlur}
                                   />
                                 </TableCell>
                                 <TableCell>
@@ -913,6 +915,7 @@ function AddProduct() {
                                     label="Value"
                                     value={row.value}
                                     onChange={(e) => handleValueChange(index, e.target.value)}
+                                    onBlur={handleValueBlur}
                                   />
                                 </TableCell>
                                 <TableCell>

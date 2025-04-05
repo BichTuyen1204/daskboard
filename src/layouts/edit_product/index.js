@@ -164,43 +164,39 @@ function EditProduct() {
     const updatedRows = [...infoRows];
     updatedRows[index].key = key;
     setInfoRows(updatedRows);
-
-    setProductInfo((prev) => ({
-      ...prev,
-      infos: {
-        ...prev.infos,
-        [key]: updatedRows[index].value,
-      },
-    }));
   };
 
   const handleValueChange = (index, value) => {
     const updatedRows = [...infoRows];
     updatedRows[index].value = value;
     setInfoRows(updatedRows);
+  };
+
+  const synchronizeInfosWithRows = () => {
+    const updatedInfos = {};
+    infoRows.forEach((row) => {
+      if (row.key && row.key.trim() !== "") {
+        updatedInfos[row.key] = row.value;
+      }
+    });
 
     setProductInfo((prev) => ({
       ...prev,
-      infos: {
-        ...prev.infos,
-        [updatedRows[index].key]: value,
-      },
+      infos: updatedInfos,
     }));
   };
 
   const handleRemoveRow = (index) => {
     const updatedRows = infoRows.filter((_, i) => i !== index);
-    const removedKey = infoRows[index].key;
     setInfoRows(updatedRows);
+  };
 
-    setProductInfo((prev) => {
-      const updatedInfos = { ...prev.infos };
-      delete updatedInfos[removedKey];
-      return {
-        ...prev,
-        infos: updatedInfos,
-      };
-    });
+  const handleKeyBlur = () => {
+    synchronizeInfosWithRows();
+  };
+
+  const handleValueBlur = () => {
+    synchronizeInfosWithRows();
   };
 
   const addInfoRow = () => {
@@ -279,6 +275,9 @@ function EditProduct() {
     DescriptionBlur();
     InstructionsBlur();
     MadeInBlur();
+
+    synchronizeInfosWithRows();
+
     if (!prod_id || dayBeforeExpiryError || descriptionError || !dayBeforeExpiry || !description) {
       console.error("Invalid input data");
       return;
@@ -856,6 +855,7 @@ function EditProduct() {
                                 label="Key"
                                 value={row.key}
                                 onChange={(e) => handleKeyChange(index, e.target.value)}
+                                onBlur={handleKeyBlur}
                               />
                             </TableCell>
                             <TableCell>
@@ -864,6 +864,7 @@ function EditProduct() {
                                 label="Value"
                                 value={row.value}
                                 onChange={(e) => handleValueChange(index, e.target.value)}
+                                onBlur={handleValueBlur}
                               />
                             </TableCell>
                             <TableCell>

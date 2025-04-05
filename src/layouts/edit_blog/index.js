@@ -119,47 +119,54 @@ function EditBlog() {
     }));
   };
 
+  // Modify the handleKeyChange function to stop updating on every keystroke
   const handleKeyChange = (index, key) => {
     const updatedRows = [...infoRows];
     updatedRows[index].key = key;
     setInfoRows(updatedRows);
-
-    setBlog((prev) => ({
-      ...prev,
-      infos: {
-        ...prev.infos,
-        [key]: updatedRows[index].value,
-      },
-    }));
+    // Remove immediate update to blog.infos
   };
 
+  // Modify the handleValueChange function to stop updating on every keystroke
   const handleValueChange = (index, value) => {
     const updatedRows = [...infoRows];
     updatedRows[index].value = value;
     setInfoRows(updatedRows);
+    // Remove immediate update to blog.infos
+  };
+
+  // Add synchronization function to update blog.infos from infoRows
+  const synchronizeInfosWithRows = () => {
+    const updatedInfos = {};
+    infoRows.forEach((row) => {
+      if (row.key && row.key.trim() !== "") {
+        updatedInfos[row.key] = row.value;
+      }
+    });
 
     setBlog((prev) => ({
       ...prev,
-      infos: {
-        ...prev.infos,
-        [updatedRows[index].key]: value,
-      },
+      infos: updatedInfos,
     }));
   };
 
+  // Modify handleRemoveRow to avoid direct manipulation of blog.infos
   const handleRemoveRow = (index) => {
     const updatedRows = infoRows.filter((_, i) => i !== index);
-    const removedKey = infoRows[index].key;
     setInfoRows(updatedRows);
 
-    setBlog((prev) => {
-      const updatedInfos = { ...prev.infos };
-      delete updatedInfos[removedKey];
-      return {
-        ...prev,
-        infos: updatedInfos,
-      };
-    });
+    // Remove direct manipulation of blog.infos
+    // Use setTimeout to ensure state update completes first
+    setTimeout(() => synchronizeInfosWithRows(), 0);
+  };
+
+  // Add blur handlers for key and value fields
+  const handleKeyBlur = () => {
+    synchronizeInfosWithRows();
+  };
+
+  const handleValueBlur = () => {
+    synchronizeInfosWithRows();
   };
 
   const addInfoRow = () => {
@@ -342,6 +349,7 @@ function EditBlog() {
                                   label="Key"
                                   value={row.key}
                                   onChange={(e) => handleKeyChange(index, e.target.value)}
+                                  onBlur={handleKeyBlur}
                                 />
                               </TableCell>
                               <TableCell>
@@ -350,6 +358,7 @@ function EditBlog() {
                                   label="Value"
                                   value={row.value}
                                   onChange={(e) => handleValueChange(index, e.target.value)}
+                                  onBlur={handleValueBlur}
                                 />
                               </TableCell>
                               <TableCell>

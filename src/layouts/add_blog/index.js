@@ -58,47 +58,53 @@ function AddBlog() {
 
   const [infoRows, setInfoRows] = useState([{ key: "", value: "" }]);
 
+  // Modify the handleKeyChange function to stop updating on every keystroke
   const handleKeyChange = (index, key) => {
     const updatedRows = [...infoRows];
     updatedRows[index].key = key;
     setInfoRows(updatedRows);
-
-    setBlog((prev) => ({
-      ...prev,
-      infos: {
-        ...prev.infos,
-        [key]: updatedRows[index].value,
-      },
-    }));
+    // Remove immediate update to blog.infos
   };
 
+  // Modify the handleValueChange function to stop updating on every keystroke
   const handleValueChange = (index, value) => {
     const updatedRows = [...infoRows];
     updatedRows[index].value = value;
     setInfoRows(updatedRows);
+    // Remove immediate update to blog.infos
+  };
+
+  // Add synchronization function
+  const synchronizeInfosWithRows = () => {
+    const updatedInfos = {};
+    infoRows.forEach((row) => {
+      if (row.key && row.key.trim() !== "") {
+        updatedInfos[row.key] = row.value;
+      }
+    });
 
     setBlog((prev) => ({
       ...prev,
-      infos: {
-        ...prev.infos,
-        [updatedRows[index].key]: value,
-      },
+      infos: updatedInfos,
     }));
   };
 
+  // Update handleRemoveRow to not directly manipulate blog.infos
   const handleRemoveRow = (index) => {
     const updatedRows = infoRows.filter((_, i) => i !== index);
-    const removedKey = infoRows[index].key;
     setInfoRows(updatedRows);
+    // Remove direct manipulation of blog.infos
+    // We'll synchronize after the state update
+    setTimeout(() => synchronizeInfosWithRows(), 0);
+  };
 
-    setBlog((prev) => {
-      const updatedInfos = { ...prev.infos };
-      delete updatedInfos[removedKey];
-      return {
-        ...prev,
-        infos: updatedInfos,
-      };
-    });
+  // Add blur handlers
+  const handleKeyBlur = () => {
+    synchronizeInfosWithRows();
+  };
+
+  const handleValueBlur = () => {
+    synchronizeInfosWithRows();
   };
 
   const addInfoRow = () => {
@@ -386,6 +392,7 @@ function AddBlog() {
                                   label="Key"
                                   value={row.key}
                                   onChange={(e) => handleKeyChange(index, e.target.value)}
+                                  onBlur={handleKeyBlur}
                                 />
                               </TableCell>
                               <TableCell>
@@ -394,6 +401,7 @@ function AddBlog() {
                                   label="Value"
                                   value={row.value}
                                   onChange={(e) => handleValueChange(index, e.target.value)}
+                                  onBlur={handleValueBlur}
                                 />
                               </TableCell>
                               <TableCell>

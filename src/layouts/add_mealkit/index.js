@@ -460,6 +460,41 @@ function AddMealkit() {
       return false;
     }
 
+    // Add validation for ingredients - ensure we have at least one ingredient
+    if (Object.keys(ingredients).length === 0) {
+      setIngredientsError("At least one ingredient is required.");
+      return false;
+    }
+
+    // Check if any ingredient has an empty amount
+    let hasEmptyAmount = false;
+    Object.entries(ingredients).forEach(([id, amount]) => {
+      if (!amount || amount.trim() === "") {
+        hasEmptyAmount = true;
+      }
+    });
+
+    if (hasEmptyAmount) {
+      setIngredientsError("All ingredients must have an amount specified.");
+      return false;
+    }
+
+    // Add validation for instructions - ensure we have at least one instruction
+    if (!instructions || instructions.length === 0) {
+      setInstructionsError("At least one instruction is required.");
+      return false;
+    }
+
+    // Check if any instruction is empty
+    const hasEmptyInstruction = instructions.some(
+      (instruction) => !instruction || instruction.trim() === ""
+    );
+
+    if (hasEmptyInstruction) {
+      setInstructionsError("Instructions cannot be empty.");
+      return false;
+    }
+
     if (!mainImage) {
       setMainImageError("The main image is required.");
       return false;
@@ -529,47 +564,49 @@ function AddMealkit() {
     const updatedRows = [...infoRows];
     updatedRows[index].key = key;
     setInfoRows(updatedRows);
-
-    setProduct((prev) => ({
-      ...prev,
-      infos: {
-        ...prev.infos,
-        [key]: updatedRows[index].value,
-      },
-    }));
+    // Remove immediate update to product.infos
   };
 
   const handleValueChange = (index, value) => {
     const updatedRows = [...infoRows];
     updatedRows[index].value = value;
     setInfoRows(updatedRows);
+    // Remove immediate update to product.infos
+  };
+
+  const synchronizeInfosWithRows = () => {
+    const updatedInfos = {};
+    infoRows.forEach((row) => {
+      if (row.key && row.key.trim() !== "") {
+        updatedInfos[row.key] = row.value;
+      }
+    });
 
     setProduct((prev) => ({
       ...prev,
-      infos: {
-        ...prev.infos,
-        [updatedRows[index].key]: value,
-      },
+      infos: updatedInfos,
     }));
   };
 
   const handleRemoveRow = (index) => {
     const updatedRows = infoRows.filter((_, i) => i !== index);
-    const removedKey = infoRows[index].key;
     setInfoRows(updatedRows);
 
-    setProduct((prev) => {
-      const updatedInfos = { ...prev.infos };
-      delete updatedInfos[removedKey];
-      return {
-        ...prev,
-        infos: updatedInfos,
-      };
-    });
+    // Remove direct manipulation of product.infos here
+    // We'll handle it with synchronizeInfosWithRows after removal
+    setTimeout(() => synchronizeInfosWithRows(), 0);
   };
 
   const addInfoRow = () => {
     setInfoRows((prev) => [...prev, { key: "", value: "" }]);
+  };
+
+  const handleKeyBlur = () => {
+    synchronizeInfosWithRows();
+  };
+
+  const handleValueBlur = () => {
+    synchronizeInfosWithRows();
   };
 
   function InfoRow({ product }) {}
@@ -1105,6 +1142,7 @@ function AddMealkit() {
                                     label="Key"
                                     value={row.key}
                                     onChange={(e) => handleKeyChange(index, e.target.value)}
+                                    onBlur={handleKeyBlur}
                                   />
                                 </TableCell>
                                 <TableCell>
@@ -1113,6 +1151,7 @@ function AddMealkit() {
                                     label="Value"
                                     value={row.value}
                                     onChange={(e) => handleValueChange(index, e.target.value)}
+                                    onBlur={handleValueBlur}
                                   />
                                 </TableCell>
                                 <TableCell>

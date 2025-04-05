@@ -255,6 +255,31 @@ class ProductService {
       return { content: [], total_page: 1 }; // Return default structure on error
     }
   }
+
+  async getIngredient(query, page, size) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.get(`${API_BASE_URL_2}/fetch/ingredients`, {
+        params: {
+          prod_id: query,
+          index: page - 1, // Page index (0-based)
+          size: size, // Number of items per page
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data; // Return the API response
+    } catch (error) {
+      console.error("Error fetching ingredients:", error);
+      return {
+        content: [],
+        total_element: 0,
+        total_page: 1,
+        page_index: 0,
+      }; // Return default structure on error
+    }
+  }
 }
 
 export default new ProductService();

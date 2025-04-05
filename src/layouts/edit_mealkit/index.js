@@ -48,12 +48,9 @@ function EditMealkit() {
     day_before_expiry: 0,
     description: "",
     article_md: "",
-    infos: {
-      weight: "",
-      made_in: "",
-    },
+    infos: {},
     instructions: [],
-    ingredients: [],
+    ingredients: {},
   });
 
   const [productStatus, setProductStatus] = useState({ status: "" });
@@ -76,26 +73,19 @@ function EditMealkit() {
 
       setQuantity(response.available_quantity);
       setStatus(response.product_status);
-      setSale(response.price_list?.[0]?.sale_percent);
-      setPrice(response.price_list?.[0]?.price);
       setDayBeforeExpiry(response.day_before_expiry || 0);
       setDescription(response.description || "");
       setArticleMd(response.article || "");
-      setWeight(response.info?.weight || "");
       setInstructions(response.info?.storage_instructions || "");
-      setMadeIn(response.info?.made_in || "");
 
       // Đặt productInfo ban đầu
       setMealkitInfo({
         day_before_expiry: response.day_before_expiry || 0,
         description: response.description || "",
         article_md: response.article || "",
-        infos: {
-          weight: response.info?.weight || "",
-          made_in: response.info?.made_in || "",
-        },
+        infos: response.info || {},
         instructions: response.instructions || [],
-        ingredients: response.ingredients || [],
+        ingredients: response.ingredients || {},
       });
     } catch (error) {
       console.error(
@@ -103,23 +93,6 @@ function EditMealkit() {
         error.response ? error.response.data : error.message
       );
     }
-  };
-
-  const updateField = (field, value) => {
-    setMealkitInfo((prevState) => ({
-      ...prevState,
-      [field]: value !== undefined && value !== null ? value : prevState[field],
-    }));
-  };
-
-  const updateInfoField = (field, value) => {
-    setMealkitInfo((prevState) => ({
-      ...prevState,
-      infos: {
-        ...prevState.infos,
-        [field]: value !== undefined && value !== null ? value : prevState.infos[field],
-      },
-    }));
   };
 
   useEffect(() => {
@@ -147,13 +120,6 @@ function EditMealkit() {
     }
     fetchPrice();
   }, [prod_id]);
-
-  const updateArrayField = (field, newArray) => {
-    setMealkitInfo((prevState) => ({
-      ...prevState,
-      [field]: Array.isArray(newArray) ? [...newArray] : prevState[field],
-    }));
-  };
 
   const updateQuantity = async (e) => {
     e.preventDefault();
@@ -223,24 +189,15 @@ function EditMealkit() {
     e.preventDefault();
     DayBeforeExpiryBlur();
     DescriptionBlur();
-    ArticleMdBlur();
-    WeightBlur();
     InstructionsBlur();
-    MadeInBlur();
     IngredientBlur();
     if (
       !prod_id ||
       !dayBeforeExpiry ||
       dayBeforeExpiryError ||
-      !weight ||
-      weightError ||
       !description ||
       descriptionError ||
-      !articleMd ||
-      articleMdError ||
       instructions.length === 0 ||
-      !madeIn ||
-      madeInError ||
       !ingredient ||
       ingredientError
     ) {
@@ -392,21 +349,6 @@ function EditMealkit() {
     }
   };
 
-  const WeightChange = (e) => {
-    const { value } = e.target;
-    setWeight(value);
-    updateInfoField("weight", value);
-    setUpdateInfomationSuccess(false);
-  };
-
-  const WeightBlur = () => {
-    if (weight === "") {
-      setWeightError("Please enter a weight");
-    } else {
-      setWeightError("");
-    }
-  };
-
   const InstructionsChange = (e) => {
     const { value } = e.target;
     setInstructions(value);
@@ -419,36 +361,6 @@ function EditMealkit() {
       setInstructionsError("Please enter a instruction");
     } else {
       setInstructionsError("");
-    }
-  };
-
-  const MadeInChange = (e) => {
-    const { value } = e.target;
-    setMadeIn(value);
-    updateInfoField("made_in", value);
-    setUpdateInfomationSuccess(false);
-  };
-
-  const MadeInBlur = () => {
-    if (madeIn === "") {
-      setMadeInError("Please enter a made in");
-    } else {
-      setMadeInError("");
-    }
-  };
-
-  const IngredientChange = (e) => {
-    const { value } = e.target;
-    setIngredient(value);
-    updateArrayField("ingredients", value);
-    setUpdateInfomationSuccess(false);
-  };
-
-  const IngredientBlur = () => {
-    if (madeIn === "") {
-      setIngredientError("Please enter a made in");
-    } else {
-      setIngredientError("");
     }
   };
 
@@ -689,27 +601,6 @@ function EditMealkit() {
 
                       <TextField
                         fullWidth
-                        label="Production Date"
-                        value={
-                          product.price_list && product.price_list[0]?.date
-                            ? new Date(product.price_list[0]?.date).toLocaleString("en-US", {
-                                weekday: "long",
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })
-                            : "N/A"
-                        }
-                        margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
-                      />
-
-                      <TextField
-                        fullWidth
                         type="text"
                         label="Day before expiry"
                         value={dayBeforeExpiry || 0}
@@ -743,83 +634,6 @@ function EditMealkit() {
                         </p>
                       )}
 
-                      <TextField
-                        fullWidth
-                        type="text"
-                        label="Weight"
-                        value={weight || ""}
-                        onChange={WeightChange}
-                        onBlur={WeightBlur}
-                        onKeyDown={(e) => {
-                          if (e.key.toLowerCase() === "e") {
-                            e.preventDefault();
-                          }
-                        }}
-                        margin="normal"
-                      />
-                      {weightError && (
-                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
-                          {weightError}
-                        </p>
-                      )}
-
-                      <TextField
-                        fullWidth
-                        type="text"
-                        label="Storage instructions"
-                        value={instructions || ""}
-                        onChange={InstructionsChange}
-                        onBlur={InstructionsBlur}
-                        margin="normal"
-                      />
-                      {instructionsError && (
-                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
-                          {instructionsError}
-                        </p>
-                      )}
-
-                      <TextField
-                        fullWidth
-                        type="text"
-                        label="Made in"
-                        value={madeIn || ""}
-                        onChange={MadeInChange}
-                        onBlur={MadeInBlur}
-                        margin="normal"
-                      />
-                      {madeInError && (
-                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
-                          {madeInError}
-                        </p>
-                      )}
-
-                      <TextField
-                        fullWidth
-                        type="text"
-                        label="Ingredients"
-                        value={ingredient || ""}
-                        onChange={IngredientChange}
-                        onBlur={IngredientBlur}
-                        margin="normal"
-                      />
-                      {madeInError && (
-                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
-                          {madeInError}
-                        </p>
-                      )}
-                      {updateInfomationSuccess && (
-                        <p
-                          style={{
-                            color: "green",
-                            fontSize: "0.6em",
-                            fontWeight: "600",
-                            marginLeft: "5px",
-                            marginBottom: "5px",
-                          }}
-                        >
-                          {updateInfomationSuccess}
-                        </p>
-                      )}
                       <Button
                         variant="contained"
                         color="success"

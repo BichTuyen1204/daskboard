@@ -1,11 +1,29 @@
 import { useEffect, useState } from "react";
-import { Card, Grid, TextField, Button, MenuItem, Icon, Typography } from "@mui/material";
+import {
+  Card,
+  Grid,
+  TextField,
+  Button,
+  MenuItem,
+  Icon,
+  Typography,
+  FormControl,
+  FormLabel,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from "@mui/material";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import axios from "axios";
 import ProductService from "api/ProductService";
+import MDEditor from "@uiw/react-md-editor";
 
 const REACT_APP_BACKEND_API_ENDPOINT = process.env.REACT_APP_BACKEND_API_ENDPOINT;
 
@@ -35,13 +53,14 @@ function EditMealkit() {
   const [articleMdError, setArticleMdError] = useState("");
   const [weight, setWeight] = useState("");
   const [weightError, setWeightError] = useState("");
-  const [instructions, setInstructions] = useState("");
+  const [instructions, setInstructions] = useState([]);
   const [instructionsError, setInstructionsError] = useState("");
   const [madeIn, setMadeIn] = useState("");
   const [madeInError, setMadeInError] = useState("");
   const [ingredient, setIngredient] = useState("");
   const [ingredientError, setIngredientError] = useState("");
   const [updateInfomationSuccess, setUpdateInfomationSuccess] = useState("");
+  const [infoRows, setInfoRows] = useState([{ key: "", value: "" }]);
 
   // State for Producst Data
   const [mealkitInfo, setMealkitInfo] = useState({
@@ -76,7 +95,7 @@ function EditMealkit() {
       setDayBeforeExpiry(response.day_before_expiry || 0);
       setDescription(response.description || "");
       setArticleMd(response.article || "");
-      setInstructions(response.info?.storage_instructions || "");
+      setInstructions(response.instructions || []);
 
       // Đặt productInfo ban đầu
       setMealkitInfo({
@@ -87,6 +106,15 @@ function EditMealkit() {
         instructions: response.instructions || [],
         ingredients: response.ingredients || {},
       });
+
+      // Load additional info into infoRows
+      const infos = response.info || {};
+      const infoRowsArray = Object.entries(infos).map(([key, value]) => ({ key, value }));
+      if (infoRowsArray.length > 0) {
+        setInfoRows(infoRowsArray);
+      } else {
+        setInfoRows([{ key: "", value: "" }]);
+      }
     } catch (error) {
       console.error(
         "Error during API calls:",
@@ -189,25 +217,19 @@ function EditMealkit() {
     e.preventDefault();
     DayBeforeExpiryBlur();
     DescriptionBlur();
-    InstructionsBlur();
-    IngredientBlur();
-    if (
-      !prod_id ||
-      !dayBeforeExpiry ||
-      dayBeforeExpiryError ||
-      !description ||
-      descriptionError ||
-      instructions.length === 0 ||
-      !ingredient ||
-      ingredientError
-    ) {
+
+    synchronizeInfosWithRows();
+
+    if (!prod_id || dayBeforeExpiryError || descriptionError || !dayBeforeExpiry || !description) {
+      console.error("Invalid input data");
       return;
     } else {
       try {
         console.log("Sending data:", JSON.stringify(mealkitInfo, null, 2));
         const response = await ProductService.updateMealkitInfo(prod_id, mealkitInfo);
         console.log("Update infos successful", response);
-        setUpdateInfomationSuccess("Infor of ingredients updated successfully.");
+        setUpdateInfomationSuccess("Information updated successfully.");
+        window.location.reload(); // Refresh the page
       } catch (error) {
         console.error(
           "Error during API calls:",
@@ -334,9 +356,8 @@ function EditMealkit() {
     }
   };
 
-  const ArticleMdChange = (e) => {
-    const { value } = e.target;
-    setArticleMd(value);
+  const ArticleMdChange = (value) => {
+    setArticleMd(value || "");
     updateField("article_md", value);
     setUpdateInfomationSuccess(false);
   };
@@ -351,17 +372,67 @@ function EditMealkit() {
 
   const InstructionsChange = (e) => {
     const { value } = e.target;
-    setInstructions(value);
-    updateArrayField("instructions", value);
+    // Don't update instructions state directly from input value
+    // This will be handled in the table UI instead
     setUpdateInfomationSuccess(false);
   };
 
   const InstructionsBlur = () => {
-    if (instructions === "") {
-      setInstructionsError("Please enter a instruction");
+    if (!instructions || instructions.length === 0) {
+      setInstructionsError("Please enter at least one instruction");
     } else {
       setInstructionsError("");
     }
+  };
+
+  const updateArrayField = (field, value) => {
+    setMealkitInfo((prevState) => ({
+      ...prevState,
+      [field]: Array.isArray(value) ? value : [value],
+    }));
+  };
+
+  const handleKeyChange = (index, key) => {
+    const updatedRows = [...infoRows];
+    updatedRows[index].key = key;
+    setInfoRows(updatedRows);
+  };
+
+  const handleValueChange = (index, value) => {
+    const updatedRows = [...infoRows];
+    updatedRows[index].value = value;
+    setInfoRows(updatedRows);
+  };
+
+  const synchronizeInfosWithRows = () => {
+    const updatedInfos = {};
+    infoRows.forEach((row) => {
+      if (row.key && row.key.trim() !== "") {
+        updatedInfos[row.key] = row.value;
+      }
+    });
+
+    setMealkitInfo((prev) => ({
+      ...prev,
+      infos: updatedInfos,
+    }));
+  };
+
+  const handleRemoveRow = (index) => {
+    const updatedRows = infoRows.filter((_, i) => i !== index);
+    setInfoRows(updatedRows);
+  };
+
+  const handleKeyBlur = () => {
+    synchronizeInfosWithRows();
+  };
+
+  const handleValueBlur = () => {
+    synchronizeInfosWithRows();
+  };
+
+  const addInfoRow = () => {
+    setInfoRows((prev) => [...prev, { key: "", value: "" }]);
   };
 
   // Load product details when component mounts
@@ -611,9 +682,9 @@ function EditMealkit() {
 
                 <TextField
                   fullWidth
-                  type="text"
+                  type="number"
                   label="Day before expiry"
-                  value={dayBeforeExpiry || 0}
+                  value={dayBeforeExpiry || ""}
                   onChange={DayBeforeExpiryChange}
                   onBlur={DayBeforeExpiryBlur}
                   onKeyDown={(e) => {
@@ -629,18 +700,157 @@ function EditMealkit() {
                   </p>
                 )}
 
-                <TextField
-                  fullWidth
-                  type="text"
-                  label="Article"
-                  value={articleMd || ""}
-                  onChange={ArticleMdChange}
-                  onBlur={ArticleMdBlur}
-                  margin="normal"
-                />
+                <FormControl fullWidth>
+                  <FormLabel style={{ fontSize: "0.7em", marginTop: "15px" }}>Article</FormLabel>
+                  <div style={{ marginBottom: "20px" }}>
+                    <MDEditor value={articleMd} onChange={ArticleMdChange} />
+                  </div>
+                </FormControl>
                 {articleMdError && (
                   <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
                     {articleMdError}
+                  </p>
+                )}
+
+                <Grid item xs={12}>
+                  {/* Instructions */}
+                  <TableContainer
+                    component={Paper}
+                    style={{
+                      borderRadius: "12px",
+                      overflow: "hidden",
+                      boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
+                      marginTop: "15px",
+                    }}
+                  >
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Instructions</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {instructions?.map((instruction, index) => (
+                          <TableRow key={index}>
+                            <TableCell>
+                              <TextField
+                                fullWidth
+                                label={`Instruction ${index + 1}`}
+                                value={instruction}
+                                onChange={(e) => {
+                                  const updatedInstructions = [...instructions];
+                                  updatedInstructions[index] = e.target.value;
+                                  setInstructions(updatedInstructions);
+                                  updateArrayField("instructions", updatedInstructions);
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                variant="contained"
+                                color="error"
+                                onClick={() => {
+                                  const updatedInstructions = instructions.filter(
+                                    (_, i) => i !== index
+                                  );
+                                  setInstructions(updatedInstructions);
+                                  updateArrayField("instructions", updatedInstructions);
+                                }}
+                              >
+                                Remove
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => {
+                        setInstructions((prev) => [...(prev || []), ""]);
+                        updateArrayField("instructions", [...(instructions || []), ""]);
+                      }}
+                      style={{ backgroundColor: "green", color: "white", margin: "10px" }}
+                    >
+                      Add Instruction
+                    </Button>
+                  </TableContainer>
+
+                  {/* Additional Informations */}
+                  <TableContainer
+                    component={Paper}
+                    style={{
+                      borderRadius: "12px",
+                      overflow: "hidden",
+                      boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
+                      marginTop: "15px",
+                    }}
+                  >
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell colSpan={2}>Additional Informations</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {infoRows.map((row, index) => (
+                          <TableRow key={index}>
+                            <TableCell>
+                              <TextField
+                                fullWidth
+                                label="Key"
+                                value={row.key}
+                                onChange={(e) => handleKeyChange(index, e.target.value)}
+                                onBlur={handleKeyBlur}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <TextField
+                                fullWidth
+                                label="Value"
+                                value={row.value}
+                                onChange={(e) => handleValueChange(index, e.target.value)}
+                                onBlur={handleValueBlur}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                variant="contained"
+                                color="error"
+                                onClick={() => handleRemoveRow(index)}
+                              >
+                                Remove
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={addInfoRow}
+                      style={{ backgroundColor: "green", color: "white", margin: "10px" }}
+                    >
+                      Add Info Row
+                    </Button>
+                  </TableContainer>
+                </Grid>
+
+                {updateInfomationSuccess && (
+                  <p
+                    style={{
+                      color: "green",
+                      fontSize: "0.6em",
+                      fontWeight: "600",
+                      marginLeft: "5px",
+                      marginBottom: "5px",
+                    }}
+                  >
+                    {updateInfomationSuccess}
                   </p>
                 )}
 

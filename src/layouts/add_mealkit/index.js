@@ -924,27 +924,72 @@ function AddMealkit() {
                           )}
                         />
 
-                        {/* Selected Ingredients */}
-                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
-                          {Object.entries(product.ingredients).map(([id, amount]) => {
-                            const productDetails = selectedProducts[id]; // Get full product details
-                            return (
-                              <Box key={id} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <Chip
-                                  label={productDetails?.name || id} // Display the product name or fallback to id
-                                  onDelete={() => handleDeleteIngredient(id)} // Allow deletion
-                                />
-                                <TextField
-                                  type="number"
-                                  label="Amount"
-                                  value={amount}
-                                  onChange={(e) => handleAmountChange(id, e.target.value)} // Update the amount
-                                  size="small"
-                                />
-                              </Box>
-                            );
-                          })}
-                        </Box>
+                        <TableContainer
+                          component={Paper}
+                          style={{
+                            borderRadius: "12px",
+                            overflow: "hidden",
+                            boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
+                            marginTop: "15px",
+                            width: "100%",
+                          }}
+                        >
+                          <Table sx={{ tableLayout: "fixed", width: "100%" }}>
+                            <TableBody>
+                              {Object.entries(product.ingredients).map(([id, amount]) => {
+                                const productDetails = selectedProducts[id]; // Get full product details
+                                return (
+                                  <TableRow key={id}>
+                                    <TableCell>
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          gap: 2,
+                                        }}
+                                      >
+                                        {productDetails?.image ? (
+                                          <img
+                                            src={productDetails.image}
+                                            alt={productDetails.name}
+                                            style={{
+                                              width: "50px",
+                                              height: "50px",
+                                              objectFit: "cover",
+                                              borderRadius: "4px",
+                                            }}
+                                          />
+                                        ) : (
+                                          "No Image"
+                                        )}
+                                        <span>{productDetails?.name || id}</span>
+                                      </Box>
+                                    </TableCell>
+                                    <TableCell>
+                                      <TextField
+                                        type="number"
+                                        label="Amount"
+                                        value={amount}
+                                        onChange={(e) => handleAmountChange(id, e.target.value)}
+                                        size="small"
+                                      />
+                                    </TableCell>
+                                    <TableCell>
+                                      <Button
+                                        variant="contained"
+                                        color="error"
+                                        onClick={() => handleDeleteIngredient(id)}
+                                        size="small"
+                                      >
+                                        Remove
+                                      </Button>
+                                    </TableCell>
+                                  </TableRow>
+                                );
+                              })}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
 
                         <p
                           style={{

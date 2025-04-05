@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Card,
   Grid,
@@ -16,6 +16,9 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Box,
+  Autocomplete,
+  CircularProgress,
 } from "@mui/material";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import MDBox from "components/MDBox";
@@ -24,6 +27,7 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import axios from "axios";
 import ProductService from "api/ProductService";
 import MDEditor from "@uiw/react-md-editor";
+import debounce from "lodash.debounce";
 
 const REACT_APP_BACKEND_API_ENDPOINT = process.env.REACT_APP_BACKEND_API_ENDPOINT;
 
@@ -61,6 +65,7 @@ function EditMealkit() {
   const [ingredientError, setIngredientError] = useState("");
   const [updateInfomationSuccess, setUpdateInfomationSuccess] = useState("");
   const [infoRows, setInfoRows] = useState([{ key: "", value: "" }]);
+  const [ingredientsError, setIngredientsError] = useState("");
 
   // State for Producst Data
   const [mealkitInfo, setMealkitInfo] = useState({
@@ -76,20 +81,121 @@ function EditMealkit() {
   const [productQuantity, setProductQuantity] = useState({ quantity: 0, in_price: 0 });
   const [productPrice, setProductPrice] = useState({ price: 0, sale_percent: 0 });
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [selectedProducts, setSelectedProducts] = useState({});
+
   // Ensure user is authenticated
   useEffect(() => {
     if (!jwtToken) navigate("/sign-in", { replace: true });
   }, [navigate, jwtToken]);
 
-  // Fetch Product Details
-  const getProductDetail = async () => {
+  // Debounce the search query
+  const debounceSearch = useCallback(
+    debounce((query) => {
+      setDebouncedQuery(query);
+      setPage(0);
+    }, 500),
+    []
+  );
+
+  // Update the debounced query when the user types
+  useEffect(() => {
+    debounceSearch(searchQuery);
+  }, [searchQuery, debounceSearch]);
+
+  // Fetch products from API
+  const fetchProducts = async (query, page) => {
+    if (page >= totalPages && page !== 0) return;
+    setLoading(true);
+
+    try {
+      // Add a small delay before making the API call
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      const response = await ProductService.searchProducts(query, page);
+      const { content = [], total_page = 1 } = response || {};
+
+      setSearchResults((prev) => {
+        if (page === 0) {
+          return content;
+        }
+        return [...prev, ...content];
+      });
+
+      setTotalPages(total_page);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setSearchResults([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch products when the debounced query or page changes
+  useEffect(() => {
+    if (debouncedQuery.trim() !== "") {
+      fetchProducts(debouncedQuery, page);
+    }
+  }, [debouncedQuery, page]);
+
+  // Handle adding an ingredient
+  const handleAddIngredient = (selectedProduct) => {
+    setMealkitInfo((prev) => {
+      if (prev.ingredients[selectedProduct.id]) {
+        return prev; // Don't add duplicate ingredients
+      }
+      return {
+        ...prev,
+        ingredients: {
+          ...prev.ingredients,
+          [selectedProduct.id]: "", // Initialize with an empty amount
+        },
+      };
+    });
+    setSelectedProducts((prev) => ({
+      ...prev,
+      [selectedProduct.id]: selectedProduct, // Store full product details
+    }));
+  };
+
+  // Handle changing ingredient amount
+  const handleAmountChange = (id, amount) => {
+    setMealkitInfo((prev) => ({
+      ...prev,
+      ingredients: {
+        ...prev.ingredients,
+        [id]: amount,
+      },
+    }));
+  };
+
+  // Handle deleting an ingredient
+  const handleDeleteIngredient = (id) => {
+    setMealkitInfo((prev) => {
+      const updatedIngredients = { ...prev.ingredients };
+      delete updatedIngredients[id];
+      return { ...prev, ingredients: updatedIngredients };
+    });
+    setSelectedProducts((prev) => {
+      const updatedProducts = { ...prev };
+      delete updatedProducts[id];
+      return updatedProducts;
+    });
+  };
+
+  // Update getProductDetail function to handle ingredient data properly
+  const getProductDetailWithIngredients = async () => {
     if (!jwtToken) return;
     try {
+      // Get basic product info
       const response = await ProductService.getProductDetail(prod_id);
-      console.log("nice", response);
+      console.log("Product detail:", response);
 
       setProduct(response);
-
       setQuantity(response.available_quantity);
       setStatus(response.product_status);
       setDayBeforeExpiry(response.day_before_expiry || 0);
@@ -97,14 +203,36 @@ function EditMealkit() {
       setArticleMd(response.article || "");
       setInstructions(response.instructions || []);
 
-      // Đặt productInfo ban đầu
+      // Get ingredients using the dedicated API
+      const ingredientsResponse = await ProductService.getIngredient(prod_id, 1, 100);
+      console.log("Ingredients:", ingredientsResponse);
+
+      // Process ingredients data
+      const ingredients = {};
+      const ingredientDetails = {};
+
+      if (ingredientsResponse && ingredientsResponse.content) {
+        ingredientsResponse.content.forEach((item) => {
+          ingredients[item.id] = item.amount;
+          ingredientDetails[item.id] = {
+            id: item.id,
+            name: item.name,
+            image: item.image,
+            product_name: item.name,
+          };
+        });
+      }
+
+      setSelectedProducts(ingredientDetails);
+
+      // Set the complete mealkitInfo
       setMealkitInfo({
         day_before_expiry: response.day_before_expiry || 0,
         description: response.description || "",
         article_md: response.article || "",
         infos: response.info || {},
         instructions: response.instructions || [],
-        ingredients: response.ingredients || {},
+        ingredients: ingredients,
       });
 
       // Load additional info into infoRows
@@ -122,6 +250,11 @@ function EditMealkit() {
       );
     }
   };
+
+  // Replace the useEffect that calls getProductDetail
+  useEffect(() => {
+    getProductDetailWithIngredients();
+  }, [prod_id]);
 
   useEffect(() => {
     async function fetchPrice() {
@@ -435,11 +568,6 @@ function EditMealkit() {
     setInfoRows((prev) => [...prev, { key: "", value: "" }]);
   };
 
-  // Load product details when component mounts
-  useEffect(() => {
-    getProductDetail(prod_id);
-  }, [prod_id]);
-
   return (
     <DashboardLayout>
       <MDBox pt={6} pb={3}>
@@ -711,6 +839,160 @@ function EditMealkit() {
                     {articleMdError}
                   </p>
                 )}
+
+                {/* Ingredients Section */}
+                <MDBox mt={4} mb={2}>
+                  <MDTypography variant="h6">Ingredients</MDTypography>
+
+                  {/* Search Bar */}
+                  <Autocomplete
+                    freeSolo
+                    options={searchResults}
+                    getOptionLabel={(option) => option.name || ""}
+                    loading={loading}
+                    onInputChange={(e, value) => {
+                      setSearchQuery(value);
+                      setSearchResults([]);
+                    }}
+                    onChange={(e, value) => value && handleAddIngredient(value)}
+                    ListboxProps={{
+                      style: {
+                        maxHeight: "100px",
+                        overflow: "auto",
+                      },
+                      onScroll: (event) => {
+                        const listboxNode = event.currentTarget;
+                        if (
+                          listboxNode.scrollTop + listboxNode.clientHeight ===
+                          listboxNode.scrollHeight
+                        ) {
+                          setPage((prevPage) => prevPage + 1);
+                        }
+                      },
+                    }}
+                    renderOption={(props, option) => (
+                      <Box
+                        {...props}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 2,
+                          padding: "8px",
+                        }}
+                      >
+                        <img
+                          src={option.image}
+                          alt={option.name}
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            borderRadius: "4px",
+                            objectFit: "cover",
+                          }}
+                        />
+                        <span>{option.name}</span>
+                      </Box>
+                    )}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Search Ingredients"
+                        placeholder="Type to search..."
+                        margin="normal"
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <>
+                              {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                              {params.InputProps.endAdornment}
+                            </>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+
+                  {/* Ingredients Table */}
+                  <TableContainer
+                    component={Paper}
+                    style={{
+                      borderRadius: "12px",
+                      overflow: "hidden",
+                      boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
+                      marginTop: "15px",
+                    }}
+                  >
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Ingredient</TableCell>
+                          <TableCell>Amount</TableCell>
+                          <TableCell>Actions</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {Object.entries(mealkitInfo.ingredients || {}).map(([id, amount]) => {
+                          const productDetails = selectedProducts[id];
+                          return (
+                            <TableRow key={id}>
+                              <TableCell>
+                                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                                  {productDetails?.image ? (
+                                    <img
+                                      src={productDetails.image}
+                                      alt={productDetails.name}
+                                      style={{
+                                        width: "50px",
+                                        height: "50px",
+                                        objectFit: "cover",
+                                        borderRadius: "4px",
+                                      }}
+                                    />
+                                  ) : (
+                                    <Box
+                                      sx={{
+                                        width: 50,
+                                        height: 50,
+                                        bgcolor: "#eee",
+                                        borderRadius: "4px",
+                                      }}
+                                    />
+                                  )}
+                                  <span>{productDetails?.name || id}</span>
+                                </Box>
+                              </TableCell>
+                              <TableCell>
+                                <TextField
+                                  type="text"
+                                  label="Amount"
+                                  value={amount}
+                                  onChange={(e) => handleAmountChange(id, e.target.value)}
+                                  size="small"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="contained"
+                                  color="error"
+                                  onClick={() => handleDeleteIngredient(id)}
+                                  size="small"
+                                >
+                                  Remove
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+
+                  {ingredientsError && (
+                    <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                      {ingredientsError}
+                    </p>
+                  )}
+                </MDBox>
 
                 <Grid item xs={12}>
                   {/* Instructions */}

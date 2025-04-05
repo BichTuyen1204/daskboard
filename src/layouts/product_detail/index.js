@@ -1,6 +1,21 @@
 import { useEffect, useState } from "react";
 import Card from "@mui/material/Card";
-import { Grid, TextField, Button, Icon, List, ListItem, ListItemText, Paper } from "@mui/material";
+import {
+  Grid,
+  TextField,
+  Button,
+  Icon,
+  List,
+  ListItem,
+  ListItemText,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -331,17 +346,31 @@ function ProductDetail() {
                         InputProps={{ readOnly: true }}
                       />
 
-                      {/* Instructions List */}
+                      {/* Instructions List as Table */}
                       <MDBox mt={2} mb={2}>
                         <MDTypography variant="subtitle1">Instructions</MDTypography>
                         {product?.instructions && product.instructions.length > 0 ? (
-                          <List style={styles.instructionList}>
-                            {product.instructions.map((instruction, index) => (
-                              <ListItem key={index}>
-                                <ListItemText primary={`${index + 1}. ${instruction}`} />
-                              </ListItem>
-                            ))}
-                          </List>
+                          <TableContainer>
+                            <Table size="small">
+                              <TableBody>
+                                {product.instructions.map((instruction, index) => (
+                                  <TableRow key={index} style={styles.tableRow}>
+                                    <TableCell
+                                      align="center"
+                                      style={{
+                                        ...styles.tableCell,
+                                        fontWeight: "bold",
+                                        width: "60px",
+                                      }}
+                                    >
+                                      {index + 1}
+                                    </TableCell>
+                                    <TableCell style={styles.tableCell}>{instruction}</TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </TableContainer>
                         ) : (
                           <p style={{ fontStyle: "italic", color: "#999" }}>
                             No instructions available

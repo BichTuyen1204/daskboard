@@ -563,7 +563,7 @@ function EditMealkit() {
       }
     });
 
-    setProductInfo((prev) => ({
+    setMealkitInfo((prev) => ({
       ...prev,
       infos: updatedInfos,
     }));
@@ -936,13 +936,6 @@ function EditMealkit() {
                     }}
                   >
                     <Table>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Ingredient</TableCell>
-                          <TableCell>Amount</TableCell>
-                          <TableCell>Actions</TableCell>
-                        </TableRow>
-                      </TableHead>
                       <TableBody>
                         {Object.entries(mealkitInfo.ingredients || {}).map(([id, amount]) => {
                           const productDetails = selectedProducts[id];

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Icon } from "@mui/material";
 import BlogService from "api/BlogService";
 
-export default function data(pageBlog, rowsPerPageBlog) {
+export default function data(pageBlog, rowsPerPageBlog, searchQuery) {
   const [blog, setBlog] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -16,7 +16,7 @@ export default function data(pageBlog, rowsPerPageBlog) {
     const getAllBlog = async () => {
       if (jwtToken) {
         try {
-          const response = await BlogService.getAllBlog(pageBlog, rowsPerPageBlog);
+          const response = await BlogService.getAllBlog(pageBlog, rowsPerPageBlog, searchQuery);
           if (Array.isArray(response.content)) {
             setBlog(response.content);
             setTotalPages(response.total_page || 1);
@@ -31,7 +31,7 @@ export default function data(pageBlog, rowsPerPageBlog) {
       }
     };
     getAllBlog();
-  }, [jwtToken, pageBlog, rowsPerPageBlog]);
+  }, [jwtToken, pageBlog, rowsPerPageBlog, searchQuery]);
 
   const hasNextPageBlog = pageBlog < totalPages;
 

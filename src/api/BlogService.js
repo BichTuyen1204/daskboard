@@ -19,20 +19,24 @@ class BlogService {
     }
   }
 
-  async getAllBlog(page, size) {
+  async getAllBlog(page, size, searchQuery = null) {
     const token = sessionStorage.getItem("jwtToken");
     if (!token) {
       return;
     } else {
       try {
-        const response = await axios.get(
-          `${API_BASE_URL}/fetch/all?index=${page - 1}&size=${size}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        let url = `${API_BASE_URL}/fetch/all?index=${page - 1}&size=${size}`;
+
+        // Add search parameter if provided
+        if (searchQuery) {
+          url += `&title=${encodeURIComponent(searchQuery)}`;
+        }
+
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         return response.data;
       } catch (error) {
         throw error;

@@ -56,6 +56,7 @@ class BlogService {
   }
 
   async updateBlog(id, data) {
+    console.log(data);
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.post(

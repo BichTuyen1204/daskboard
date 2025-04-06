@@ -29,8 +29,7 @@ import { Link } from "react-router-dom";
 import ClearIcon from "@mui/icons-material/Delete";
 import CropIcon from "@mui/icons-material/Crop";
 import ProductService from "api/ProductService";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import MDEditor from "@uiw/react-md-editor";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "utils/cropImage"; // Utility function to crop the image
 
@@ -63,7 +62,17 @@ function AddProduct() {
     day_before_expiry: "",
     product_name: "",
     description: "",
+    instructions: [],
   });
+
+  // Load additional information rows into product.infos
+  useState(() => {
+    const initialInfos = infoRows.reduce((acc, row) => {
+      if (row.key.trim()) acc[row.key] = row.value;
+      return acc;
+    }, {});
+    setProduct((prev) => ({ ...prev, infos: initialInfos }));
+  }, []);
 
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -293,14 +302,33 @@ function AddProduct() {
     return true;
   };
 
+  const synchronizeInfosWithRows = () => {
+    const updatedInfos = {};
+    infoRows.forEach((row) => {
+      if (row.key && row.key.trim() !== "") {
+        updatedInfos[row.key] = row.value;
+      }
+    });
+
+    setProduct((prev) => ({
+      ...prev,
+      infos: updatedInfos,
+    }));
+  };
+
   const handleSubmit = async () => {
     if (!validateForm() || additionalImagesError || mainImageError) return;
+
+    // Synchronize infoRows with product.infos before submission
+    synchronizeInfosWithRows();
+
     const formData = new FormData();
     formData.append("main_image", mainImage);
     additionalImages.forEach((image) => {
       formData.append("additional_images", image);
     });
     formData.append("product_detail", JSON.stringify(product));
+
     try {
       await ProductService.createProduct(formData);
       setMainImageError(false);
@@ -340,47 +368,29 @@ function AddProduct() {
     const updatedRows = [...infoRows];
     updatedRows[index].key = key;
     setInfoRows(updatedRows);
-
-    setProduct((prev) => ({
-      ...prev,
-      infos: {
-        ...prev.infos,
-        [key]: updatedRows[index].value,
-      },
-    }));
   };
 
   const handleValueChange = (index, value) => {
     const updatedRows = [...infoRows];
     updatedRows[index].value = value;
     setInfoRows(updatedRows);
-
-    setProduct((prev) => ({
-      ...prev,
-      infos: {
-        ...prev.infos,
-        [updatedRows[index].key]: value,
-      },
-    }));
   };
 
   const handleRemoveRow = (index) => {
     const updatedRows = infoRows.filter((_, i) => i !== index);
-    const removedKey = infoRows[index].key;
     setInfoRows(updatedRows);
-
-    setProduct((prev) => {
-      const updatedInfos = { ...prev.infos };
-      delete updatedInfos[removedKey];
-      return {
-        ...prev,
-        infos: updatedInfos,
-      };
-    });
   };
 
   const addInfoRow = () => {
     setInfoRows((prev) => [...prev, { key: "", value: "" }]);
+  };
+
+  const handleKeyBlur = () => {
+    synchronizeInfosWithRows();
+  };
+
+  const handleValueBlur = () => {
+    synchronizeInfosWithRows();
   };
 
   function InfoRow({ product }) {}
@@ -785,20 +795,13 @@ function AddProduct() {
                         <FormLabel style={{ fontSize: "0.7em", marginTop: "15px" }}>
                           Article
                         </FormLabel>
-                        <ReactQuill
-                          theme="snow"
-                          value={product.article_md}
-                          onChange={(value) => handleChange("article_md", value)}
-                          style={{ height: "200px", marginBottom: "60px", borderRadius: "15px" }}
-                        />
+                        <div style={{ marginBottom: "20px" }}>
+                          <MDEditor
+                            value={product.article_md}
+                            onChange={(value) => handleChange("article_md", value || "")}
+                          />
+                        </div>
                       </FormControl>
-                      {/* <TextField
-                        fullWidth
-                        label="Article MD"
-                        value={product.article_md}
-                        onChange={(e) => handleChange("article_md", e.target.value)}
-                        margin="normal"
-                      /> */}
                       <p
                         style={{
                           color: "red",
@@ -903,6 +906,7 @@ function AddProduct() {
                                     label="Key"
                                     value={row.key}
                                     onChange={(e) => handleKeyChange(index, e.target.value)}
+                                    onBlur={handleKeyBlur}
                                   />
                                 </TableCell>
                                 <TableCell>
@@ -911,6 +915,7 @@ function AddProduct() {
                                     label="Value"
                                     value={row.value}
                                     onChange={(e) => handleValueChange(index, e.target.value)}
+                                    onBlur={handleValueBlur}
                                   />
                                 </TableCell>
                                 <TableCell>

@@ -30,7 +30,7 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link } from "react-router-dom";
 import ClearIcon from "@mui/icons-material/Delete";
 import ProductService from "api/ProductService";
-import ReactQuill from "react-quill";
+import MDEditor from "@uiw/react-md-editor";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "utils/cropImage"; // Utility function to crop the image
 
@@ -460,6 +460,41 @@ function AddMealkit() {
       return false;
     }
 
+    // Add validation for ingredients - ensure we have at least one ingredient
+    if (Object.keys(ingredients).length === 0) {
+      setIngredientsError("At least one ingredient is required.");
+      return false;
+    }
+
+    // Check if any ingredient has an empty amount
+    let hasEmptyAmount = false;
+    Object.entries(ingredients).forEach(([id, amount]) => {
+      if (!amount || amount.trim() === "") {
+        hasEmptyAmount = true;
+      }
+    });
+
+    if (hasEmptyAmount) {
+      setIngredientsError("All ingredients must have an amount specified.");
+      return false;
+    }
+
+    // Add validation for instructions - ensure we have at least one instruction
+    if (!instructions || instructions.length === 0) {
+      setInstructionsError("At least one instruction is required.");
+      return false;
+    }
+
+    // Check if any instruction is empty
+    const hasEmptyInstruction = instructions.some(
+      (instruction) => !instruction || instruction.trim() === ""
+    );
+
+    if (hasEmptyInstruction) {
+      setInstructionsError("Instructions cannot be empty.");
+      return false;
+    }
+
     if (!mainImage) {
       setMainImageError("The main image is required.");
       return false;
@@ -529,47 +564,49 @@ function AddMealkit() {
     const updatedRows = [...infoRows];
     updatedRows[index].key = key;
     setInfoRows(updatedRows);
-
-    setProduct((prev) => ({
-      ...prev,
-      infos: {
-        ...prev.infos,
-        [key]: updatedRows[index].value,
-      },
-    }));
+    // Remove immediate update to product.infos
   };
 
   const handleValueChange = (index, value) => {
     const updatedRows = [...infoRows];
     updatedRows[index].value = value;
     setInfoRows(updatedRows);
+    // Remove immediate update to product.infos
+  };
+
+  const synchronizeInfosWithRows = () => {
+    const updatedInfos = {};
+    infoRows.forEach((row) => {
+      if (row.key && row.key.trim() !== "") {
+        updatedInfos[row.key] = row.value;
+      }
+    });
 
     setProduct((prev) => ({
       ...prev,
-      infos: {
-        ...prev.infos,
-        [updatedRows[index].key]: value,
-      },
+      infos: updatedInfos,
     }));
   };
 
   const handleRemoveRow = (index) => {
     const updatedRows = infoRows.filter((_, i) => i !== index);
-    const removedKey = infoRows[index].key;
     setInfoRows(updatedRows);
 
-    setProduct((prev) => {
-      const updatedInfos = { ...prev.infos };
-      delete updatedInfos[removedKey];
-      return {
-        ...prev,
-        infos: updatedInfos,
-      };
-    });
+    // Remove direct manipulation of product.infos here
+    // We'll handle it with synchronizeInfosWithRows after removal
+    setTimeout(() => synchronizeInfosWithRows(), 0);
   };
 
   const addInfoRow = () => {
     setInfoRows((prev) => [...prev, { key: "", value: "" }]);
+  };
+
+  const handleKeyBlur = () => {
+    synchronizeInfosWithRows();
+  };
+
+  const handleValueBlur = () => {
+    synchronizeInfosWithRows();
   };
 
   function InfoRow({ product }) {}
@@ -887,27 +924,72 @@ function AddMealkit() {
                           )}
                         />
 
-                        {/* Selected Ingredients */}
-                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
-                          {Object.entries(product.ingredients).map(([id, amount]) => {
-                            const productDetails = selectedProducts[id]; // Get full product details
-                            return (
-                              <Box key={id} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <Chip
-                                  label={productDetails?.name || id} // Display the product name or fallback to id
-                                  onDelete={() => handleDeleteIngredient(id)} // Allow deletion
-                                />
-                                <TextField
-                                  type="number"
-                                  label="Amount"
-                                  value={amount}
-                                  onChange={(e) => handleAmountChange(id, e.target.value)} // Update the amount
-                                  size="small"
-                                />
-                              </Box>
-                            );
-                          })}
-                        </Box>
+                        <TableContainer
+                          component={Paper}
+                          style={{
+                            borderRadius: "12px",
+                            overflow: "hidden",
+                            boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
+                            marginTop: "15px",
+                            width: "100%",
+                          }}
+                        >
+                          <Table sx={{ tableLayout: "fixed", width: "100%" }}>
+                            <TableBody>
+                              {Object.entries(product.ingredients).map(([id, amount]) => {
+                                const productDetails = selectedProducts[id]; // Get full product details
+                                return (
+                                  <TableRow key={id}>
+                                    <TableCell>
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          gap: 2,
+                                        }}
+                                      >
+                                        {productDetails?.image ? (
+                                          <img
+                                            src={productDetails.image}
+                                            alt={productDetails.name}
+                                            style={{
+                                              width: "50px",
+                                              height: "50px",
+                                              objectFit: "cover",
+                                              borderRadius: "4px",
+                                            }}
+                                          />
+                                        ) : (
+                                          "No Image"
+                                        )}
+                                        <span>{productDetails?.name || id}</span>
+                                      </Box>
+                                    </TableCell>
+                                    <TableCell>
+                                      <TextField
+                                        type="number"
+                                        label="Amount"
+                                        value={amount}
+                                        onChange={(e) => handleAmountChange(id, e.target.value)}
+                                        size="small"
+                                      />
+                                    </TableCell>
+                                    <TableCell>
+                                      <Button
+                                        variant="contained"
+                                        color="error"
+                                        onClick={() => handleDeleteIngredient(id)}
+                                        size="small"
+                                      >
+                                        Remove
+                                      </Button>
+                                    </TableCell>
+                                  </TableRow>
+                                );
+                              })}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
 
                         <p
                           style={{
@@ -994,20 +1076,13 @@ function AddMealkit() {
                         <FormLabel style={{ fontSize: "0.7em", marginTop: "15px" }}>
                           Article
                         </FormLabel>
-                        <ReactQuill
-                          theme="snow"
-                          value={product.article_md}
-                          onChange={(value) => handleChange("article_md", value)}
-                          style={{ height: "200px", marginBottom: "60px", borderRadius: "15px" }}
-                        />
+                        <div style={{ marginBottom: "20px" }}>
+                          <MDEditor
+                            value={product.article_md}
+                            onChange={(value) => handleChange("article_md", value || "")}
+                          />
+                        </div>
                       </FormControl>
-                      {/* <TextField
-                        fullWidth
-                        label="Article MD"
-                        value={product.article_md}
-                        onChange={(e) => handleChange("article_md", e.target.value)}
-                        margin="normal"
-                      /> */}
                       <p
                         style={{
                           color: "red",
@@ -1112,6 +1187,7 @@ function AddMealkit() {
                                     label="Key"
                                     value={row.key}
                                     onChange={(e) => handleKeyChange(index, e.target.value)}
+                                    onBlur={handleKeyBlur}
                                   />
                                 </TableCell>
                                 <TableCell>
@@ -1120,6 +1196,7 @@ function AddMealkit() {
                                     label="Value"
                                     value={row.value}
                                     onChange={(e) => handleValueChange(index, e.target.value)}
+                                    onBlur={handleValueBlur}
                                   />
                                 </TableCell>
                                 <TableCell>

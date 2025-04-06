@@ -66,16 +66,25 @@ class AccountService {
     }
   }
 
-  async getAllCustomer(page, size) {
+  async getAllCustomer(page, size, searchQuery = null) {
     try {
       const token = sessionStorage.getItem("jwtToken");
-      const response = await axios.get(`${API_BASE_URL_4}/all?index=${page - 1}&size=${size}`, {
+      let url = `${API_BASE_URL_4}/all?index=${page - 1}&size=${size}`;
+
+      // Add search parameter if provided
+      if (searchQuery) {
+        url += `&id=${encodeURIComponent(searchQuery)}`;
+      }
+
+      const response = await axios.get(url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       return response.data;
-    } catch (error) {}
+    } catch (error) {
+      return { content: [], total_page: 0 };
+    }
   }
 
   async getCustomerDetail(id) {

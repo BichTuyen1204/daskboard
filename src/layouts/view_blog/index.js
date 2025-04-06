@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Card from "@mui/material/Card";
-import { Grid, TextField, Button, Icon } from "@mui/material";
+import { Grid, TextField, Button, Icon, Box, Typography } from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -67,16 +67,6 @@ function ViewBlog() {
                       </Icon>
                     </Link>
                     <form>
-                      {/* ID */}
-                      <TextField
-                        fullWidth
-                        label="ID"
-                        value={blog.id || ""}
-                        margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
-                      />
                       {/* Article */}
                       <TextField
                         fullWidth
@@ -88,6 +78,7 @@ function ViewBlog() {
                           readOnly: true,
                         }}
                       />
+
                       {/* Title */}
                       <TextField
                         fullWidth
@@ -99,50 +90,52 @@ function ViewBlog() {
                           readOnly: true,
                         }}
                       />
-                      {/* Title */}
-                      <TextField
-                        fullWidth
-                        label="Description"
-                        type="text"
-                        value={blog.description || ""}
-                        margin="normal"
-                        InputProps={{
-                          readOnly: true,
+
+                      {/* Description */}
+                      <Box
+                        sx={{
+                          border: "1px solid #e0e0e0",
+                          marginTop: "15px",
+                          borderRadius: "12px",
+                          padding: 2,
+                          backgroundColor: "#fff",
+                          maxHeight: 300,
+                          overflowY: "auto",
                         }}
-                      />
-                      {/* Serves */}
-                      <TextField
-                        fullWidth
-                        label="Serves"
-                        type="text"
-                        value={blog.infos?.serves || ""}
-                        margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
-                      />
-                      {/* Cook time */}
-                      <TextField
-                        fullWidth
-                        label="Cook time"
-                        type="text"
-                        value={blog.infos?.cook_time || ""}
-                        margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
-                      />
-                      {/* Tag */}
-                      <TextField
-                        fullWidth
-                        label="Tags"
-                        type="text"
-                        value={blog.infos?.tags || ""}
-                        margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
-                      />
+                      >
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <Typography
+                            variant="subtitle1"
+                            sx={{ fontWeight: 600, color: "#444", fontSize: "0.8em" }}
+                          >
+                            Description
+                          </Typography>
+                        </Box>
+
+                        <Box
+                          sx={{
+                            color: "#333",
+                            fontSize: "1rem",
+                            whiteSpace: "pre-wrap",
+                            fontSize: "0.65em",
+                          }}
+                          dangerouslySetInnerHTML={{ __html: blog?.description || "" }}
+                        />
+                      </Box>
+
+                      <Box>
+                        {Object.entries(blog?.infos || {}).map(([key, value]) => (
+                          <TextField
+                            key={key}
+                            fullWidth
+                            label={key}
+                            value={value}
+                            margin="normal"
+                            InputProps={{ readOnly: true }}
+                            sx={{ marginBottom: 1 }}
+                          />
+                        ))}
+                      </Box>
                       <div>
                         <p style={{ fontSize: "0.7em", marginTop: "15px" }}>
                           <strong>Image:</strong>
@@ -159,7 +152,12 @@ function ViewBlog() {
                           }}
                         >
                           <img
-                            style={{ width: "90%", height: "auto", objectFit: "cover" }}
+                            style={{
+                              width: "90%",
+                              height: "auto",
+                              objectFit: "cover",
+                              borderRadius: "15px",
+                            }}
                             src={blog.thumbnail}
                           />
                         </div>

@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
 import Card from "@mui/material/Card";
-import { Grid, TextField, Button, Icon } from "@mui/material";
+import { Grid, TextField, Button, Icon, InputAdornment, Box, Typography } from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import ProductService from "api/ProductService";
+import ArticleIcon from "@mui/icons-material/Article";
+import DescriptionIcon from "@mui/icons-material/Description";
+import { IoCalendarNumber } from "react-icons/io5";
+import { FaBowlFood } from "react-icons/fa6";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import { CiCircleList } from "react-icons/ci";
 
 function ProductDetail() {
   const navigate = useNavigate();
@@ -106,12 +112,6 @@ function ProductDetail() {
     getProductDetail();
   }, [prod_id, jwtToken]);
 
-  // const latestPrice = product?.price_list?.length
-  //   ? product.price_list.reduce((prev, current) =>
-  //       new Date(prev.date) > new Date(current.date) ? prev : current
-  //     )
-  //   : null;
-
   useEffect(() => {
     if (images.length > 0) {
       setCurrentImageIndex(0);
@@ -211,6 +211,48 @@ function ProductDetail() {
                         Next
                       </button>
                     </div>
+
+                    {/*Instruction */}
+                    {product.instructions && product.instructions === "" && (
+                      <Box
+                        sx={{
+                          marginTop: "35px",
+                          border: "1px solid #e0e0e0",
+                          borderRadius: "12px",
+                          padding: 2,
+                          backgroundColor: "#fff",
+                          maxHeight: 300,
+                          overflowY: "auto",
+                        }}
+                      >
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <CiCircleList sx={{ mr: 1 }} />
+                          <Typography
+                            variant="subtitle1"
+                            sx={{ fontWeight: 600, color: "#444", fontSize: "0.85em", ml: "15px" }}
+                          >
+                            Instructions:
+                          </Typography>
+                        </Box>
+
+                        <Box
+                          sx={{
+                            color: "#333",
+                            fontSize: "1rem",
+                            whiteSpace: "pre-wrap",
+                            fontSize: "0.7em",
+                          }}
+                        >
+                          <ul style={{ paddingLeft: "20px" }}>
+                            {product.instructions.map((instruction, index) => (
+                              <li key={index} style={{ fontSize: "0.9em", marginBottom: "5px" }}>
+                                {instruction}
+                              </li>
+                            ))}
+                          </ul>
+                        </Box>
+                      </Box>
+                    )}
                   </Grid>
                   {/* Right Section: Product Info */}
                   <Grid item xs={12} md={7}>
@@ -221,18 +263,33 @@ function ProductDetail() {
                         label="Product Name"
                         value={product?.product_name || ""}
                         margin="normal"
-                        InputProps={{ readOnly: true }}
+                        InputProps={{
+                          readOnly: true,
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <FaBowlFood
+                                style={{ color: "#bf2802", fontWeight: 600, fontSize: "1em" }}
+                              />
+                            </InputAdornment>
+                          ),
+                        }}
                       />
-
                       {/* Category */}
                       <TextField
                         fullWidth
                         label="Product Type"
-                        value={product?.product_type || ""}
+                        value={
+                          product?.product_type === "VEG"
+                            ? "Vegetable"
+                            : product?.product_type === "MEAT"
+                            ? "Meat"
+                            : product?.product_type === "SS"
+                            ? "Seasons"
+                            : "Unknown"
+                        }
                         margin="normal"
                         InputProps={{ readOnly: true }}
                       />
-
                       {/* Quantity */}
                       <TextField
                         fullWidth
@@ -240,106 +297,125 @@ function ProductDetail() {
                         label="Quantity"
                         value={product?.available_quantity || 0}
                         margin="normal"
-                        InputProps={{ readOnly: true }}
+                        InputProps={{
+                          readOnly: true,
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <ShoppingCartIcon style={{ color: "#0094d9" }} />
+                            </InputAdornment>
+                          ),
+                        }}
                       />
-
                       {/* Status */}
                       <TextField
                         fullWidth
                         label="Product Status"
-                        value={product?.product_status || ""}
-                        margin="normal"
-                        InputProps={{ readOnly: true }}
-                      />
-
-                      {/* Description */}
-                      <TextField
-                        fullWidth
-                        label="Description"
-                        value={product?.article || ""}
-                        margin="normal"
-                        multiline
-                        rows={8}
-                        variant="outlined"
-                        InputProps={{
-                          readOnly: true,
-                          inputProps: { spellCheck: "true", "data-gramm": "true" },
-                        }}
-                      />
-
-                      {/* Price - Lấy giá mới nhất */}
-                      <TextField
-                        fullWidth
-                        label="Price"
-                        value={`$${latestPrice ? latestPrice.price : 0 || ""}`}
-                        margin="normal"
-                        InputProps={{ readOnly: true }}
-                      />
-
-                      {/* Production Date - Lấy ngày từ giá mới nhất */}
-                      <TextField
-                        fullWidth
-                        label="Production Date"
                         value={
-                          latestPrice?.date
-                            ? new Date(latestPrice.date).toLocaleString("en-US", {
-                                weekday: "long",
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })
-                            : "N/A"
+                          product?.product_status === "IN_STOCK"
+                            ? "In stock"
+                            : product?.product_status === "OUT_OF_STOCK"
+                            ? "Out of stock"
+                            : product?.product_status === "NO_LONGER_IN_SALE"
+                            ? "No longer in sale"
+                            : "Unknown"
                         }
                         margin="normal"
                         InputProps={{ readOnly: true }}
                       />
+                      {/* Article */}
+                      <Box
+                        sx={{
+                          border: "1px solid #e0e0e0",
+                          borderRadius: "12px",
+                          padding: 2,
+                          backgroundColor: "#fff",
+                          maxHeight: 300,
+                          overflowY: "auto",
+                        }}
+                      >
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <ArticleIcon sx={{ mr: 1 }} />
+                          <Typography
+                            variant="subtitle1"
+                            sx={{ fontWeight: 600, color: "#444", fontSize: "0.85em" }}
+                          >
+                            Article
+                          </Typography>
+                        </Box>
 
+                        <Box
+                          sx={{
+                            color: "#333",
+                            fontSize: "1rem",
+                            whiteSpace: "pre-wrap",
+                            fontSize: "0.7em",
+                          }}
+                          dangerouslySetInnerHTML={{ __html: product?.article || "" }}
+                        />
+                      </Box>
+                      {/* Description */}
+                      <Box
+                        sx={{
+                          border: "1px solid #e0e0e0",
+                          marginTop: "15px",
+                          borderRadius: "12px",
+                          padding: 2,
+                          backgroundColor: "#fff",
+                          maxHeight: 300,
+                          overflowY: "auto",
+                        }}
+                      >
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <DescriptionIcon sx={{ color: "#4caf50", mr: 1 }} />
+                          <Typography
+                            variant="subtitle1"
+                            sx={{ fontWeight: 600, color: "#444", fontSize: "0.85em" }}
+                          >
+                            Description
+                          </Typography>
+                        </Box>
+
+                        <Box
+                          sx={{
+                            color: "#333",
+                            fontSize: "1rem",
+                            whiteSpace: "pre-wrap",
+                            fontSize: "0.7em",
+                          }}
+                          dangerouslySetInnerHTML={{ __html: product?.description || "" }}
+                        />
+                      </Box>
                       {/* Date before expiry */}
                       <TextField
                         fullWidth
                         label="Date before expiry"
-                        value={product?.day_before_expiry || 0}
+                        value={`${product?.day_before_expiry || 0} days`}
                         margin="normal"
-                        InputProps={{ readOnly: true }}
+                        InputProps={{
+                          readOnly: true,
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <IoCalendarNumber
+                                style={{ color: "#919191", fontWeight: 600, fontSize: "1em" }}
+                              />
+                            </InputAdornment>
+                          ),
+                        }}
                       />
 
-                      {/* Sale Percent - Lấy % giảm giá mới nhất */}
-                      <TextField
-                        fullWidth
-                        label="Sale Percent"
-                        value={`${latestPrice ? latestPrice.sale_percent : 0}%`}
-                        margin="normal"
-                        InputProps={{ readOnly: true }}
-                      />
-
-                      {/* Weight */}
-                      <TextField
-                        fullWidth
-                        label="Weight (gam)"
-                        value={product?.info?.weight || "N/A"}
-                        margin="normal"
-                        InputProps={{ readOnly: true }}
-                      />
-
-                      {/* Storage instructions */}
-                      <TextField
-                        fullWidth
-                        label="Storage Instructions"
-                        value={product?.info?.storage_instructions || "N/A"}
-                        margin="normal"
-                        InputProps={{ readOnly: true }}
-                      />
-
-                      {/* Made in */}
-                      <TextField
-                        fullWidth
-                        label="Made in"
-                        value={product?.info?.made_in || "N/A"}
-                        margin="normal"
-                        InputProps={{ readOnly: true }}
-                      />
+                      <Box>
+                        {Object.entries(product?.info || {}).map(([key, value]) => (
+                          <TextField
+                            key={key}
+                            fullWidth
+                            label={key}
+                            value={value}
+                            margin="normal"
+                            InputProps={{ readOnly: true }}
+                            sx={{ marginBottom: 1 }}
+                          />
+                        ))}
+                      </Box>
                     </form>
                   </Grid>
                 </Grid>

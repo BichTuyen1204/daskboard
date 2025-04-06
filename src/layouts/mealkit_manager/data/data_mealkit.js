@@ -43,6 +43,13 @@ export default function DataTable(pageMealkit, rowsPerPageMealkit) {
     NO_LONGER_IN_SALE: "No longer in sale",
   };
 
+  const mapTypeToLabel = (type) => {
+    const typeMap = {
+      MK: "Meal kit",
+    };
+    return typeMap[type] || type;
+  };
+
   const CostPrice = ({ title }) => (
     <MDBox lineHeight={1} textAlign="left" fontSize="0.8em">
       <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
@@ -62,12 +69,12 @@ export default function DataTable(pageMealkit, rowsPerPageMealkit) {
   const columns = [
     { Header: "image", accessor: "image", width: "5%", align: "left" },
     { Header: "name of mealkit", accessor: "name", width: "25%", align: "left" },
-    { Header: "cost price", accessor: "cost_price", align: "center" },
+    { Header: "cost price", accessor: "cost_price", align: "left" },
     { Header: "quantity", accessor: "quantity", align: "center" },
     { Header: "type", accessor: "type", align: "center" },
     { Header: "status", accessor: "status", align: "center" },
-    { Header: "view detail", accessor: "view", align: "center" },
-    { Header: "history", accessor: "history", align: "center" },
+    { Header: "history", accessor: "view", align: "center" },
+    { Header: "view detail", accessor: "history", align: "center" },
     { Header: "action", accessor: "action", align: "center" },
   ];
 
@@ -83,7 +90,7 @@ export default function DataTable(pageMealkit, rowsPerPageMealkit) {
     cost_price: <CostPrice title={`$${item.price}`} />,
     type: (
       <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
-        {item.type}
+        {mapTypeToLabel(item.type)}
       </MDTypography>
     ),
     status: (
@@ -99,7 +106,7 @@ export default function DataTable(pageMealkit, rowsPerPageMealkit) {
     ),
     view: (
       <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
-        <Link to={`/mealkit_detail/${item.id}`}>
+        <Link to={`/history_mealkit/${item.id}`}>
           <MDTypography
             component="button"
             variant="caption"
@@ -121,7 +128,7 @@ export default function DataTable(pageMealkit, rowsPerPageMealkit) {
     ),
     history: (
       <MDTypography variant="caption" fontWeight="medium" style={{ fontSize: "0.8em" }}>
-        <Link to={`/history_mealkit/${item.id}`}>
+        <Link to={`/mealkit_detail/${item.id}`}>
           <MDTypography
             component="button"
             variant="caption"

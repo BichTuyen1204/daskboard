@@ -6,16 +6,36 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
 import authorsTableData from "layouts/coupon_manager/data/authorsTableData";
-import { Box, Icon, IconButton, Typography } from "@mui/material";
+import { Box, Icon, IconButton, Typography, TextField, InputAdornment } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
+import { ArrowBackIos, ArrowForwardIos, Search } from "@mui/icons-material";
 
 function Coupon() {
-  const navigate = useNavigate();
   const [pageCoupon, setPageCoupon] = useState(1);
-  const rowsPerPageCoupon = 6;
-  const { columns, rows, hasNextPageCoupon } = authorsTableData(pageCoupon, rowsPerPageCoupon);
+  const rowsPerPageCoupon = 7;
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  const { columns, rows, totalPages } = authorsTableData(
+    pageCoupon,
+    rowsPerPageCoupon,
+    debouncedSearchQuery
+  );
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+      setPageCoupon(1); // Reset to first page when searching
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
 
   const handlePrevPageCoupon = () => {
     if (pageCoupon > 1) {
@@ -24,7 +44,7 @@ function Coupon() {
   };
 
   const handleNextPageCoupon = () => {
-    if (hasNextPageCoupon) {
+    if (pageCoupon < totalPages) {
       setPageCoupon((prev) => prev + 1);
     }
   };
@@ -52,10 +72,46 @@ function Coupon() {
                 bgColor="info"
                 borderRadius="lg"
                 coloredShadow="info"
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                flexDirection={{ xs: "column", sm: "row" }}
+                gap={{ xs: 2, sm: 0 }}
               >
                 <MDTypography variant="h6" color="white">
                   Coupon list
                 </MDTypography>
+                <Box
+                  sx={{
+                    width: { xs: "100%", sm: "50%", md: "40%", lg: "30%" },
+                    transition: "width 0.3s ease",
+                  }}
+                >
+                  <TextField
+                    size="small"
+                    placeholder="Search coupons"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    fullWidth
+                    style={{
+                      backgroundColor: "white",
+                      borderRadius: 1,
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": { border: "none" },
+                      },
+                      "& .MuiInputBase-input": {
+                        fontSize: { xs: "0.85rem", sm: "0.875rem" },
+                      },
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Search />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Box>
               </MDBox>
               <MDBox pt={3}>
                 <DataTable
@@ -74,7 +130,6 @@ function Coupon() {
                 pb={2}
                 mx={5}
               >
-                {/* Nút Previous */}
                 <IconButton
                   onClick={handlePrevPageCoupon}
                   disabled={pageCoupon === 1}
@@ -84,7 +139,6 @@ function Coupon() {
                     color: "white",
                     width: "30px",
                     height: "30px",
-                    minWidth: "30px",
                     borderRadius: "50%",
                     "&:hover, &:focus": { bgcolor: "#333 !important", color: "white !important" },
                     opacity: pageCoupon === 1 ? 0.3 : 1,
@@ -93,14 +147,12 @@ function Coupon() {
                   <ArrowBackIos sx={{ fontSize: "14px" }} />
                 </IconButton>
 
-                {/* Số trang */}
                 <Box
                   sx={{
                     mx: 2,
                     width: 30,
                     height: 30,
                     display: "flex",
-                    border: "1px solid white",
                     alignItems: "center",
                     justifyContent: "center",
                     borderRadius: "50%",
@@ -108,24 +160,22 @@ function Coupon() {
                   }}
                 >
                   <Typography color="white" fontWeight="bold">
-                    <p style={{ fontSize: "0.7em", color: "white" }}>{pageCoupon}</p>
+                    <p style={{ fontSize: "14px", color: "white" }}>{pageCoupon}</p>
                   </Typography>
                 </Box>
 
-                {/* Nút Next */}
                 <IconButton
                   onClick={handleNextPageCoupon}
-                  disabled={!hasNextPageCoupon}
+                  disabled={pageCoupon >= totalPages}
                   sx={{
                     bgcolor: "black",
                     fontSize: "0.6em",
                     color: "white",
                     width: "30px",
                     height: "30px",
-                    minWidth: "30px",
                     borderRadius: "50%",
                     "&:hover, &:focus": { bgcolor: "#333 !important", color: "white !important" },
-                    opacity: hasNextPageCoupon ? 1 : 0.3,
+                    opacity: pageCoupon >= totalPages ? 0.3 : 1,
                   }}
                 >
                   <ArrowForwardIos sx={{ fontSize: "14px" }} />

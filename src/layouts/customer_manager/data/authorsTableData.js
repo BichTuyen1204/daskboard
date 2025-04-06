@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import AccountService from "api/AccountService";
 import { Icon } from "@mui/material";
 
-export default function data(pageCustomer, rowsPerPageCustomer) {
+export default function data(pageCustomer, rowsPerPageCustomer, searchQuery) {
   const [customer, setCustomer] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const jwtToken = sessionStorage.getItem("jwtToken");
@@ -21,7 +21,11 @@ export default function data(pageCustomer, rowsPerPageCustomer) {
         return;
       } else {
         try {
-          const response = await AccountService.getAllCustomer(pageCustomer, rowsPerPageCustomer);
+          const response = await AccountService.getAllCustomer(
+            pageCustomer,
+            rowsPerPageCustomer,
+            searchQuery
+          );
           console.log(response);
           if (Array.isArray(response.content)) {
             setCustomer(response.content);
@@ -38,7 +42,7 @@ export default function data(pageCustomer, rowsPerPageCustomer) {
       }
     };
     getAllCustomer();
-  }, [jwtToken, pageCustomer, rowsPerPageCustomer]);
+  }, [jwtToken, pageCustomer, rowsPerPageCustomer, searchQuery]);
 
   const Status = ({ status }) => (
     <MDBox lineHeight={1} textAlign="center">

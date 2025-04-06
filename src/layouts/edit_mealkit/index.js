@@ -554,6 +554,19 @@ function EditMealkit() {
   const handleRemoveRow = (index) => {
     const updatedRows = infoRows.filter((_, i) => i !== index);
     setInfoRows(updatedRows);
+
+    // Update productInfo state with the new infos
+    const updatedInfos = {};
+    updatedRows.forEach((row) => {
+      if (row.key && row.key.trim() !== "") {
+        updatedInfos[row.key] = row.value;
+      }
+    });
+
+    setMealkitInfo((prev) => ({
+      ...prev,
+      infos: updatedInfos,
+    }));
   };
 
   const handleKeyBlur = () => {
@@ -923,13 +936,6 @@ function EditMealkit() {
                     }}
                   >
                     <Table>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Ingredient</TableCell>
-                          <TableCell>Amount</TableCell>
-                          <TableCell>Actions</TableCell>
-                        </TableRow>
-                      </TableHead>
                       <TableBody>
                         {Object.entries(mealkitInfo.ingredients || {}).map(([id, amount]) => {
                           const productDetails = selectedProducts[id];

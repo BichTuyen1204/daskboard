@@ -7,7 +7,7 @@ import { Icon } from "@mui/material";
 import { Link } from "react-router-dom";
 import ProductService from "api/ProductService";
 
-export default function DataTable(pageMealkit, rowsPerPageMealkit) {
+export default function DataTable(pageMealkit, rowsPerPageMealkit, searchQuery) {
   const [mealkit, setMealkit] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const jwtToken = sessionStorage.getItem("jwtToken");
@@ -20,7 +20,12 @@ export default function DataTable(pageMealkit, rowsPerPageMealkit) {
         return;
       } else {
         try {
-          const response = await ProductService.allProduct("MK", pageMealkit, rowsPerPageMealkit);
+          const response = await ProductService.fetchProducts(
+            pageMealkit,
+            rowsPerPageMealkit,
+            "MK",
+            searchQuery
+          );
           if (Array.isArray(response.content)) {
             setMealkit(response.content);
             setTotalPages(response.total_page || 1);
@@ -35,7 +40,7 @@ export default function DataTable(pageMealkit, rowsPerPageMealkit) {
       }
     };
     getAllMealkit();
-  }, [jwtToken, pageMealkit, rowsPerPageMealkit]);
+  }, [jwtToken, pageMealkit, rowsPerPageMealkit, searchQuery]);
 
   const statusMapping = {
     IN_STOCK: "In stock",

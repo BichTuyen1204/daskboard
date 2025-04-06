@@ -592,9 +592,18 @@ function AddMealkit() {
     const updatedRows = infoRows.filter((_, i) => i !== index);
     setInfoRows(updatedRows);
 
-    // Remove direct manipulation of product.infos here
-    // We'll handle it with synchronizeInfosWithRows after removal
-    setTimeout(() => synchronizeInfosWithRows(), 0);
+    // Update product state immediately with the new infos
+    const updatedInfos = {};
+    updatedRows.forEach((row) => {
+      if (row.key && row.key.trim() !== "") {
+        updatedInfos[row.key] = row.value;
+      }
+    });
+
+    setProduct((prev) => ({
+      ...prev,
+      infos: updatedInfos,
+    }));
   };
 
   const addInfoRow = () => {

@@ -379,6 +379,19 @@ function AddProduct() {
   const handleRemoveRow = (index) => {
     const updatedRows = infoRows.filter((_, i) => i !== index);
     setInfoRows(updatedRows);
+
+    // Update product.infos state immediately with the new infos
+    const updatedInfos = {};
+    updatedRows.forEach((row) => {
+      if (row.key && row.key.trim() !== "") {
+        updatedInfos[row.key] = row.value;
+      }
+    });
+
+    setProduct((prev) => ({
+      ...prev,
+      infos: updatedInfos,
+    }));
   };
 
   const addInfoRow = () => {

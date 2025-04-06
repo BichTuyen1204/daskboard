@@ -59,7 +59,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Ingredient Management",
+    name: "Product Management",
     key: "ingredient",
     icon: <Icon fontSize="small">table_view</Icon>,
     route: "/ingredient",

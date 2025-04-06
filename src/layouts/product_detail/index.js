@@ -1,11 +1,30 @@
 import { useEffect, useState } from "react";
 import Card from "@mui/material/Card";
-import { Grid, TextField, Button, Icon, InputAdornment, Box, Typography } from "@mui/material";
+import {
+  Grid,
+  TextField,
+  Button,
+  Icon,
+  List,
+  ListItem,
+  ListItemText,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  Box,
+  Typography,
+  InputAdornment,
+  TableHead,
+  TableRow,
+} from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import ProductService from "api/ProductService";
+import MDEditor from "@uiw/react-md-editor";
 import ArticleIcon from "@mui/icons-material/Article";
 import DescriptionIcon from "@mui/icons-material/Description";
 import { IoCalendarNumber } from "react-icons/io5";
@@ -22,6 +41,7 @@ function ProductDetail() {
   const [transitionClass, setTransitionClass] = useState("");
   const images = product?.images_url || [];
   const [latestPrice, setLatestPrice] = useState(null);
+
   useEffect(() => {
     if (images.length > 0) {
       setCurrentImageIndex(0);
@@ -86,6 +106,33 @@ function ProductDetail() {
     navButtonDisabled: {
       background: "#ccc",
       cursor: "not-allowed",
+    },
+    instructionList: {
+      backgroundColor: "#f5f5f5",
+      borderRadius: "8px",
+      padding: "12px",
+      marginTop: "8px",
+      marginBottom: "16px",
+    },
+    additionalInfoTable: {
+      width: "100%",
+      border: "1px solid #e0e0e0",
+      borderCollapse: "collapse",
+      marginTop: "8px",
+      marginBottom: "16px",
+    },
+    tableRow: {
+      borderBottom: "1px solid #e0e0e0",
+    },
+    tableCell: {
+      padding: "8px 16px",
+      fontSize: "14px",
+    },
+    tableCellHeader: {
+      padding: "8px 16px",
+      fontSize: "14px",
+      fontWeight: "bold",
+      backgroundColor: "#f5f5f5",
     },
   };
 
@@ -297,125 +344,132 @@ function ProductDetail() {
                         label="Quantity"
                         value={product?.available_quantity || 0}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <ShoppingCartIcon style={{ color: "#0094d9" }} />
-                            </InputAdornment>
-                          ),
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
+
                       {/* Status */}
                       <TextField
                         fullWidth
                         label="Product Status"
-                        value={
-                          product?.product_status === "IN_STOCK"
-                            ? "In stock"
-                            : product?.product_status === "OUT_OF_STOCK"
-                            ? "Out of stock"
-                            : product?.product_status === "NO_LONGER_IN_SALE"
-                            ? "No longer in sale"
-                            : "Unknown"
-                        }
+                        value={product?.product_status || ""}
                         margin="normal"
                         InputProps={{ readOnly: true }}
                       />
-                      {/* Article */}
-                      <Box
-                        sx={{
-                          border: "1px solid #e0e0e0",
-                          borderRadius: "12px",
-                          padding: 2,
-                          backgroundColor: "#fff",
-                          maxHeight: 300,
-                          overflowY: "auto",
-                        }}
-                      >
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                          <ArticleIcon sx={{ mr: 1 }} />
-                          <Typography
-                            variant="subtitle1"
-                            sx={{ fontWeight: 600, color: "#444", fontSize: "0.85em" }}
-                          >
-                            Article
-                          </Typography>
-                        </Box>
 
-                        <Box
-                          sx={{
-                            color: "#333",
-                            fontSize: "1rem",
-                            whiteSpace: "pre-wrap",
-                            fontSize: "0.7em",
-                          }}
-                          dangerouslySetInnerHTML={{ __html: product?.article || "" }}
-                        />
-                      </Box>
                       {/* Description */}
-                      <Box
-                        sx={{
-                          border: "1px solid #e0e0e0",
-                          marginTop: "15px",
-                          borderRadius: "12px",
-                          padding: 2,
-                          backgroundColor: "#fff",
-                          maxHeight: 300,
-                          overflowY: "auto",
-                        }}
-                      >
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                          <DescriptionIcon sx={{ color: "#4caf50", mr: 1 }} />
-                          <Typography
-                            variant="subtitle1"
-                            sx={{ fontWeight: 600, color: "#444", fontSize: "0.85em" }}
-                          >
-                            Description
-                          </Typography>
-                        </Box>
+                      <TextField
+                        fullWidth
+                        label="Description"
+                        value={product?.description || ""}
+                        margin="normal"
+                        multiline
+                        rows={4}
+                        variant="outlined"
+                        InputProps={{ readOnly: true }}
+                      />
 
-                        <Box
-                          sx={{
-                            color: "#333",
-                            fontSize: "1rem",
-                            whiteSpace: "pre-wrap",
-                            fontSize: "0.7em",
-                          }}
-                          dangerouslySetInnerHTML={{ __html: product?.description || "" }}
-                        />
-                      </Box>
+                      {/* Article/Content (Markdown) */}
+                      <MDBox mt={2} mb={2}>
+                        <MDTypography variant="subtitle1">Article Content</MDTypography>
+                        <Paper
+                          elevation={0}
+                          style={{ padding: "16px", backgroundColor: "#f9f9f9" }}
+                        >
+                          {product?.article ? (
+                            <MDEditor.Markdown source={product.article} />
+                          ) : (
+                            <p style={{ fontStyle: "italic", color: "#999" }}>
+                              No article content available
+                            </p>
+                          )}
+                        </Paper>
+                      </MDBox>
+
+                      {/* Price - Latest price */}
+                      <TextField
+                        fullWidth
+                        label="Price"
+                        value={`$${latestPrice ? latestPrice.price : 0}`}
+                        margin="normal"
+                        InputProps={{ readOnly: true }}
+                      />
+
                       {/* Date before expiry */}
                       <TextField
                         fullWidth
                         label="Date before expiry"
                         value={`${product?.day_before_expiry || 0} days`}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <IoCalendarNumber
-                                style={{ color: "#919191", fontWeight: 600, fontSize: "1em" }}
-                              />
-                            </InputAdornment>
-                          ),
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
-                      <Box>
-                        {Object.entries(product?.info || {}).map(([key, value]) => (
-                          <TextField
-                            key={key}
-                            fullWidth
-                            label={key}
-                            value={value}
-                            margin="normal"
-                            InputProps={{ readOnly: true }}
-                            sx={{ marginBottom: 1 }}
-                          />
-                        ))}
-                      </Box>
+                      {/* Sale Percent - Latest sale percent */}
+                      <TextField
+                        fullWidth
+                        label="Sale Percent"
+                        value={`${latestPrice ? latestPrice.sale_percent : 0}%`}
+                        margin="normal"
+                        InputProps={{ readOnly: true }}
+                      />
+
+                      {/* Instructions List as Table */}
+                      <MDBox mt={2} mb={2}>
+                        <MDTypography variant="subtitle1">Instructions</MDTypography>
+                        {product?.instructions && product.instructions.length > 0 ? (
+                          <TableContainer>
+                            <Table size="small">
+                              <TableBody>
+                                {product.instructions.map((instruction, index) => (
+                                  <TableRow key={index} style={styles.tableRow}>
+                                    <TableCell
+                                      align="center"
+                                      style={{
+                                        ...styles.tableCell,
+                                        fontWeight: "bold",
+                                        width: "60px",
+                                      }}
+                                    >
+                                      {index + 1}
+                                    </TableCell>
+                                    <TableCell style={styles.tableCell}>{instruction}</TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </TableContainer>
+                        ) : (
+                          <p style={{ fontStyle: "italic", color: "#999" }}>
+                            No instructions available
+                          </p>
+                        )}
+                      </MDBox>
+
+                      {/* Additional Information */}
+                      <MDBox mt={2} mb={2}>
+                        <MDTypography variant="subtitle1">Additional Information</MDTypography>
+                        {product?.info && Object.keys(product.info).length > 0 ? (
+                          <table style={styles.additionalInfoTable}>
+                            <thead>
+                              <tr style={styles.tableRow}>
+                                <th style={styles.tableCellHeader}>Property</th>
+                                <th style={styles.tableCellHeader}>Value</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {Object.entries(product.info).map(([key, value], index) => (
+                                <tr key={index} style={styles.tableRow}>
+                                  <td style={styles.tableCell}>{key}</td>
+                                  <td style={styles.tableCell}>{value}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        ) : (
+                          <p style={{ fontStyle: "italic", color: "#999" }}>
+                            No additional information available
+                          </p>
+                        )}
+                      </MDBox>
                     </form>
                   </Grid>
                 </Grid>

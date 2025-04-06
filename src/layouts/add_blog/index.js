@@ -89,13 +89,22 @@ function AddBlog() {
     }));
   };
 
-  // Update handleRemoveRow to not directly manipulate blog.infos
   const handleRemoveRow = (index) => {
     const updatedRows = infoRows.filter((_, i) => i !== index);
     setInfoRows(updatedRows);
-    // Remove direct manipulation of blog.infos
-    // We'll synchronize after the state update
-    setTimeout(() => synchronizeInfosWithRows(), 0);
+
+    // Update blog state immediately with the new infos
+    const updatedInfos = {};
+    updatedRows.forEach((row) => {
+      if (row.key && row.key.trim() !== "") {
+        updatedInfos[row.key] = row.value;
+      }
+    });
+
+    setBlog((prev) => ({
+      ...prev,
+      infos: updatedInfos,
+    }));
   };
 
   // Add blur handlers

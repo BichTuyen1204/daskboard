@@ -1,11 +1,29 @@
 import { useEffect, useState } from "react";
 import Card from "@mui/material/Card";
-import { Grid, TextField, Button, Icon, Box, Typography, InputAdornment } from "@mui/material";
+import {
+  Grid,
+  TextField,
+  Button,
+  Icon,
+  List,
+  ListItem,
+  ListItemText,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Box,
+} from "@mui/material";
+import { Typography, InputAdornment } from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import ProductService from "api/ProductService";
+import MDEditor from "@uiw/react-md-editor";
 import ArticleIcon from "@mui/icons-material/Article";
 import DescriptionIcon from "@mui/icons-material/Description";
 import { IoCalendarNumber } from "react-icons/io5";
@@ -22,6 +40,8 @@ function MealkitDetail() {
   const [transitionClass, setTransitionClass] = useState("");
   const images = product?.images_url || [];
   const [latestPrice, setLatestPrice] = useState(null);
+  const [ingredients, setIngredients] = useState([]);
+
   useEffect(() => {
     if (images.length > 0) {
       setCurrentImageIndex(0);
@@ -87,6 +107,33 @@ function MealkitDetail() {
       background: "#ccc",
       cursor: "not-allowed",
     },
+    instructionList: {
+      backgroundColor: "#f5f5f5",
+      borderRadius: "8px",
+      padding: "12px",
+      marginTop: "8px",
+      marginBottom: "16px",
+    },
+    additionalInfoTable: {
+      width: "100%",
+      border: "1px solid #e0e0e0",
+      borderCollapse: "collapse",
+      marginTop: "8px",
+      marginBottom: "16px",
+    },
+    tableRow: {
+      borderBottom: "1px solid #e0e0e0",
+    },
+    tableCell: {
+      padding: "8px 16px",
+      fontSize: "14px",
+    },
+    tableCellHeader: {
+      padding: "8px 16px",
+      fontSize: "14px",
+      fontWeight: "bold",
+      backgroundColor: "#f5f5f5",
+    },
   };
 
   useEffect(() => {
@@ -125,6 +172,21 @@ function MealkitDetail() {
     }
   }, [navigate]);
 
+  useEffect(() => {
+    const fetchIngredients = async () => {
+      if (jwtToken) {
+        try {
+          const response = await ProductService.getIngredient(prod_id, 1, 100);
+          setIngredients(response?.content || []);
+        } catch (error) {
+          console.error("Error fetching ingredients:", error);
+        }
+      }
+    };
+
+    fetchIngredients();
+  }, [prod_id, jwtToken]);
+
   return (
     <DashboardLayout>
       <MDBox pt={6} pb={3}>
@@ -150,16 +212,16 @@ function MealkitDetail() {
               {/* Content */}
               <MDBox p={3}>
                 <Grid container spacing={3}>
-                  {/* Left Section: Image */}
+                  {/* Left Section: Image and Ingredients */}
                   <Grid item xs={12} md={5}>
-                    {/* Link Quay Lại */}
+                    {/* Back Link */}
                     <Link to="/mealkit">
                       <Icon sx={{ cursor: "pointer", "&:hover": { color: "gray" } }}>
                         arrow_back
                       </Icon>
                     </Link>
                     <MDBox style={styles.imageContainer}>
-                      {/* Hình ảnh lớn */}
+                      {/* Main Image */}
                       <div>
                         {images.length > 0 ? (
                           <img
@@ -172,7 +234,7 @@ function MealkitDetail() {
                         )}
                       </div>
 
-                      {/* Hình ảnh nhỏ (thumbnails) */}
+                      {/* Thumbnails */}
                       <div style={styles.thumbnailContainer}>
                         {images.map((imageUrl, index) => (
                           <img
@@ -186,7 +248,7 @@ function MealkitDetail() {
                       </div>
                     </MDBox>
 
-                    {/* Nút điều hướng */}
+                    {/* Navigation buttons */}
                     <div style={{ textAlign: "center", marginTop: "16px" }}>
                       <button
                         onClick={() => handleImageChange(Math.max(currentImageIndex - 1, 0))}
@@ -212,47 +274,61 @@ function MealkitDetail() {
                       </button>
                     </div>
 
-                    {/*Instruction */}
-                    {product.instructions && product.instructions === 0 && (
-                      <Box
-                        sx={{
-                          marginTop: "35px",
-                          border: "1px solid #e0e0e0",
-                          borderRadius: "12px",
-                          padding: 2,
-                          backgroundColor: "#fff",
-                          maxHeight: 300,
-                          overflowY: "auto",
-                        }}
-                      >
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                          <CiCircleList sx={{ mr: 1 }} />
-                          <Typography
-                            variant="subtitle1"
-                            sx={{ fontWeight: 600, color: "#444", fontSize: "0.85em", ml: "15px" }}
-                          >
-                            Instructions:
-                          </Typography>
-                        </Box>
-
-                        <Box
-                          sx={{
-                            color: "#333",
-                            fontSize: "1rem",
-                            whiteSpace: "pre-wrap",
-                            fontSize: "0.7em",
+                    {/* MOVED: Ingredients Section */}
+                    <MDBox mt={3} mb={2}>
+                      <MDTypography variant="subtitle1">Ingredients</MDTypography>
+                      {ingredients && ingredients.length > 0 ? (
+                        <TableContainer
+                          component={Paper}
+                          style={{
+                            marginTop: "8px",
+                            borderRadius: "8px",
                           }}
                         >
-                          <ul style={{ paddingLeft: "20px" }}>
-                            {product.instructions.map((instruction, index) => (
-                              <li key={index} style={{ fontSize: "0.9em", marginBottom: "5px" }}>
-                                {instruction}
-                              </li>
-                            ))}
-                          </ul>
-                        </Box>
-                      </Box>
-                    )}
+                          <Table size="small">
+                            <TableBody>
+                              {ingredients.map((ingredient) => (
+                                <TableRow key={ingredient.id} style={styles.tableRow}>
+                                  <TableCell style={styles.tableCell}>
+                                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                      {ingredient.image ? (
+                                        <img
+                                          src={ingredient.image}
+                                          alt={ingredient.name}
+                                          style={{
+                                            width: "40px",
+                                            height: "40px",
+                                            objectFit: "cover",
+                                            borderRadius: "4px",
+                                          }}
+                                        />
+                                      ) : (
+                                        <Box
+                                          sx={{
+                                            width: 40,
+                                            height: 40,
+                                            bgcolor: "#eee",
+                                            borderRadius: "4px",
+                                          }}
+                                        />
+                                      )}
+                                      <span style={{ fontSize: "13px" }}>{ingredient.name}</span>
+                                    </Box>
+                                  </TableCell>
+                                  <TableCell style={{ ...styles.tableCell, fontSize: "13px" }}>
+                                    {ingredient.amount}
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+                      ) : (
+                        <p style={{ fontStyle: "italic", color: "#999" }}>
+                          No ingredients available
+                        </p>
+                      )}
+                    </MDBox>
                   </Grid>
                   {/* Right Section: Product Info */}
                   <Grid item xs={12} md={7}>
@@ -307,70 +383,31 @@ function MealkitDetail() {
                         InputProps={{ readOnly: true }}
                       />
 
-                      {/* Article */}
-                      <Box
-                        sx={{
-                          border: "1px solid #e0e0e0",
-                          borderRadius: "12px",
-                          padding: 2,
-                          backgroundColor: "#fff",
-                          maxHeight: 300,
-                          overflowY: "auto",
-                        }}
-                      >
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                          <ArticleIcon sx={{ mr: 1 }} />
-                          <Typography
-                            variant="subtitle1"
-                            sx={{ fontWeight: 600, color: "#444", fontSize: "0.85em" }}
-                          >
-                            Article
-                          </Typography>
-                        </Box>
+                      {/* Article/Content (Markdown) */}
+                      <MDBox mt={2} mb={2}>
+                        <MDTypography variant="subtitle1">Article Content</MDTypography>
+                        <Paper
+                          elevation={0}
+                          style={{ padding: "16px", backgroundColor: "#f9f9f9" }}
+                        >
+                          {product?.article ? (
+                            <MDEditor.Markdown source={product.article} />
+                          ) : (
+                            <p style={{ fontStyle: "italic", color: "#999" }}>
+                              No article content available
+                            </p>
+                          )}
+                        </Paper>
+                      </MDBox>
 
-                        <Box
-                          sx={{
-                            color: "#333",
-                            fontSize: "1rem",
-                            whiteSpace: "pre-wrap",
-                            fontSize: "0.7em",
-                          }}
-                          dangerouslySetInnerHTML={{ __html: product?.article || "" }}
-                        />
-                      </Box>
-
-                      {/* Description */}
-                      <Box
-                        sx={{
-                          border: "1px solid #e0e0e0",
-                          marginTop: "15px",
-                          borderRadius: "12px",
-                          padding: 2,
-                          backgroundColor: "#fff",
-                          maxHeight: 300,
-                          overflowY: "auto",
-                        }}
-                      >
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                          <DescriptionIcon sx={{ color: "#4caf50", mr: 1 }} />
-                          <Typography
-                            variant="subtitle1"
-                            sx={{ fontWeight: 600, color: "#444", fontSize: "0.85em" }}
-                          >
-                            Description
-                          </Typography>
-                        </Box>
-
-                        <Box
-                          sx={{
-                            color: "#333",
-                            fontSize: "1rem",
-                            whiteSpace: "pre-wrap",
-                            fontSize: "0.7em",
-                          }}
-                          dangerouslySetInnerHTML={{ __html: product?.description || "" }}
-                        />
-                      </Box>
+                      {/* Price - Lấy giá mới nhất */}
+                      <TextField
+                        fullWidth
+                        label="Price"
+                        value={`$${latestPrice ? latestPrice.price : 0 || ""}`}
+                        margin="normal"
+                        InputProps={{ readOnly: true }}
+                      />
 
                       {/* Date before expiry */}
                       <TextField
@@ -378,31 +415,78 @@ function MealkitDetail() {
                         label="Date before expiry"
                         value={`${product?.day_before_expiry || 0} days`}
                         margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <IoCalendarNumber
-                                style={{ color: "#919191", fontWeight: 600, fontSize: "1em" }}
-                              />
-                            </InputAdornment>
-                          ),
-                        }}
+                        InputProps={{ readOnly: true }}
                       />
 
-                      <Box>
-                        {Object.entries(product?.info || {}).map(([key, value]) => (
-                          <TextField
-                            key={key}
-                            fullWidth
-                            label={key}
-                            value={value}
-                            margin="normal"
-                            InputProps={{ readOnly: true }}
-                            sx={{ marginBottom: 1 }}
-                          />
-                        ))}
-                      </Box>
+                      {/* Sale Percent - Lấy % giảm giá mới nhất */}
+                      <TextField
+                        fullWidth
+                        label="Sale Percent"
+                        value={`${latestPrice ? latestPrice.sale_percent : 0}%`}
+                        margin="normal"
+                        InputProps={{ readOnly: true }}
+                      />
+
+                      {/* Instructions List as Table */}
+                      {product?.instructions && (
+                        <MDBox mt={2} mb={2}>
+                          <MDTypography variant="subtitle1">Instructions</MDTypography>
+                          {product.instructions && product.instructions.length > 0 ? (
+                            <TableContainer component={Paper}>
+                              <Table size="small">
+                                <TableBody>
+                                  {product.instructions.map((instruction, index) => (
+                                    <TableRow key={index} style={styles.tableRow}>
+                                      <TableCell
+                                        align="center"
+                                        style={{
+                                          ...styles.tableCell,
+                                          fontWeight: "bold",
+                                          width: "60px",
+                                        }}
+                                      >
+                                        {index + 1}
+                                      </TableCell>
+                                      <TableCell style={styles.tableCell}>{instruction}</TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
+                            </TableContainer>
+                          ) : (
+                            <p style={{ fontStyle: "italic", color: "#999" }}>
+                              No instructions available
+                            </p>
+                          )}
+                        </MDBox>
+                      )}
+
+                      {/* Additional Information */}
+                      <MDBox mt={2} mb={2}>
+                        <MDTypography variant="subtitle1">Additional Information</MDTypography>
+                        {product?.info && Object.keys(product.info).length > 0 ? (
+                          <table style={styles.additionalInfoTable}>
+                            <thead>
+                              <tr style={styles.tableRow}>
+                                <th style={styles.tableCellHeader}>Property</th>
+                                <th style={styles.tableCellHeader}>Value</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {Object.entries(product.info).map(([key, value], index) => (
+                                <tr key={index} style={styles.tableRow}>
+                                  <td style={styles.tableCell}>{key}</td>
+                                  <td style={styles.tableCell}>{value}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        ) : (
+                          <p style={{ fontStyle: "italic", color: "#999" }}>
+                            No additional information available
+                          </p>
+                        )}
+                      </MDBox>
                     </form>
                   </Grid>
                 </Grid>

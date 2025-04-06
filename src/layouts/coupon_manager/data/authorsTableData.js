@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import CouponService from "api/CouponService";
 import { Box, Button, Icon, Modal, Typography } from "@mui/material";
 
-export default function data(pageCoupon, rowsPerPageCoupon) {
+export default function data(pageCoupon, rowsPerPageCoupon, searchQuery) {
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [coupon, setCoupon] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
@@ -44,7 +44,11 @@ export default function data(pageCoupon, rowsPerPageCoupon) {
         return;
       } else {
         try {
-          const response = await CouponService.getAllCoupon(pageCoupon, rowsPerPageCoupon);
+          const response = await CouponService.getAllCoupon(
+            pageCoupon,
+            rowsPerPageCoupon,
+            searchQuery
+          );
           if (Array.isArray(response.content)) {
             setCoupon(response.content);
             setTotalPages(response.total_page || 1);
@@ -59,7 +63,7 @@ export default function data(pageCoupon, rowsPerPageCoupon) {
       }
     };
     getAllCoupon();
-  }, [jwtToken, pageCoupon, rowsPerPageCoupon]);
+  }, [jwtToken, pageCoupon, rowsPerPageCoupon, searchQuery]);
 
   const Expire_date = ({ expire_time }) => (
     <MDBox lineHeight={1} textAlign="left" fontSize="0.8em">

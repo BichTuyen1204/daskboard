@@ -20,12 +20,35 @@ class CouponService {
     }
   }
 
-  async getAllCoupon() {
+  async getAllCoupon(page, size, searchQuery = null) {
     try {
-      const response = await axios.get(`${API_BASE_URL_2}/fetch/all`);
+      const token = sessionStorage.getItem("jwtToken");
+      let url = `${API_BASE_URL_2}/fetch/all`;
+
+      // Build query params
+      const params = new URLSearchParams();
+      if (page !== undefined && size !== undefined) {
+        params.append("index", page - 1);
+        params.append("size", size);
+      }
+      if (searchQuery) {
+        params.append("id", searchQuery);
+      }
+
+      // Append params to URL if they exist
+      const queryString = params.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data;
     } catch (error) {
-      throw error;
+      return { content: [], total_page: 1 };
     }
   }
 

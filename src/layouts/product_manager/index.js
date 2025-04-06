@@ -6,17 +6,46 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
 import authorsTableData from "layouts/product_manager/data/authorsTableData";
-import { Box, Button, Icon, IconButton, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Icon,
+  IconButton,
+  Typography,
+  TextField,
+  InputAdornment,
+} from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
+import { ArrowBackIos, ArrowForwardIos, Search } from "@mui/icons-material";
 
 function Product() {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
-  const [selectedType, setSelectedType] = useState("ALL");
-  const { columns, rows, totalPages } = authorsTableData(page, rowsPerPage, selectedType);
+  const [selectedType, setSelectedType] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  const { columns, rows, totalPages } = authorsTableData(
+    page,
+    rowsPerPage,
+    selectedType,
+    debouncedSearchQuery
+  );
+
+  // Handle debounced search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+      setPage(1); // Reset to first page when searching
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
 
   const handlePrevPage = () => {
     if (page > 1) setPage(page - 1);
@@ -49,17 +78,53 @@ function Product() {
                 bgColor="info"
                 borderRadius="lg"
                 coloredShadow="info"
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                flexDirection={{ xs: "column", sm: "row" }}
+                gap={{ xs: 2, sm: 0 }}
               >
                 <MDTypography variant="h6" color="white">
-                  Ingredient list
+                  Product list
                 </MDTypography>
+                <Box
+                  sx={{
+                    width: { xs: "100%", sm: "50%", md: "40%", lg: "30%" },
+                    transition: "width 0.3s ease",
+                  }}
+                >
+                  <TextField
+                    size="small"
+                    placeholder="Search products"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    fullWidth
+                    style={{
+                      backgroundColor: "white",
+                      borderRadius: 1,
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": { border: "none" },
+                      },
+                      "& .MuiInputBase-input": {
+                        fontSize: { xs: "0.85rem", sm: "0.875rem" },
+                      },
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Search />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Box>
               </MDBox>
 
               <MDBox mx={3} mt={2}>
                 <Box display="flex" justifyContent="space-between">
                   <Button
                     variant={selectedType === "ALL" ? "contained" : "outlined"}
-                    onClick={() => setSelectedType("ALL")}
+                    onClick={() => setSelectedType(null)}
                     sx={{
                       color: selectedType === "ALL" ? "rgb(255, 255, 255)" : "rgb(70, 70, 70)",
                       borderColor: selectedType === "ALL" ? "transparent" : "rgb(34, 178, 255)",
@@ -71,6 +136,22 @@ function Product() {
                     }}
                   >
                     All
+                  </Button>
+                  <Button
+                    variant={selectedType === "MK" ? "contained" : "outlined"}
+                    color="primary"
+                    onClick={() => setSelectedType("MK")}
+                    sx={{
+                      color: selectedType === "MK" ? "rgb(255, 255, 255)" : "rgb(70, 70, 70)",
+                      borderColor: selectedType === "MK" ? "transparent" : "rgb(34, 178, 255)",
+                      "&:hover": {
+                        color: "black !important",
+                        borderColor: "rgba(0, 0, 255, 0.5)",
+                        backgroundColor: "rgba(168, 227, 255, 0.2)",
+                      },
+                    }}
+                  >
+                    Mealkit
                   </Button>
 
                   <Button

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import AccountService from "api/AccountService";
 import { Icon } from "@mui/material";
 
-export default function data(pageStaff, rowsPerPageStaff) {
+export default function data(pageStaff, rowsPerPageStaff, searchId) {
   const [staff, setStaff] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const jwtToken = sessionStorage.getItem("jwtToken");
@@ -15,7 +15,7 @@ export default function data(pageStaff, rowsPerPageStaff) {
     const getAllStaff = async () => {
       if (jwtToken) {
         try {
-          const response = await AccountService.getAllStaff(pageStaff, rowsPerPageStaff);
+          const response = await AccountService.getAllStaff(pageStaff, rowsPerPageStaff, searchId);
           console.log("API Response:", response);
           if (Array.isArray(response.content)) {
             setStaff(response.content);
@@ -32,7 +32,7 @@ export default function data(pageStaff, rowsPerPageStaff) {
       }
     };
     getAllStaff();
-  }, [jwtToken, pageStaff, rowsPerPageStaff]);
+  }, [jwtToken, pageStaff, rowsPerPageStaff, searchId]);
 
   const hasNextPageStaff = pageStaff < totalPages;
 

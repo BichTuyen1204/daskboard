@@ -40,30 +40,19 @@ class ProductService {
     }
   }
 
-  async allProduct(type, page, size) {
+  async fetchProducts(page, size, type = null, searchQuery = null) {
     try {
       const token = sessionStorage.getItem("jwtToken");
-      const response = await axios.get(
-        `${API_BASE_URL_2}/fetch_all?type=${type}&index=${page - 1}&size=${size}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      return response.data;
-    } catch (error) {
-      return { content: [], total_page: 1 };
-    }
-  }
+      const url = new URL(`${API_BASE_URL_2}/fetch_all`);
 
-  async allAllProduct(page, size) {
-    try {
-      const token = sessionStorage.getItem("jwtToken");
-      const response = await axios.get(
-        `${API_BASE_URL_2}/fetch_all?index=${page - 1}&size=${size}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      url.searchParams.append("index", page - 1);
+      url.searchParams.append("size", size);
+      if (type) url.searchParams.append("type", type);
+      if (searchQuery) url.searchParams.append("prod_name", searchQuery);
+
+      const response = await axios.get(url.toString(), {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return response.data;
     } catch (error) {
       return { content: [], total_page: 1 };

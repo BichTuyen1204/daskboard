@@ -17,12 +17,19 @@ import {
   TableRow,
   Box,
 } from "@mui/material";
+import { Grid, TextField, Button, Icon, Box, Typography, InputAdornment } from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import ProductService from "api/ProductService";
 import MDEditor from "@uiw/react-md-editor";
+import ArticleIcon from "@mui/icons-material/Article";
+import DescriptionIcon from "@mui/icons-material/Description";
+import { IoCalendarNumber } from "react-icons/io5";
+import { FaBowlFood } from "react-icons/fa6";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import { CiCircleList } from "react-icons/ci";
 
 function MealkitDetail() {
   const navigate = useNavigate();
@@ -332,18 +339,17 @@ function MealkitDetail() {
                         label="Product Name"
                         value={product?.product_name || ""}
                         margin="normal"
-                        InputProps={{ readOnly: true }}
+                        InputProps={{
+                          readOnly: true,
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <FaBowlFood
+                                style={{ color: "#bf2802", fontWeight: 600, fontSize: "1em" }}
+                              />
+                            </InputAdornment>
+                          ),
+                        }}
                       />
-
-                      {/* Category */}
-                      <TextField
-                        fullWidth
-                        label="Product Type"
-                        value={product?.product_type || ""}
-                        margin="normal"
-                        InputProps={{ readOnly: true }}
-                      />
-
                       {/* Quantity */}
                       <TextField
                         fullWidth
@@ -351,9 +357,15 @@ function MealkitDetail() {
                         label="Quantity"
                         value={product?.available_quantity || 0}
                         margin="normal"
-                        InputProps={{ readOnly: true }}
+                        InputProps={{
+                          readOnly: true,
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <ShoppingCartIcon style={{ color: "#0094d9" }} />
+                            </InputAdornment>
+                          ),
+                        }}
                       />
-
                       {/* Status */}
                       <TextField
                         fullWidth
@@ -401,7 +413,7 @@ function MealkitDetail() {
                       <TextField
                         fullWidth
                         label="Date before expiry"
-                        value={product?.day_before_expiry || 0}
+                        value={`${product?.day_before_expiry || 0} days`}
                         margin="normal"
                         InputProps={{ readOnly: true }}
                       />

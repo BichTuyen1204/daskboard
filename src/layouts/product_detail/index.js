@@ -22,6 +22,12 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import ProductService from "api/ProductService";
 import MDEditor from "@uiw/react-md-editor";
+import ArticleIcon from "@mui/icons-material/Article";
+import DescriptionIcon from "@mui/icons-material/Description";
+import { IoCalendarNumber } from "react-icons/io5";
+import { FaBowlFood } from "react-icons/fa6";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import { CiCircleList } from "react-icons/ci";
 
 function ProductDetail() {
   const navigate = useNavigate();
@@ -249,6 +255,48 @@ function ProductDetail() {
                         Next
                       </button>
                     </div>
+
+                    {/*Instruction */}
+                    {product.instructions && product.instructions === "" && (
+                      <Box
+                        sx={{
+                          marginTop: "35px",
+                          border: "1px solid #e0e0e0",
+                          borderRadius: "12px",
+                          padding: 2,
+                          backgroundColor: "#fff",
+                          maxHeight: 300,
+                          overflowY: "auto",
+                        }}
+                      >
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <CiCircleList sx={{ mr: 1 }} />
+                          <Typography
+                            variant="subtitle1"
+                            sx={{ fontWeight: 600, color: "#444", fontSize: "0.85em", ml: "15px" }}
+                          >
+                            Instructions:
+                          </Typography>
+                        </Box>
+
+                        <Box
+                          sx={{
+                            color: "#333",
+                            fontSize: "1rem",
+                            whiteSpace: "pre-wrap",
+                            fontSize: "0.7em",
+                          }}
+                        >
+                          <ul style={{ paddingLeft: "20px" }}>
+                            {product.instructions.map((instruction, index) => (
+                              <li key={index} style={{ fontSize: "0.9em", marginBottom: "5px" }}>
+                                {instruction}
+                              </li>
+                            ))}
+                          </ul>
+                        </Box>
+                      </Box>
+                    )}
                   </Grid>
                   {/* Right Section: Product Info */}
                   <Grid item xs={12} md={7}>
@@ -259,18 +307,33 @@ function ProductDetail() {
                         label="Product Name"
                         value={product?.product_name || ""}
                         margin="normal"
-                        InputProps={{ readOnly: true }}
+                        InputProps={{
+                          readOnly: true,
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <FaBowlFood
+                                style={{ color: "#bf2802", fontWeight: 600, fontSize: "1em" }}
+                              />
+                            </InputAdornment>
+                          ),
+                        }}
                       />
-
                       {/* Category */}
                       <TextField
                         fullWidth
                         label="Product Type"
-                        value={product?.product_type || ""}
+                        value={
+                          product?.product_type === "VEG"
+                            ? "Vegetable"
+                            : product?.product_type === "MEAT"
+                            ? "Meat"
+                            : product?.product_type === "SS"
+                            ? "Seasons"
+                            : "Unknown"
+                        }
                         margin="normal"
                         InputProps={{ readOnly: true }}
                       />
-
                       {/* Quantity */}
                       <TextField
                         fullWidth
@@ -332,7 +395,7 @@ function ProductDetail() {
                       <TextField
                         fullWidth
                         label="Date before expiry"
-                        value={product?.day_before_expiry || 0}
+                        value={`${product?.day_before_expiry || 0} days`}
                         margin="normal"
                         InputProps={{ readOnly: true }}
                       />

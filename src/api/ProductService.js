@@ -40,7 +40,7 @@ class ProductService {
     }
   }
 
-  async fetchProducts(page, size, type = null) {
+  async fetchProducts(page, size, type = null, searchQuery = null) {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const url = new URL(`${API_BASE_URL_2}/fetch_all`);
@@ -48,6 +48,7 @@ class ProductService {
       url.searchParams.append("index", page - 1);
       url.searchParams.append("size", size);
       if (type) url.searchParams.append("type", type);
+      if (searchQuery) url.searchParams.append("prod_name", searchQuery);
 
       const response = await axios.get(url.toString(), {
         headers: { Authorization: `Bearer ${token}` },

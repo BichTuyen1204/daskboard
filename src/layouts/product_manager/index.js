@@ -6,17 +6,46 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
 import authorsTableData from "layouts/product_manager/data/authorsTableData";
-import { Box, Button, Icon, IconButton, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Icon,
+  IconButton,
+  Typography,
+  TextField,
+  InputAdornment,
+} from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
+import { ArrowBackIos, ArrowForwardIos, Search } from "@mui/icons-material";
 
 function Product() {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
   const [selectedType, setSelectedType] = useState(null);
-  const { columns, rows, totalPages } = authorsTableData(page, rowsPerPage, selectedType);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  const { columns, rows, totalPages } = authorsTableData(
+    page,
+    rowsPerPage,
+    selectedType,
+    debouncedSearchQuery
+  );
+
+  // Handle debounced search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+      setPage(1); // Reset to first page when searching
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
 
   const handlePrevPage = () => {
     if (page > 1) setPage(page - 1);
@@ -49,10 +78,33 @@ function Product() {
                 bgColor="info"
                 borderRadius="lg"
                 coloredShadow="info"
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
               >
                 <MDTypography variant="h6" color="white">
-                  Ingredient list
+                  Product list
                 </MDTypography>
+                <Box width="30%">
+                  <TextField
+                    size="small"
+                    placeholder="Search products"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    fullWidth
+                    style={{
+                      backgroundColor: "white",
+                      borderRadius: 1,
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Search />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Box>
               </MDBox>
 
               <MDBox mx={3} mt={2}>

@@ -17,14 +17,8 @@ export default function DataTable(page, rowsPerPage, selectedType) {
       if (!jwtToken) return;
 
       try {
-        let response;
+        const response = await ProductService.fetchProducts(page, rowsPerPage, selectedType);
 
-        if (selectedType === "ALL") {
-          response = await ProductService.allAllProduct(page, rowsPerPage);
-          console.log("All product", response);
-        } else {
-          response = await ProductService.allProduct(selectedType, page, rowsPerPage);
-        }
         if (Array.isArray(response.content)) {
           setProduct(response.content);
           setTotalPages(response.total_page || 1);

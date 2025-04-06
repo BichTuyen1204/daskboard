@@ -34,17 +34,36 @@ class AccountService {
     } catch (error) {}
   }
 
-  async getAllStaff() {
+  async getAllStaff(page, size, searchId) {
     try {
       const token = sessionStorage.getItem("jwtToken");
-      const response = await axios.get(`${API_BASE_URL_3}/all`, {
+      let url = `${API_BASE_URL_3}/all`;
+
+      // Add query parameters if they exist
+      const params = new URLSearchParams();
+      if (page !== undefined && size !== undefined) {
+        params.append("index", page - 1);
+        params.append("size", size);
+      }
+      if (searchId) {
+        params.append("id", searchId);
+      }
+
+      const queryString = params.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+
+      const response = await axios.get(url, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
       return response.data;
-    } catch (error) {}
+    } catch (error) {
+      return { content: [], total_page: 0 }; // Return empty results on error
+    }
   }
 
   async getAllCustomer(page, size) {

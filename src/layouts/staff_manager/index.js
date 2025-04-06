@@ -6,17 +6,37 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
 import authorsTableData from "layouts/staff_manager/data/authorsTableData";
-import { Box, Icon, IconButton, Typography } from "@mui/material";
+import { Box, Icon, IconButton, Typography, TextField, InputAdornment } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
+import { ArrowBackIos, ArrowForwardIos, Search } from "@mui/icons-material";
 
 function Staff() {
   const navigate = useNavigate();
 
   const [pageStaff, setPageStaff] = useState(1);
   const rowsPerPageStaff = 6;
-  const { columns, rows, hasNextPageStaff } = authorsTableData(pageStaff, rowsPerPageStaff);
+  const [searchId, setSearchId] = useState("");
+  const [debouncedSearchId, setDebouncedSearchId] = useState("");
+  const { columns, rows, hasNextPageStaff } = authorsTableData(
+    pageStaff,
+    rowsPerPageStaff,
+    debouncedSearchId
+  );
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchId(searchId);
+      setPageStaff(1); // Reset to first page when searching
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchId]);
+
+  const handleSearchChange = (event) => {
+    setSearchId(event.target.value);
+  };
 
   const handlePrevPageStaff = () => {
     if (pageStaff > 1) {
@@ -53,10 +73,35 @@ function Staff() {
                 bgColor="info"
                 borderRadius="lg"
                 coloredShadow="info"
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
               >
                 <MDTypography variant="h6" color="white">
                   Staff list
                 </MDTypography>
+                <Box width="30%">
+                  <TextField
+                    size="small"
+                    placeholder="Search by Username"
+                    value={searchId}
+                    onChange={handleSearchChange}
+                    fullWidth
+                    style={{
+                      backgroundColor: "white",
+                    }}
+                    sx={{
+                      backgroundColor: "white",
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Search />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Box>
               </MDBox>
               <MDBox pt={3}>
                 <DataTable

@@ -76,11 +76,18 @@ function Staff() {
                 display="flex"
                 justifyContent="space-between"
                 alignItems="center"
+                flexDirection={{ xs: "column", sm: "row" }}
+                gap={{ xs: 2, sm: 0 }}
               >
                 <MDTypography variant="h6" color="white">
                   Staff list
                 </MDTypography>
-                <Box width="30%">
+                <Box
+                  sx={{
+                    width: { xs: "100%", sm: "50%", md: "40%", lg: "30%" },
+                    transition: "width 0.3s ease",
+                  }}
+                >
                   <TextField
                     size="small"
                     placeholder="Search by Username"

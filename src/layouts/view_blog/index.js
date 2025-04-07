@@ -1,11 +1,26 @@
 import { useEffect, useState } from "react";
 import Card from "@mui/material/Card";
-import { Grid, TextField, Button, Icon, Box, Typography } from "@mui/material";
+import {
+  Grid,
+  TextField,
+  Icon,
+  Box,
+  Typography,
+  Paper,
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@mui/material";
 import MDBox from "components/MDBox";
+import MDEditor from "@uiw/react-md-editor";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import BlogService from "api/BlogService";
+import ReactMarkdown from "react-markdown";
 
 function ViewBlog() {
   const navigate = useNavigate();
@@ -57,26 +72,98 @@ function ViewBlog() {
               {/* Content */}
               <MDBox p={3}>
                 <Grid container spacing={3}>
-                  {/* Right Section: Product Info */}
-                  <Grid item xs={12} md={12}>
+                  {/* Left Column: Image and Additional Info */}
+                  <Grid item xs={12} md={5}>
                     <Link to="/blog">
                       <Icon sx={{ cursor: "pointer", "&:hover": { color: "gray" } }}>
                         arrow_back
                       </Icon>
                     </Link>
-                    <form>
-                      {/* Article */}
-                      <TextField
-                        fullWidth
-                        label="Article"
-                        type="text"
-                        value={blog.article || ""}
-                        margin="normal"
-                        InputProps={{
-                          readOnly: true,
-                        }}
-                      />
 
+                    <MDBox>
+                      {/* Main Image */}
+                      <MDTypography variant="h6" mb={2}>
+                        Main Image
+                      </MDTypography>
+                      <MDBox
+                        sx={{
+                          width: "100%",
+                          maxWidth: "20rem",
+                          height: "20rem",
+                          borderRadius: "8px",
+                          border: "1px solid #ccc",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          backgroundColor: "transparent",
+                          overflow: "hidden",
+                          position: "relative",
+                          marginBottom: "16px",
+                        }}
+                      >
+                        {blog.thumbnail ? (
+                          <img
+                            src={blog.thumbnail}
+                            alt="Blog Thumbnail"
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "contain",
+                            }}
+                          />
+                        ) : (
+                          <MDTypography variant="body2" color="textSecondary" textAlign="center">
+                            No Image Available
+                          </MDTypography>
+                        )}
+                      </MDBox>
+
+                      {/* Additional Info Table */}
+                      <TableContainer
+                        component={Paper}
+                        style={{
+                          borderRadius: "12px",
+                          overflow: "hidden",
+                          boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
+                          marginTop: "15px",
+                        }}
+                      >
+                        <Table>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell colSpan={2}>
+                                <Typography variant="subtitle1" fontWeight="bold">
+                                  Additional Information
+                                </Typography>
+                              </TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {blog?.infos && Object.entries(blog.infos).length > 0 ? (
+                              Object.entries(blog.infos).map(([key, value]) => (
+                                <TableRow key={key}>
+                                  <TableCell component="th" scope="row">
+                                    <strong>{key}</strong>
+                                  </TableCell>
+                                  <TableCell>{value}</TableCell>
+                                </TableRow>
+                              ))
+                            ) : (
+                              <TableRow>
+                                <TableCell colSpan={2} align="center">
+                                  No additional information available
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    </MDBox>
+                  </Grid>
+
+                  {/* Right Column: Blog Content */}
+                  <Grid item xs={12} md={7}>
+                    <form>
                       {/* Title */}
                       <TextField
                         fullWidth
@@ -99,67 +186,52 @@ function ViewBlog() {
                           backgroundColor: "#fff",
                           maxHeight: 300,
                           overflowY: "auto",
+                          marginBottom: 2,
                         }}
                       >
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                          <Typography
-                            variant="subtitle1"
-                            sx={{ fontWeight: 600, color: "#444", fontSize: "0.8em" }}
-                          >
-                            Description
-                          </Typography>
-                        </Box>
+                        <Typography
+                          variant="subtitle1"
+                          sx={{ fontWeight: 600, color: "#444", marginBottom: 1 }}
+                        >
+                          Description
+                        </Typography>
 
                         <Box
                           sx={{
                             color: "#333",
-                            fontSize: "1rem",
+                            fontSize: "0.9rem",
                             whiteSpace: "pre-wrap",
-                            fontSize: "0.65em",
                           }}
                           dangerouslySetInnerHTML={{ __html: blog?.description || "" }}
                         />
                       </Box>
 
-                      <Box>
-                        {Object.entries(blog?.infos || {}).map(([key, value]) => (
-                          <TextField
-                            key={key}
-                            fullWidth
-                            label={key}
-                            value={value}
-                            margin="normal"
-                            InputProps={{ readOnly: true }}
-                            sx={{ marginBottom: 1 }}
-                          />
-                        ))}
+                      {/* Article */}
+                      <Typography
+                        variant="subtitle1"
+                        sx={{ fontWeight: 600, color: "#444", marginBottom: 1 }}
+                      >
+                        Article
+                      </Typography>
+                      <Box
+                        sx={{
+                          border: "1px solid #e0e0e0",
+                          borderRadius: "12px",
+                          padding: 2,
+                          backgroundColor: "#fff",
+                          minHeight: 200,
+                          maxHeight: 500,
+                          overflowY: "auto",
+                        }}
+                      >
+                        <Box sx={{ padding: 1, "& img": { maxWidth: "100%" } }}>
+                          <MDBox mt={2} mb={2}>
+                            <Paper elevation={0} style={{ padding: "16px" }}>
+                              <MDEditor.Markdown source={blog.article} />
+                            </Paper>
+                          </MDBox>
+                        </Box>
                       </Box>
-                      <div>
-                        <p style={{ fontSize: "0.7em", marginTop: "15px" }}>
-                          <strong>Image:</strong>
-                        </p>
-                        <div
-                          style={{
-                            width: "200px",
-                            height: "200px",
-                            marginTop: "-10px",
-                            padding: "5px",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
-                          <img
-                            style={{
-                              width: "90%",
-                              height: "auto",
-                              objectFit: "cover",
-                              borderRadius: "15px",
-                            }}
-                            src={blog.thumbnail}
-                          />
-                        </div>
-                      </div>
                     </form>
                   </Grid>
                 </Grid>

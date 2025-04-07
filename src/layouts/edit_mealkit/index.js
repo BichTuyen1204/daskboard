@@ -164,12 +164,21 @@ function EditMealkit() {
 
   // Handle changing ingredient amount
   const handleAmountChange = (id, amount) => {
+    // Validate amount is a positive number
+    const error = !amount || parseFloat(amount) <= 0 ? "Amount must be greater than 0" : "";
+
     setMealkitInfo((prev) => ({
       ...prev,
       ingredients: {
         ...prev.ingredients,
         [id]: amount,
       },
+    }));
+
+    // Update ingredient errors
+    setIngredientsError((prev) => ({
+      ...prev,
+      [id]: error,
     }));
   };
 
@@ -346,14 +355,68 @@ function EditMealkit() {
     }
   };
 
+  const validateIngredients = () => {
+    const ingredients = mealkitInfo.ingredients || {};
+    const ingredientIds = Object.keys(ingredients);
+
+    // Check if ingredient list is empty
+    if (ingredientIds.length === 0) {
+      setIngredientsError("At least one ingredient is required");
+      return false;
+    }
+
+    // Check if all ingredients have valid amounts
+    let hasError = false;
+    const errors = {};
+
+    ingredientIds.forEach((id) => {
+      const amount = ingredients[id];
+      if (!amount || amount <= 0) {
+        errors[id] = "Amount must be greater than 0";
+        hasError = true;
+      }
+    });
+
+    if (hasError) {
+      setIngredientsError(errors);
+      return false;
+    }
+
+    return true;
+  };
+
+  const validateInstructions = (instructionsList) => {
+    if (!instructionsList || instructionsList.length === 0) {
+      setInstructionsError("Please enter at least one instruction");
+      return false;
+    } else {
+      setInstructionsError("");
+      return true;
+    }
+  };
+
   const updateInfos = async (e) => {
     e.preventDefault();
     DayBeforeExpiryBlur();
     DescriptionBlur();
+    InstructionsBlur(); // Add this to trigger instructions validation
 
     synchronizeInfosWithRows();
 
-    if (!prod_id || dayBeforeExpiryError || descriptionError || !dayBeforeExpiry || !description) {
+    // Validate ingredients
+    const ingredientsValid = validateIngredients();
+
+    if (
+      !prod_id ||
+      dayBeforeExpiryError ||
+      descriptionError ||
+      !dayBeforeExpiry ||
+      !description ||
+      !ingredientsValid ||
+      instructionsError || // Check for instruction errors
+      !instructions ||
+      instructions.length === 0 // Check if instructions array is empty
+    ) {
       console.error("Invalid input data");
       return;
     } else {
@@ -859,7 +922,7 @@ function EditMealkit() {
 
                   {/* Search Bar */}
                   <Autocomplete
-                    freeSolo
+                    freeSolo={false}
                     options={searchResults}
                     getOptionLabel={(option) => option.name || ""}
                     loading={loading}
@@ -867,7 +930,11 @@ function EditMealkit() {
                       setSearchQuery(value);
                       setSearchResults([]);
                     }}
-                    onChange={(e, value) => value && handleAddIngredient(value)}
+                    onChange={(e, value) => {
+                      if (value && typeof value === "object" && value.id) {
+                        handleAddIngredient(value);
+                      }
+                    }}
                     ListboxProps={{
                       style: {
                         maxHeight: "100px",
@@ -910,7 +977,7 @@ function EditMealkit() {
                       <TextField
                         {...params}
                         label="Search Ingredients"
-                        placeholder="Type to search..."
+                        placeholder="Type to search and select from the list..."
                         margin="normal"
                         InputProps={{
                           ...params.InputProps,
@@ -921,6 +988,7 @@ function EditMealkit() {
                             </>
                           ),
                         }}
+                        helperText="Please select an ingredient from the search results"
                       />
                     )}
                   />
@@ -939,6 +1007,9 @@ function EditMealkit() {
                       <TableBody>
                         {Object.entries(mealkitInfo.ingredients || {}).map(([id, amount]) => {
                           const productDetails = selectedProducts[id];
+                          const amountError =
+                            typeof ingredientsError === "object" ? ingredientsError[id] : "";
+
                           return (
                             <TableRow key={id}>
                               <TableCell>
@@ -969,11 +1040,20 @@ function EditMealkit() {
                               </TableCell>
                               <TableCell>
                                 <TextField
-                                  type="text"
+                                  type="number"
                                   label="Amount"
                                   value={amount}
                                   onChange={(e) => handleAmountChange(id, e.target.value)}
                                   size="small"
+                                  error={!!amountError}
+                                  helperText={amountError}
+                                  inputProps={{ min: "0", step: "any" }}
+                                  onKeyDown={(e) => {
+                                    // Prevent 'e' character in number input
+                                    if (e.key.toLowerCase() === "e") {
+                                      e.preventDefault();
+                                    }
+                                  }}
                                 />
                               </TableCell>
                               <TableCell>
@@ -993,7 +1073,7 @@ function EditMealkit() {
                     </Table>
                   </TableContainer>
 
-                  {ingredientsError && (
+                  {typeof ingredientsError === "string" && ingredientsError && (
                     <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
                       {ingredientsError}
                     </p>
@@ -1030,7 +1110,12 @@ function EditMealkit() {
                                   updatedInstructions[index] = e.target.value;
                                   setInstructions(updatedInstructions);
                                   updateArrayField("instructions", updatedInstructions);
+
+                                  // Clear the error message if there's at least one non-empty instruction
+                                  validateInstructions(updatedInstructions);
                                 }}
+                                error={!instruction} // Add error styling for empty fields
+                                helperText={!instruction ? "Instruction cannot be empty" : ""}
                               />
                             </TableCell>
                             <TableCell>
@@ -1057,14 +1142,23 @@ function EditMealkit() {
                       variant="contained"
                       color="primary"
                       onClick={() => {
-                        setInstructions((prev) => [...(prev || []), ""]);
-                        updateArrayField("instructions", [...(instructions || []), ""]);
+                        const updatedInstructions = [...(instructions || []), ""];
+                        setInstructions(updatedInstructions);
+                        updateArrayField("instructions", updatedInstructions);
+                        // Clear error message when an instruction is added
+                        validateInstructions(updatedInstructions);
                       }}
                       style={{ backgroundColor: "green", color: "white", margin: "10px" }}
                     >
                       Add Instruction
                     </Button>
                   </TableContainer>
+
+                  {instructionsError && (
+                    <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                      {instructionsError}
+                    </p>
+                  )}
 
                   {/* Additional Informations */}
                   <TableContainer

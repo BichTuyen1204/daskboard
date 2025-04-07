@@ -212,7 +212,6 @@ function EditProduct() {
       try {
         await ProductService.updateProductQuantity(prod_id, parseInt(quantity), Number(inPrice));
         setUpdateQuantitySuccess("Quantity and price updated successfully.");
-        window.location.reload(); // Refresh the page
       } catch (error) {}
     }
   };
@@ -224,8 +223,12 @@ function EditProduct() {
       try {
         await ProductService.updateProductStatus(prod_id, status.toString());
         setUpdateStatusSuccess("Status updated successfully.");
-        window.location.reload(); // Refresh the page
-      } catch (error) {}
+      } catch (error) {
+        const msg = error.response?.data?.message;
+        if (error.response?.status === 500 && msg === "Quantity is empty") {
+          setStatusError("Quantity is empty");
+        }
+      }
     }
   };
 
@@ -239,7 +242,6 @@ function EditProduct() {
       try {
         await ProductService.updateProductPrice(prod_id, Number(price), Number(sale_percent));
         setUpdatePriceSuccess("Price and sale percent updated successfully.");
-        window.location.reload(); // Refresh the page
       } catch (error) {}
     }
   };
@@ -259,7 +261,6 @@ function EditProduct() {
       try {
         await ProductService.updateProductInfo(prod_id, productInfo);
         setUpdateInfomationSuccess("Infor of ingredients updated successfully.");
-        window.location.reload(); // Refresh the page
       } catch (error) {}
     }
   };
@@ -863,9 +864,10 @@ function EditProduct() {
                   <p
                     style={{
                       color: "green",
-                      fontSize: "0.6em",
+                      fontSize: "0.65em",
                       fontWeight: "600",
                       marginLeft: "5px",
+                      marginTop: "25px",
                       marginBottom: "5px",
                     }}
                   >

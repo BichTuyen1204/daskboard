@@ -39,7 +39,6 @@ function MealkitDetail() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [transitionClass, setTransitionClass] = useState("");
   const images = product?.images_url || [];
-  const [latestPrice, setLatestPrice] = useState(null);
   const [ingredients, setIngredients] = useState([]);
 
   useEffect(() => {
@@ -142,14 +141,6 @@ function MealkitDetail() {
         try {
           const response = await ProductService.getProductDetail(prod_id);
           setProduct(response);
-
-          if (response.price_list && response.price_list.length > 0) {
-            const sortedPriceList = response.price_list.sort(
-              (a, b) => new Date(b.date) - new Date(a.date)
-            );
-
-            setLatestPrice(sortedPriceList[0]);
-          }
         } catch (error) {}
       }
     };
@@ -396,29 +387,11 @@ function MealkitDetail() {
                         </Paper>
                       </MDBox>
 
-                      {/* Price - Lấy giá mới nhất */}
-                      <TextField
-                        fullWidth
-                        label="Price"
-                        value={`$${latestPrice ? latestPrice.price : 0 || ""}`}
-                        margin="normal"
-                        InputProps={{ readOnly: true }}
-                      />
-
                       {/* Date before expiry */}
                       <TextField
                         fullWidth
                         label="Date before expiry"
                         value={`${product?.day_before_expiry || 0} days`}
-                        margin="normal"
-                        InputProps={{ readOnly: true }}
-                      />
-
-                      {/* Sale Percent - Lấy % giảm giá mới nhất */}
-                      <TextField
-                        fullWidth
-                        label="Sale Percent"
-                        value={`${latestPrice ? latestPrice.sale_percent : 0}%`}
                         margin="normal"
                         InputProps={{ readOnly: true }}
                       />

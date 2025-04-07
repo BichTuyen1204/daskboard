@@ -3,11 +3,7 @@ import Card from "@mui/material/Card";
 import {
   Grid,
   TextField,
-  Button,
   Icon,
-  List,
-  ListItem,
-  ListItemText,
   Paper,
   Table,
   TableBody,
@@ -16,7 +12,6 @@ import {
   Box,
   Typography,
   InputAdornment,
-  TableHead,
   TableRow,
 } from "@mui/material";
 import MDBox from "components/MDBox";
@@ -25,11 +20,7 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import ProductService from "api/ProductService";
 import MDEditor from "@uiw/react-md-editor";
-import ArticleIcon from "@mui/icons-material/Article";
-import DescriptionIcon from "@mui/icons-material/Description";
-import { IoCalendarNumber } from "react-icons/io5";
 import { FaBowlFood } from "react-icons/fa6";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { CiCircleList } from "react-icons/ci";
 
 function ProductDetail() {
@@ -40,7 +31,6 @@ function ProductDetail() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [transitionClass, setTransitionClass] = useState("");
   const images = product?.images_url || [];
-  const [latestPrice, setLatestPrice] = useState(null);
 
   useEffect(() => {
     if (images.length > 0) {
@@ -142,14 +132,6 @@ function ProductDetail() {
         try {
           const response = await ProductService.getProductDetail(prod_id);
           setProduct(response);
-
-          if (response.price_list && response.price_list.length > 0) {
-            const sortedPriceList = response.price_list.sort(
-              (a, b) => new Date(b.date) - new Date(a.date)
-            );
-
-            setLatestPrice(sortedPriceList[0]);
-          }
         } catch (error) {}
       }
     };
@@ -169,6 +151,15 @@ function ProductDetail() {
       navigate("/sign-in", { replace: true });
     }
   }, [navigate]);
+
+  const mapStatus = (typeStatus) => {
+    const typeMapStatus = {
+      IN_STOCK: "In stock",
+      OUT_OF_STOCK: "Out of stock",
+      NO_LONGER_IN_SALE: "No longer in sale",
+    };
+    return typeMapStatus[typeStatus] || typeStatus;
+  };
 
   return (
     <DashboardLayout>
@@ -349,7 +340,7 @@ function ProductDetail() {
                       <TextField
                         fullWidth
                         label="Product Status"
-                        value={product?.product_status || ""}
+                        value={mapStatus(product?.product_status || "")}
                         margin="normal"
                         InputProps={{ readOnly: true }}
                       />
@@ -383,29 +374,11 @@ function ProductDetail() {
                         </Paper>
                       </MDBox>
 
-                      {/* Price - Latest price */}
-                      <TextField
-                        fullWidth
-                        label="Price"
-                        value={`$${latestPrice ? latestPrice.price : 0}`}
-                        margin="normal"
-                        InputProps={{ readOnly: true }}
-                      />
-
                       {/* Date before expiry */}
                       <TextField
                         fullWidth
                         label="Date before expiry"
                         value={`${product?.day_before_expiry || 0} days`}
-                        margin="normal"
-                        InputProps={{ readOnly: true }}
-                      />
-
-                      {/* Sale Percent - Latest sale percent */}
-                      <TextField
-                        fullWidth
-                        label="Sale Percent"
-                        value={`${latestPrice ? latestPrice.sale_percent : 0}%`}
                         margin="normal"
                         InputProps={{ readOnly: true }}
                       />

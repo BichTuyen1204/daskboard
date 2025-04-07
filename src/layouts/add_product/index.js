@@ -964,16 +964,25 @@ function AddProduct() {
                         <p
                           style={{
                             color: "green",
-                            fontSize: "0.9em",
+                            fontSize: "0.7em",
                             fontWeight: "bold",
-                            marginTop: "10px",
+                            marginTop: "30px",
+                            marginBottom: "-15px",
                           }}
                         >
                           {successMessage}
                         </p>
                       )}
                       {errorMessage && (
-                        <p style={{ color: "red", fontSize: "0.9em", marginTop: "10px" }}>
+                        <p
+                          style={{
+                            color: "red",
+                            fontSize: "0.7em",
+                            fontWeight: "bold",
+                            marginTop: "30px",
+                            marginBottom: "-15px",
+                          }}
+                        >
                           {errorMessage}
                         </p>
                       )}

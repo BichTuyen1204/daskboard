@@ -293,9 +293,14 @@ function EditMealkit() {
     StatusBlur();
     if (!statusError && status) {
       try {
-        const response = await ProductService.updateProductStatus(prod_id, status.toString());
+        await ProductService.updateProductStatus(prod_id, status.toString());
         setUpdateStatusSuccess("Status updated successfully.");
-      } catch (error) {}
+      } catch (error) {
+        const msg = error.response?.data?.message;
+        if (error.response?.status === 500 && msg === "Quantity is empty") {
+          setStatusError("Quantity is empty");
+        }
+      }
     }
   };
 

@@ -16,7 +16,6 @@ export default function data(pageStaff, rowsPerPageStaff, searchId) {
       if (jwtToken) {
         try {
           const response = await AccountService.getAllStaff(pageStaff, rowsPerPageStaff, searchId);
-          console.log("API Response:", response);
           if (Array.isArray(response.content)) {
             setStaff(response.content);
             setTotalPages(response.total_page || 1);
@@ -25,7 +24,6 @@ export default function data(pageStaff, rowsPerPageStaff, searchId) {
             setTotalPages(1);
           }
         } catch (error) {
-          console.error("Can't access the server", error);
           setStaff([]);
           setTotalPages(1);
         }

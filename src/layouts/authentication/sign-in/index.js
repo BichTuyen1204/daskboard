@@ -34,6 +34,9 @@ function Basic() {
     const value = e.target.value;
     setUserName(value);
     setAccount((preState) => ({ ...preState, username: value }));
+    setUserNameError("");
+    setPasswordError("");
+    setLoginError("");
   };
 
   // Check full name
@@ -54,6 +57,9 @@ function Basic() {
     const value = e.target.value;
     setPassword(value);
     setAccount((preState) => ({ ...preState, password: value }));
+    setUserNameError("");
+    setPasswordError("");
+    setLoginError("");
   };
 
   // Check password
@@ -78,19 +84,12 @@ function Basic() {
     if (!userNameError && !passwordError && username && password) {
       try {
         const response = await AccountService.signin(account);
-        // console.log("Login successful", response);
         setFormSubmitted(true);
         setLoginError("");
         setTimeout(() => {
           navigate("/dashboard");
-          // window.location.reload();
         }, 1500);
       } catch (error) {
-        console.error(
-          "Error when logging in:",
-          error.response ? error.response.data : error.message
-        );
-
         if (error.response) {
           if (error.response.status === 400) {
             const detail = error.response.data.detail;
@@ -98,6 +97,8 @@ function Basic() {
               setUserNameError("Account does not exist.");
             } else if (detail === "Password incorrect") {
               setPasswordError("Password is incorrect.");
+            } else if (detail === "Account is locked") {
+              setLoginError("Account is locked.");
             } else {
               setLoginError("Unknown error occurred. Please try again.");
             }
@@ -106,7 +107,6 @@ function Basic() {
           } else if (error.response.status === 500) {
             setPasswordError("Server error. Please try again later.");
           } else {
-            console.log("Account payload:", account);
             setLoginError(`Error: ${error.response.status}`);
           }
         } else {

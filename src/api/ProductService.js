@@ -91,7 +91,6 @@ class ProductService {
 
   async updateProductInfo(prod_id, data) {
     try {
-      console.log("data", data);
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.post(
         `${API_BASE_URL}/product/update/info/prod?prod_id=${prod_id}`,
@@ -218,7 +217,6 @@ class ProductService {
           },
         }
       );
-      console.log("History update", response.data);
       return response.data;
     } catch (error) {
       throw error;
@@ -230,18 +228,17 @@ class ProductService {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.get(`${API_BASE_URL}/mealkit/create/fetch/ingredients`, {
         params: {
-          search: query, // Updated to match the API parameter name
-          index: page, // Page index (0-based)
-          size: 7, // Number of items per page
+          search: query,
+          index: page,
+          size: 7,
         },
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      return response.data; // Return the API response
+      return response.data;
     } catch (error) {
-      console.error("Error fetching products:", error);
-      return { content: [], total_page: 1 }; // Return default structure on error
+      return { content: [], total_page: 1 };
     }
   }
 
@@ -251,22 +248,21 @@ class ProductService {
       const response = await axios.get(`${API_BASE_URL_2}/fetch/ingredients`, {
         params: {
           prod_id: query,
-          index: page - 1, // Page index (0-based)
-          size: size, // Number of items per page
+          index: page - 1,
+          size: size,
         },
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      return response.data; // Return the API response
+      return response.data;
     } catch (error) {
-      console.error("Error fetching ingredients:", error);
       return {
         content: [],
         total_element: 0,
         total_page: 1,
         page_index: 0,
-      }; // Return default structure on error
+      };
     }
   }
 }

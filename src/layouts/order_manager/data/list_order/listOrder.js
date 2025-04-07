@@ -17,9 +17,7 @@ export default function listOrder(page, rowsPerPage) {
       }
       try {
         const response = await OrderService.getAllOrder(page, rowsPerPage);
-        console.log("ALL order:", response);
         if (response && Array.isArray(response.content)) {
-          console.log("Orders received:", response.content);
           setOrders(response.content);
           setTotalPages(response.total_page || 1);
         } else {
@@ -43,12 +41,10 @@ export default function listOrder(page, rowsPerPage) {
         const response = await AccountService.getProfile(jwtToken);
         if (response) {
           setAccount(response);
-          console.log(account);
         } else {
           setAccount(null);
         }
       } catch (error) {
-        console.error(error);
         setAccount(null);
       }
     };
@@ -78,16 +74,11 @@ export default function listOrder(page, rowsPerPage) {
     receiver: <MDTypography variant="caption">{item.receiver}</MDTypography>,
     order_date: (
       <MDTypography variant="caption">
-        {new Date(item.order_date).toLocaleString("en-US", {
-          timeZone: "Asia/Ho_Chi_Minh",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: false,
-        })}
+        {(() => {
+          const utcDate = new Date(item.order_date);
+          utcDate.setHours(utcDate.getHours() + 7);
+          return utcDate.toLocaleString("vi-VN");
+        })()}
       </MDTypography>
     ),
     delivery_address: <MDTypography variant="caption">{item.delivery_address}</MDTypography>,

@@ -85,7 +85,7 @@ function Product() {
                 gap={{ xs: 2, sm: 0 }}
               >
                 <MDTypography variant="h6" color="white">
-                  Product list
+                  Ingredient list
                 </MDTypography>
                 <Box
                   sx={{
@@ -95,7 +95,7 @@ function Product() {
                 >
                   <TextField
                     size="small"
-                    placeholder="Search products"
+                    placeholder="Search ingredients"
                     value={searchQuery}
                     onChange={handleSearchChange}
                     fullWidth
@@ -136,22 +136,6 @@ function Product() {
                     }}
                   >
                     All
-                  </Button>
-                  <Button
-                    variant={selectedType === "MK" ? "contained" : "outlined"}
-                    color="primary"
-                    onClick={() => setSelectedType("MK")}
-                    sx={{
-                      color: selectedType === "MK" ? "rgb(255, 255, 255)" : "rgb(70, 70, 70)",
-                      borderColor: selectedType === "MK" ? "transparent" : "rgb(34, 178, 255)",
-                      "&:hover": {
-                        color: "black !important",
-                        borderColor: "rgba(0, 0, 255, 0.5)",
-                        backgroundColor: "rgba(168, 227, 255, 0.2)",
-                      },
-                    }}
-                  >
-                    Mealkit
                   </Button>
 
                   <Button

@@ -40,9 +40,7 @@ function EditProfile() {
         try {
           const response = await AccountService.getStaffDetail(id);
           setStaff(response);
-        } catch (error) {
-          console.error("Can't access the server", error);
-        }
+        } catch (error) {}
       }
     };
     getStaffDetail();

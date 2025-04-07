@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Card from "@mui/material/Card";
-import { Grid, TextField, Button, Icon } from "@mui/material";
+import { Grid, Icon } from "@mui/material";
 import MDBox from "components/MDBox";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -9,8 +9,11 @@ import OrderService from "api/OrderService";
 function OrderCancel() {
   const navigate = useNavigate();
   const [orderDetail, setOrderDetail] = useState("");
+  const [orderItem, setOrderItem] = useState([]);
   const { id } = useParams();
   const jwtToken = sessionStorage.getItem("jwtToken");
+  const page = 1;
+  const pageSize = 50;
 
   useEffect(() => {
     const token = sessionStorage.getItem("jwtToken");
@@ -25,14 +28,33 @@ function OrderCancel() {
         try {
           const response = await OrderService.getOrderDetail(id);
           setOrderDetail(response);
-        } catch (error) {
-          console.error("Can't access the server", error);
-        }
+        } catch (error) {}
       }
     };
-
     getOrderDetail();
   }, [id, jwtToken]);
+
+  useEffect(() => {
+    const getOrderItem = async () => {
+      if (jwtToken) {
+        try {
+          const response = await OrderService.getOrderItem(id, page, pageSize);
+          setOrderItem(response.content);
+        } catch (error) {}
+      }
+    };
+    getOrderItem();
+  }, [id, jwtToken]);
+
+  const mapTypeToLabel = (type) => {
+    const typeMap = {
+      VEG: "Vegetable",
+      MEAT: "Meat",
+      SS: "Season",
+      MK: "Meal kit",
+    };
+    return typeMap[type] || type;
+  };
 
   return (
     <DashboardLayout>
@@ -48,16 +70,6 @@ function OrderCancel() {
                   Order ID: {orderDetail.id}
                 </div>
                 <div style={{ fontWeight: "500", fontSize: "0.6em", paddingBottom: "10px" }}>
-                  {/* {new Date(orderDetail.order_date).toLocaleString("en-US", {
-                    timeZone: "Asia/Ho_Chi_Minh",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                    hour12: false,
-                  })} */}
                   {(() => {
                     const utcDate = new Date(orderDetail.order_date);
                     utcDate.setHours(utcDate.getHours() + 7);
@@ -87,9 +99,8 @@ function OrderCancel() {
 
                     <div style={{ borderBottom: "1px solid #ccc", padding: "10px" }}>
                       <div style={{ display: "flex", flexWrap: "wrap", marginTop: "15px" }}>
-                        {orderDetail.items &&
-                          orderDetail.items.length > 0 &&
-                          orderDetail.items.map((item, index) => (
+                        {orderItem.length > 0 &&
+                          orderItem.map((item, index) => (
                             <div
                               key={index}
                               style={{
@@ -102,22 +113,20 @@ function OrderCancel() {
                                 paddingBottom: "15px",
                               }}
                             >
-                              {/* Hình ảnh sản phẩm */}
                               <img
-                                src={item.image}
+                                src={item.image_url}
                                 alt={item.name}
                                 style={{
                                   width: "4rem",
                                   height: "55px",
                                   borderRadius: "8px",
-                                  marginRight: "15px", // Thêm khoảng cách giữa hình ảnh và thông tin
+                                  marginRight: "15px",
                                 }}
                               />
 
-                              {/* Thông tin sản phẩm */}
                               <div style={{ fontSize: "0.6em", width: "50%" }}>
                                 <div>
-                                  Category: <strong>{item.type}</strong>
+                                  Category: <strong>{mapTypeToLabel(item.type)}</strong>
                                 </div>
                                 <div>
                                   Name of product: <strong>{item.name}</strong>
@@ -128,16 +137,6 @@ function OrderCancel() {
                                 <div>
                                   Product of the day:{" "}
                                   <strong>
-                                    {/* {new Date(item.price_date).toLocaleString("en-US", {
-                                      timeZone: "Asia/Ho_Chi_Minh",
-                                      year: "numeric",
-                                      month: "long",
-                                      day: "numeric",
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                      second: "2-digit",
-                                      hour12: false,
-                                    })} */}
                                     {(() => {
                                       const utcDate = new Date(item.price_date);
                                       utcDate.setHours(utcDate.getHours() + 7);
@@ -148,11 +147,10 @@ function OrderCancel() {
                                 <div>
                                   Coupon used:{" "}
                                   <strong>
-                                    {orderDetail?.coupon?.sale_percent || "0"}% (- $
-                                    {orderDetail?.total_price && orderDetail?.coupon?.sale_percent
+                                    {orderDetail?.sale_percent || "0"}% (- $
+                                    {orderDetail?.total_price && orderDetail?.sale_percent
                                       ? (
-                                          (orderDetail.total_price *
-                                            orderDetail.coupon.sale_percent) /
+                                          (orderDetail.total_price * orderDetail.sale_percent) /
                                           100
                                         ).toFixed(2)
                                       : "0"}

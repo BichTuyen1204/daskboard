@@ -52,7 +52,6 @@ function EditCustomer() {
   const getCustomerDetail = async () => {
     try {
       const response = await AccountService.getCustomerDetail(id);
-      console.log("nice", response);
       setCustomer(response);
       setUserName(response.username);
       setEmail(response.email || "");
@@ -64,9 +63,7 @@ function EditCustomer() {
         phone: response.phone || "",
         address: response.address || "",
       });
-    } catch (error) {
-      console.error("Can't access the server", error);
-    }
+    } catch (error) {}
   };
 
   const updateAccount = async (e) => {
@@ -75,16 +72,10 @@ function EditCustomer() {
     PasswordBlur();
     if (!userNameError && userName && !passwordError && password) {
       try {
-        const response = await AccountService.updateAccountCustomer(id, customerInfo);
-        console.log("Update account successful", response);
+        await AccountService.updateAccountCustomer(id, customerInfo);
         setUpdateAccountSuccess("Username and password updated successfully.");
         setUserNameError("");
       } catch (error) {
-        console.error(
-          "Error when updating account:",
-          error.response ? error.response.data : error.message
-        );
-
         if (error.response) {
           if (error.response.status === 500) {
             setUserNameError("Account already exists.");
@@ -101,15 +92,9 @@ function EditCustomer() {
     StatusBlur();
     if (!statusError && status) {
       try {
-        const response = await AccountService.updateStatusCustomer(id, status);
-        console.log("Update status successful", response);
+        await AccountService.updateStatusCustomer(id, status);
         setUpdateStatusSuccess("Status updated successfully.");
-      } catch (error) {
-        console.error(
-          "Error during API calls:",
-          error.response ? error.response.data : error.message
-        );
-      }
+      } catch (error) {}
     }
   };
 
@@ -118,18 +103,11 @@ function EditCustomer() {
     EmailBlur();
     PhoneBlur();
     AddressBlur();
-    console.log("Data before submit:", customerInfor);
     if (!emailError && email && !phoneError && phone && !addressError && address) {
       try {
-        const response = await AccountService.updateInforCustomer(id, customerInfor);
-        console.log("Update Info successful", response);
+        await AccountService.updateInforCustomer(id, customerInfor);
         setUpdateInforSuccess("Info updated successfully.");
-      } catch (error) {
-        console.error(
-          "Error during API calls:",
-          error.response ? error.response.data : error.message
-        );
-      }
+      } catch (error) {}
     }
   };
 

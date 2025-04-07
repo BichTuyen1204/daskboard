@@ -18,8 +18,6 @@ export default function shippingOrder(pageOnShipping, rowsPerPageOnShipping) {
           pageOnShipping,
           rowsPerPageOnShipping
         );
-        console.log("Shipping Response:", response);
-
         if (Array.isArray(response.content)) {
           setOrders(response.content);
           setTotalPages(response.total_page || 1);
@@ -28,7 +26,6 @@ export default function shippingOrder(pageOnShipping, rowsPerPageOnShipping) {
           setTotalPages(1);
         }
       } catch (error) {
-        console.error("Error fetching orders:", error);
         setOrders([]);
         setTotalPages(1);
       }

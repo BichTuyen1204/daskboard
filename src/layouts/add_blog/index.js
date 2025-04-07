@@ -23,7 +23,7 @@ import {
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import BlogService from "api/BlogService";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "utils/cropImage";
@@ -40,6 +40,7 @@ function AddBlog() {
   const [titleError, setTitleError] = useState("");
   const [descriptionError, setDescriptionError] = useState("");
   const [markdownTextError, setMarkdownTextError] = useState("");
+  const navigate = useNavigate();
   const [servesError, setServesError] = useState("");
   const [tagsError, setTagsError] = useState("");
   const [cookTimeError, setCookTimeError] = useState("");
@@ -153,7 +154,6 @@ function AddBlog() {
       setCropModalOpen(true); // Open the cropping modal
       setMainImageError(""); // Clear any previous errors
     } catch (error) {
-      console.error("Error creating object URL:", error);
       setMainImageError("Failed to load the image. Please try again.");
     }
   };
@@ -169,9 +169,7 @@ function AddBlog() {
       setMainImagePreview(URL.createObjectURL(croppedImage));
       setCropModalOpen(false);
       setMainImageError("");
-    } catch (error) {
-      console.error("Error cropping the image:", error);
-    }
+    } catch (error) {}
   };
 
   const handleSubmit = async () => {
@@ -181,15 +179,12 @@ function AddBlog() {
     formData.append("blog_info", JSON.stringify(blog));
     try {
       const response = await BlogService.addBlog(formData);
-      console.log("API Response:", response);
       setMainImageError(false);
       setSuccessMessage("Blog added successfully!");
-    } catch (error) {
-      console.error("API Error:", error.response || error.message);
-      const errorMsg = error.response
-        ? error.response.data.message || error.response.statusText
-        : error.message;
-    }
+      setTimeout(() => {
+        navigate(`/view_blog/${response.id}`);
+      }, 1500);
+    } catch (error) {}
   };
 
   return (

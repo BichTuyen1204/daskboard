@@ -6,7 +6,6 @@ const Logout = () => {
 
   useEffect(() => {
     sessionStorage.removeItem("jwtToken");
-    console.log("Token removed");
     navigate("/sign-in");
   }, []);
 

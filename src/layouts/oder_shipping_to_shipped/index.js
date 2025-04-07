@@ -8,12 +8,15 @@ import OrderService from "api/OrderService";
 
 function OrderShippingToShipped() {
   const navigate = useNavigate();
+  const [orderItem, setOrderItem] = useState([]);
   const [orderDetail, setOrderDetail] = useState("");
   const { id } = useParams();
   const jwtToken = sessionStorage.getItem("jwtToken");
   const [popupOnShipped, setPopupOnShipped] = useState(false);
   const [popupShippedOrderSuccess, setPopupShippedOrderSuccess] = useState(false);
   const [selectedItemIdShipped, setSelectedItemIdShipped] = useState(null);
+  const page = 1;
+  const pageSize = 50;
 
   useEffect(() => {
     const token = sessionStorage.getItem("jwtToken");
@@ -28,9 +31,7 @@ function OrderShippingToShipped() {
         try {
           const response = await OrderService.getOrderDetail(id);
           setOrderDetail(response);
-        } catch (error) {
-          console.error("Can't access the server", error);
-        }
+        } catch (error) {}
       }
     };
 
@@ -40,7 +41,6 @@ function OrderShippingToShipped() {
   const shippedOrder = async (id) => {
     const jwtToken = sessionStorage.getItem("jwtToken");
     if (!jwtToken) {
-      console.log("No JWT token found");
       return;
     }
     try {
@@ -52,12 +52,30 @@ function OrderShippingToShipped() {
           setPopupShippedOrderSuccess(false);
           navigate("/shipping_order");
         }, 2000);
-      } else {
-        console.log("Failed to cancel order:", response);
       }
-    } catch (error) {
-      console.error("Failed to cancel order:", error.message);
-    }
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    const getOrderItem = async () => {
+      if (jwtToken) {
+        try {
+          const response = await OrderService.getOrderItem(id, page, pageSize);
+          setOrderItem(response.content);
+        } catch (error) {}
+      }
+    };
+    getOrderItem();
+  }, [id, jwtToken]);
+
+  const mapTypeToLabel = (type) => {
+    const typeMap = {
+      VEG: "Vegetable",
+      MEAT: "Meat",
+      SS: "Season",
+      MK: "Meal kit",
+    };
+    return typeMap[type] || type;
   };
 
   // Hàm mở popup
@@ -85,16 +103,6 @@ function OrderShippingToShipped() {
                   Order ID: {orderDetail.id}
                 </div>
                 <div style={{ fontWeight: "500", fontSize: "0.6em", paddingBottom: "10px" }}>
-                  {/* {new Date(orderDetail.order_date).toLocaleString("en-US", {
-                    timeZone: "Asia/Ho_Chi_Minh",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                    hour12: false,
-                  })} */}
                   {(() => {
                     const utcDate = new Date(orderDetail.order_date);
                     utcDate.setHours(utcDate.getHours() + 7);
@@ -124,9 +132,8 @@ function OrderShippingToShipped() {
 
                     <div style={{ borderBottom: "1px solid #ccc", padding: "10px" }}>
                       <div style={{ display: "flex", flexWrap: "wrap", marginTop: "15px" }}>
-                        {orderDetail.items &&
-                          orderDetail.items.length > 0 &&
-                          orderDetail.items.map((item, index) => (
+                        {orderItem.length > 0 &&
+                          orderItem.map((item, index) => (
                             <div
                               key={index}
                               style={{
@@ -139,22 +146,20 @@ function OrderShippingToShipped() {
                                 paddingBottom: "15px",
                               }}
                             >
-                              {/* Hình ảnh sản phẩm */}
                               <img
-                                src={item.image}
+                                src={item.image_url}
                                 alt={item.name}
                                 style={{
                                   width: "4rem",
                                   height: "55px",
                                   borderRadius: "8px",
-                                  marginRight: "15px", // Thêm khoảng cách giữa hình ảnh và thông tin
+                                  marginRight: "15px",
                                 }}
                               />
 
-                              {/* Thông tin sản phẩm */}
                               <div style={{ fontSize: "0.6em", width: "50%" }}>
                                 <div>
-                                  Category: <strong>{item.type}</strong>
+                                  Category: <strong>{mapTypeToLabel(item.type)}</strong>
                                 </div>
                                 <div>
                                   Name of product: <strong>{item.name}</strong>
@@ -165,16 +170,6 @@ function OrderShippingToShipped() {
                                 <div>
                                   Product of the day:{" "}
                                   <strong>
-                                    {/* {new Date(item.price_date).toLocaleString("en-US", {
-                                      timeZone: "Asia/Ho_Chi_Minh",
-                                      year: "numeric",
-                                      month: "long",
-                                      day: "numeric",
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                      second: "2-digit",
-                                      hour12: false,
-                                    })} */}
                                     {(() => {
                                       const utcDate = new Date(item.price_date);
                                       utcDate.setHours(utcDate.getHours() + 7);
@@ -185,11 +180,10 @@ function OrderShippingToShipped() {
                                 <div>
                                   Coupon used:{" "}
                                   <strong>
-                                    {orderDetail?.coupon?.sale_percent || "0"}% (- $
-                                    {orderDetail?.total_price && orderDetail?.coupon?.sale_percent
+                                    {orderDetail?.sale_percent || "0"}% (- $
+                                    {orderDetail?.total_price && orderDetail?.sale_percent
                                       ? (
-                                          (orderDetail.total_price *
-                                            orderDetail.coupon.sale_percent) /
+                                          (orderDetail.total_price * orderDetail.sale_percent) /
                                           100
                                         ).toFixed(2)
                                       : "0"}

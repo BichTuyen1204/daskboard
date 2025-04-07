@@ -150,9 +150,7 @@ function ProductDetail() {
 
             setLatestPrice(sortedPriceList[0]);
           }
-        } catch (error) {
-          console.error("Can't access the server", error);
-        }
+        } catch (error) {}
       }
     };
 

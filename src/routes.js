@@ -3,13 +3,11 @@ import Product from "layouts/product_manager";
 import Customer from "layouts/customer_manager";
 import Coupon from "layouts/coupon_manager";
 import Staff from "layouts/staff_manager";
-import Profile from "layouts/profile";
 import Blog from "layouts/blog_manager";
 import SignIn from "layouts/authentication/sign-in";
 import Icon from "@mui/material/Icon";
 import Product_Detail from "layouts/product_detail";
 import Order_Confirm from "layouts/order_confirm_to_processing/index";
-import Profile_Detail from "layouts/profile_detail";
 import Add_Coupon from "layouts/add_coupon";
 import View_Coupon from "layouts/view_coupon";
 import View_Staff from "layouts/view_staff";
@@ -59,7 +57,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Product Management",
+    name: "Ingredient Management",
     key: "ingredient",
     icon: <Icon fontSize="small">table_view</Icon>,
     route: "/ingredient",
@@ -124,10 +122,6 @@ const routes = [
   {
     route: "/chat_with_user/:id",
     component: <Chat_With_User />,
-  },
-  {
-    route: "/profile",
-    component: <Profile />,
   },
   {
     type: "collapse",
@@ -196,10 +190,6 @@ const routes = [
   {
     route: "/order_shipped/:id",
     component: <Order_Shipped />,
-  },
-  {
-    route: "/profile_detail/:id",
-    component: <Profile_Detail />,
   },
   {
     route: "/add_coupon",

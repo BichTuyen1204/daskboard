@@ -114,19 +114,15 @@ const ChatWithCustomer = () => {
     const fetchCustomer = async () => {
       try {
         const response = await AccountService.getCustomerDetail(id);
-        console.log("Db user:", response);
         if (response) {
           setCustomers(response);
           setSelectedUser(response);
           const storedMessages = localStorage.getItem(`chat_${id}`);
           setMessages(storedMessages ? JSON.parse(storedMessages) : []);
         } else {
-          console.warn("Customer data is empty!");
           setCustomers(null);
         }
-      } catch (error) {
-        console.error("Can't access server", error);
-      }
+      } catch (error) {}
     };
     fetchCustomer();
   }, [id, jwtToken]);
@@ -140,13 +136,10 @@ const ChatWithCustomer = () => {
 
     socketRef.current = ws;
 
-    ws.onopen = () => console.log("✅ WebSocket Connected");
-
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
 
       if (data.type === "data" && Array.isArray(data.chatlog)) {
-        // Khi tải lịch sử chat từ server
         const parsedMessages = data.chatlog
           .map((msgObj) => {
             try {
@@ -157,7 +150,6 @@ const ChatWithCustomer = () => {
                 timestamp: messageContent.timestamp,
               };
             } catch (error) {
-              console.error("Error parsing message", error);
               return null;
             }
           })
@@ -190,16 +182,11 @@ const ChatWithCustomer = () => {
               saveMessagesToLocal(idUser, messagesRef.current);
             }
           }
-        } catch (error) {
-          console.error("Lỗi khi parse tin nhắn từ server:", error);
-        }
+        } catch (error) {}
       }
     };
 
-    ws.onerror = (error) => console.error("WebSocket Error:", error);
-
     ws.onclose = () => {
-      console.warn("WebSocket Disconnected. Reconnecting in 3s...");
       setTimeout(() => {
         if (!socketRef.current || socketRef.current.readyState === WebSocket.CLOSED) {
           setupWebSocket();
@@ -236,26 +223,17 @@ const ChatWithCustomer = () => {
         message: input,
         timestamp,
       };
-
       socketRef.current.send(JSON.stringify(messageData));
-      console.log("📤 Sent Message:", messageData);
-
-      // Cập nhật UI ngay lập tức mà không cần chờ phản hồi từ server
       const newMessage = { text: input, sender: "staff", timestamp };
       messagesRef.current = [...messagesRef.current, newMessage];
       setMessages([...messagesRef.current]);
       saveMessagesToLocal(id, messagesRef.current);
-
-      // Cuộn xuống cuối khi gửi tin nhắn
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-
-      setInput(""); // Xóa input sau khi gửi
+      setInput("");
     }
   };
 
-  useEffect(() => {
-    console.log("📩 Tất cả tin nhắn:", messages);
-  }, [messages]);
+  useEffect(() => {}, [messages]);
 
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);

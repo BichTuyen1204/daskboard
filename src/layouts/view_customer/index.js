@@ -28,9 +28,7 @@ function ViewCustomer() {
         if (response) {
           setCustomer(response);
         }
-      } catch (error) {
-        console.error("Can't access the server", error);
-      }
+      } catch (error) {}
     };
     getCustomerDetail();
   }, [id, jwtToken]);

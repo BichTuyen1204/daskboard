@@ -10,9 +10,6 @@ export default function data(pageCustomer, rowsPerPageCustomer, searchQuery) {
   const [customer, setCustomer] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const jwtToken = sessionStorage.getItem("jwtToken");
-  const defaultAvatar =
-    "https://i.pinimg.com/originals/2c/47/d5/2c47d5dd5b532f83bb55c4cd6f5bd1ef.jpg";
-
   const hasNextPageCustomer = pageCustomer < totalPages;
 
   useEffect(() => {
@@ -26,7 +23,6 @@ export default function data(pageCustomer, rowsPerPageCustomer, searchQuery) {
             rowsPerPageCustomer,
             searchQuery
           );
-          console.log(response);
           if (Array.isArray(response.content)) {
             setCustomer(response.content);
             setTotalPages(response.total_page || 1);
@@ -35,7 +31,6 @@ export default function data(pageCustomer, rowsPerPageCustomer, searchQuery) {
             setTotalPages(1);
           }
         } catch (error) {
-          console.error("Can't access the server", error);
           setCustomer([]);
           setTotalPages(1);
         }

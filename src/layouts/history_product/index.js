@@ -78,9 +78,7 @@ function HistoryProduct() {
         try {
           const response = await ProductService.getProductDetail(id);
           setProduct(response);
-        } catch (error) {
-          console.error("Can't access the server", error);
-        }
+        } catch (error) {}
       }
     };
     getProductDetail();
@@ -106,7 +104,6 @@ function HistoryProduct() {
             setTotalPages(1);
           }
         } catch (error) {
-          console.error("Can't access the server", error);
           setHistory([]);
           setTotalPages(1);
         }
@@ -128,7 +125,6 @@ function HistoryProduct() {
             rowsPerPageHistoryUpdate
           );
           if (Array.isArray(response.content)) {
-            console.log(response.content);
             setHistorUpdate(response.content);
             setTotalPagesUpdate(response.total_page || 1);
           } else {
@@ -136,7 +132,6 @@ function HistoryProduct() {
             setTotalPagesUpdate(1);
           }
         } catch (error) {
-          console.error("Can't access the server", error);
           setHistorUpdate([]);
           setTotalPagesUpdate(1);
         }

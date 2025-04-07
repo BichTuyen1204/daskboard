@@ -44,7 +44,7 @@ function AddCoupon() {
 
       case "sale_percent":
         if (!value) errorMessage = "Please enter the sale percentage";
-        else if (value < 0) errorMessage = "The sale percentage of 0 or greater";
+        else if (value < 1) errorMessage = "The sale percent must be greater than 0";
         else if (value > 100)
           errorMessage = "The sale percentage must be less than or equal to 100";
         break;
@@ -108,20 +108,16 @@ function AddCoupon() {
 
   const handleSubmit = async () => {
     const isValid = Object.keys(errors).every((key) => validateField(key, coupon[key]));
-
     if (isValid) {
       try {
         const response = await CouponService.addCoupon(coupon);
-        console.log("Full response from API:", response);
         setAddSuccess(true);
       } catch (error) {
-        console.error("Error when adding coupon:", error);
         if (error.response && error.response.status === 500) {
           setIdError("The coupon ID already exists");
         } else {
           setIdError("The coupon ID already exists");
         }
-
         setAddSuccess(false);
       }
     }

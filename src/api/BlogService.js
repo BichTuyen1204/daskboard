@@ -26,8 +26,6 @@ class BlogService {
     } else {
       try {
         let url = `${API_BASE_URL}/fetch/all?index=${page - 1}&size=${size}`;
-
-        // Add search parameter if provided
         if (searchQuery) {
           url += `&title=${encodeURIComponent(searchQuery)}`;
         }
@@ -60,7 +58,6 @@ class BlogService {
   }
 
   async updateBlog(id, data) {
-    console.log(data);
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.post(

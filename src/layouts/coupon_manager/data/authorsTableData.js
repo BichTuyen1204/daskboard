@@ -32,9 +32,7 @@ export default function data(pageCoupon, rowsPerPageCoupon, searchQuery) {
         setCoupon((prevCoupons) => prevCoupons.filter((coupon) => coupon.id !== id));
         setPopupDelete(false);
         window.location.reload();
-      } catch (error) {
-        console.error("Failed to delete coupon:", error.message);
-      }
+      } catch (error) {}
     }
   };
 

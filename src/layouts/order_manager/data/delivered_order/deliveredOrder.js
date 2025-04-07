@@ -18,8 +18,6 @@ export default function deliveredOrder(pageDelivered, rowsPerPageDelivered) {
           pageDelivered,
           rowsPerPageDelivered
         );
-        console.log("Confirm Response:", response);
-
         if (Array.isArray(response.content)) {
           const sortedOrders = response.content.sort(
             (a, b) => new Date(b.order_date) - new Date(a.order_date)
@@ -31,7 +29,6 @@ export default function deliveredOrder(pageDelivered, rowsPerPageDelivered) {
           setTotalPages(1);
         }
       } catch (error) {
-        console.error("Error fetching orders:", error);
         setOrders([]);
         setTotalPages(1);
       }

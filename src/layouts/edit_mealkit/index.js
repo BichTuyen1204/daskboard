@@ -128,7 +128,6 @@ function EditMealkit() {
 
       setTotalPages(total_page);
     } catch (error) {
-      console.error("Error fetching products:", error);
       setSearchResults([]);
     } finally {
       setLoading(false);
@@ -187,14 +186,10 @@ function EditMealkit() {
     });
   };
 
-  // Update getProductDetail function to handle ingredient data properly
   const getProductDetailWithIngredients = async () => {
     if (!jwtToken) return;
     try {
-      // Get basic product info
       const response = await ProductService.getProductDetail(prod_id);
-      console.log("Product detail:", response);
-
       setProduct(response);
       setQuantity(response.available_quantity);
       setStatus(response.product_status);
@@ -202,12 +197,7 @@ function EditMealkit() {
       setDescription(response.description || "");
       setArticleMd(response.article || "");
       setInstructions(response.instructions || []);
-
-      // Get ingredients using the dedicated API
       const ingredientsResponse = await ProductService.getIngredient(prod_id, 1, 100);
-      console.log("Ingredients:", ingredientsResponse);
-
-      // Process ingredients data
       const ingredients = {};
       const ingredientDetails = {};
 
@@ -243,12 +233,7 @@ function EditMealkit() {
       } else {
         setInfoRows([{ key: "", value: "" }]);
       }
-    } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
-    }
+    } catch (error) {}
   };
 
   // Replace the useEffect that calls getProductDetail
@@ -274,10 +259,7 @@ function EditMealkit() {
 
         const latestEntry = data.sort((a, b) => new Date(b.in_date) - new Date(a.in_date))[0];
         setInPrice(latestEntry.in_price);
-        console.log("Updated inPrice:", latestEntry.in_price);
-      } catch (error) {
-        console.error("Error fetching history:", error);
-      }
+      } catch (error) {}
     }
     fetchPrice();
   }, [prod_id]);
@@ -292,14 +274,8 @@ function EditMealkit() {
           parseInt(quantity),
           Number(in_price)
         );
-        console.log("Update quantity and price successful", response);
         setUpdateQuantitySuccess("Quantity and price updated successfully.");
-      } catch (error) {
-        console.error(
-          "Error during API calls:",
-          error.response ? error.response.data : error.message
-        );
-      }
+      } catch (error) {}
     }
   };
 
@@ -309,14 +285,8 @@ function EditMealkit() {
     if (!statusError && status) {
       try {
         const response = await ProductService.updateProductStatus(prod_id, status.toString());
-        console.log("Update status successful", response);
         setUpdateStatusSuccess("Status updated successfully.");
-      } catch (error) {
-        console.error(
-          "Error during API calls:",
-          error.response ? error.response.data : error.message
-        );
-      }
+      } catch (error) {}
     }
   };
 
@@ -325,24 +295,16 @@ function EditMealkit() {
     PriceBlur();
     SalePersentBlur();
     if (!prod_id || !price || saleError || priceError || !sale_percent) {
-      console.error("Cannot proceed: Price or Sale Percent is still blurred.");
       return;
     } else {
       try {
-        console.log("Price", price, "Sale percent", sale_percent);
         const response = await ProductService.updateProductPrice(
           prod_id,
           Number(price),
           Number(sale_percent)
         );
-        console.log("Update price and sale percent successful", response);
         setUpdatePriceSuccess("Price and sale percent updated successfully.");
-      } catch (error) {
-        console.error(
-          "Error during API calls:",
-          error.response ? error.response.data : error.message
-        );
-      }
+      } catch (error) {}
     }
   };
 
@@ -354,21 +316,13 @@ function EditMealkit() {
     synchronizeInfosWithRows();
 
     if (!prod_id || dayBeforeExpiryError || descriptionError || !dayBeforeExpiry || !description) {
-      console.error("Invalid input data");
       return;
     } else {
       try {
-        console.log("Sending data:", JSON.stringify(mealkitInfo, null, 2));
         const response = await ProductService.updateMealkitInfo(prod_id, mealkitInfo);
-        console.log("Update infos successful", response);
         setUpdateInfomationSuccess("Information updated successfully.");
         window.location.reload(); // Refresh the page
-      } catch (error) {
-        console.error(
-          "Error during API calls:",
-          error.response ? error.response.data : error.message
-        );
-      }
+      } catch (error) {}
     }
   };
 

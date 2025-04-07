@@ -110,9 +110,7 @@ function AddMealkit() {
 
       setCropModalOpen(false);
       setMainImageError("");
-    } catch (error) {
-      console.error("Error cropping the image:", error);
-    }
+    } catch (error) {}
   };
 
   const handleMainImageChange = (e) => {
@@ -131,7 +129,6 @@ function AddMealkit() {
       setCropModalOpen(true); // Open the cropping modal
       setMainImageError(""); // Clear any previous errors
     } catch (error) {
-      console.error("Error creating object URL:", error);
       setMainImageError("Failed to load the image. Please try again.");
     }
   };
@@ -178,9 +175,7 @@ function AddMealkit() {
 
       setCropModalOpen(false);
       setAdditionalImagesError("");
-    } catch (error) {
-      console.error("Error cropping the additional image:", error);
-    }
+    } catch (error) {}
   };
 
   // Fetch products from API
@@ -205,7 +200,6 @@ function AddMealkit() {
 
       setTotalPages(total_page); // Update total pages
     } catch (error) {
-      console.error("Error fetching products:", error);
       setSearchResults([]); // Clear results on error
     } finally {
       setLoading(false);
@@ -236,7 +230,6 @@ function AddMealkit() {
   const handleAddIngredient = (selectedProduct) => {
     setProduct((prev) => {
       if (prev.ingredients[selectedProduct.id]) {
-        console.warn("Ingredient already exists:", selectedProduct.id);
         return prev; // Do not add duplicate ingredients
       }
       return {
@@ -515,20 +508,12 @@ function AddMealkit() {
     formData.append("product_detail", JSON.stringify(product));
 
     // 🛠 In dữ liệu để kiểm tra trước khi gửi
-    console.log("==== FormData Debug ====");
     for (const pair of formData.entries()) {
-      console.log(pair[0], pair[1]);
     }
-    console.log("Product Detail JSON:", JSON.stringify(product, null, 2));
-    console.log("Main Image:", mainImage);
-    additionalImages.forEach((image, index) => {
-      console.log(`Additional Image ${index + 1}:`, image.name);
-    });
-    console.log("========================");
+    additionalImages.forEach((image, index) => {});
 
     try {
       const response = await ProductService.createMealkit(formData);
-      console.log("MEALKIT Response:", response);
       setSuccessMessage("Mealkit added successfully!");
     } catch (error) {
       if (error.response) {
@@ -542,7 +527,6 @@ function AddMealkit() {
       } else {
         setErrorMessage("Network or server error.");
       }
-      console.error("API Error:", error.message || "Something went wrong.");
     }
   };
 

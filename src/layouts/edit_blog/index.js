@@ -93,9 +93,7 @@ function EditBlog() {
         markdown_text: response.article || "",
         infos: response.infos || {},
       });
-    } catch (error) {
-      console.error("Can't access the server", error);
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {
@@ -245,12 +243,10 @@ function EditBlog() {
       formData.append("main_image", mainImage);
       formData.append("blog_info", JSON.stringify(blog));
       try {
-        console.log(formData);
         await BlogService.updateBlog(id, blog);
         setSuccessMessage("Blog updated successfully!");
         setErrorMessage("");
       } catch (error) {
-        console.error("API Error:", error.response || error.message);
         const errorMsg = error.response
           ? error.response.data.message || error.response.statusText
           : error.message;

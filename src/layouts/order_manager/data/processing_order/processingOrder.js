@@ -18,9 +18,6 @@ export default function processingOrder(pageOnProcessing, rowsPerPageOnProcessin
           pageOnProcessing,
           rowsPerPageOnProcessing
         );
-
-        console.log("Processing Orders Response:", response);
-
         if (Array.isArray(response.content)) {
           setOrders(response.content);
           setTotalPages(response.total_page || 1);
@@ -29,7 +26,6 @@ export default function processingOrder(pageOnProcessing, rowsPerPageOnProcessin
           setTotalPages(1);
         }
       } catch (error) {
-        console.error("Error fetching orders:", error);
         setOrders([]);
         setTotalPages(1);
       }

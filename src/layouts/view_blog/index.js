@@ -26,9 +26,7 @@ function ViewBlog() {
         try {
           const response = await BlogService.getBlogDetail(id);
           setBlog(response);
-        } catch (error) {
-          console.error("Can't access the server", error);
-        }
+        } catch (error) {}
       }
     };
     getBlogDetail();

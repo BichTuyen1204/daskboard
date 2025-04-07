@@ -18,10 +18,7 @@ export default function cancelOrder(pageCancelOrder, rowsPerPageCancelOrder) {
           pageCancelOrder,
           rowsPerPageCancelOrder
         );
-        console.log("Confirm Response:", response);
-
         if (Array.isArray(response.content)) {
-          // Sắp xếp đơn hàng theo order_date giảm dần (mới nhất lên trước)
           const sortedOrders = response.content.sort(
             (a, b) => new Date(b.order_date) - new Date(a.order_date)
           );
@@ -33,7 +30,6 @@ export default function cancelOrder(pageCancelOrder, rowsPerPageCancelOrder) {
           setTotalPages(1);
         }
       } catch (error) {
-        console.error("Error fetching orders:", error);
         setOrders([]);
         setTotalPages(1);
       }

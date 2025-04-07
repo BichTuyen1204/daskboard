@@ -26,9 +26,7 @@ function ViewCoupon() {
         try {
           const response = await CouponService.getCouponDetail(id);
           setCoupon(response);
-        } catch (error) {
-          console.error("Can't access the server", error);
-        }
+        } catch (error) {}
       }
     };
     getCouponDetail();

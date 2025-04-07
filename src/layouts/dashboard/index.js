@@ -35,7 +35,6 @@ function Dashboard() {
           setAccount(null);
         }
       } catch (error) {
-        console.error(error);
         setAccount(null);
       }
     };

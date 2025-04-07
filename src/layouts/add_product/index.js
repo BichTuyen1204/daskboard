@@ -170,7 +170,6 @@ function AddProduct() {
       setCropModalOpen(true); // Open the cropping modal
       setMainImageError(""); // Clear any previous errors
     } catch (error) {
-      console.error("Error creating object URL:", error);
       setMainImageError("Failed to load the image. Please try again.");
     }
   };
@@ -202,9 +201,7 @@ function AddProduct() {
 
       setCropModalOpen(false);
       setMainImageError("");
-    } catch (error) {
-      console.error("Error cropping the image:", error);
-    }
+    } catch (error) {}
   };
 
   const handleAdditionalImageCropSave = async () => {
@@ -226,9 +223,7 @@ function AddProduct() {
 
       setCropModalOpen(false);
       setAdditionalImagesError("");
-    } catch (error) {
-      console.error("Error cropping the additional image:", error);
-    }
+    } catch (error) {}
   };
 
   const handleAdditionalImagesChange = (e) => {
@@ -346,7 +341,6 @@ function AddProduct() {
       } else {
         setErrorMessage("Network or server error.");
       }
-      console.error(error.message || "Something went wrong.");
     }
   };
 
@@ -426,7 +420,7 @@ function AddProduct() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Add Product
+                  Add Ingredient
                 </MDTypography>
               </MDBox>
 
@@ -738,14 +732,24 @@ function AddProduct() {
                         label="Day Before Expiry (days)"
                         type="number"
                         value={product.day_before_expiry}
-                        onChange={(e) => handleChange("day_before_expiry", e.target.value)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (/^\d*$/.test(value)) {
+                            handleChange("day_before_expiry", value);
+                          }
+                        }}
                         onKeyDown={(e) => {
-                          if (e.key.toLowerCase() === "e") {
+                          if (
+                            ["e", "E", "+", "-", ".", ",", " "].includes(e.key) ||
+                            (isNaN(Number(e.key)) && e.key.length === 1)
+                          ) {
                             e.preventDefault();
                           }
                         }}
+                        inputProps={{ min: 0 }}
                         margin="normal"
                       />
+
                       <p
                         style={{
                           color: "red",

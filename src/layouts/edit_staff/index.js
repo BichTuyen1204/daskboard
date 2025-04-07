@@ -67,7 +67,6 @@ function EditStaff() {
   const getStaffDetail = async () => {
     try {
       const response = await AccountService.getStaffDetail(id);
-      console.log("nice", response);
       setStaff(response);
       setUserName(response.username);
       setStatus(response.status);
@@ -88,9 +87,7 @@ function EditStaff() {
         phonenumber: response.phonenumber || "",
         dob: response.dob || "",
       });
-    } catch (error) {
-      console.error("Can't access the server", error);
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {
@@ -104,15 +101,9 @@ function EditStaff() {
     if (!userNameError && userName && !passwordError && password) {
       try {
         const response = await AccountService.updateAccountStaff(id, staffAccount);
-        console.log("Update account successful", response);
         setUpdateAccountSuccess("Username and password updated successfully.");
         setUserNameError("");
       } catch (error) {
-        console.error(
-          "Error when updating account:",
-          error.response ? error.response.data : error.message
-        );
-
         if (error.response) {
           if (error.response.status === 500) {
             setUserNameError("Username already exists.");
@@ -129,15 +120,9 @@ function EditStaff() {
     StatusBlur();
     if (!statusError && status) {
       try {
-        const response = await AccountService.updateStatusStaff(id, status);
-        console.log("Update status successful", response);
+        await AccountService.updateStatusStaff(id, status);
         setUpdateStatusSuccess("Status updated successfully.");
-      } catch (error) {
-        console.error(
-          "Error during API calls:",
-          error.response ? error.response.data : error.message
-        );
-      }
+      } catch (error) {}
     }
   };
 
@@ -148,7 +133,6 @@ function EditStaff() {
     DobBlur();
     EmailBlur();
     PhoneBlur();
-    console.log("Data before submit:", staffInfor);
     if (
       !emailError &&
       email &&
@@ -162,15 +146,9 @@ function EditStaff() {
       dob
     ) {
       try {
-        const response = await AccountService.updateInforStaff(id, staffInfor);
-        console.log("Update Info successful", response);
+        await AccountService.updateInforStaff(id, staffInfor);
         setUpdateInforSuccess("Info updated successfully.");
-      } catch (error) {
-        console.error(
-          "Error during API calls:",
-          error.response ? error.response.data : error.message
-        );
-      }
+      } catch (error) {}
     }
   };
 

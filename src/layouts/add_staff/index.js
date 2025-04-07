@@ -112,17 +112,8 @@ function AddStaff() {
     if (isValid) {
       try {
         const response = await AccountService.addStaff(staff);
-        console.log("Add successful:", response);
         setAddSuccess(true);
       } catch (error) {
-        if (error.response) {
-          console.error("Error when adding staff:", error.response.data);
-          if (error.response.data.message) {
-            console.log("API error message:", error.response.data.message);
-          }
-        } else {
-          console.error("Error when adding staff:", error.message);
-        }
         setAddSuccess(false);
       }
     }

@@ -83,10 +83,7 @@ function EditProduct() {
   const getProductDetail = async () => {
     try {
       const response = await ProductService.getProductDetail(prod_id);
-      console.log("nice", response);
-
       setProduct(response);
-
       setQuantity(response.available_quantity);
       setStatus(response.product_status);
       setSale(response.price_list?.[0]?.sale_percent);
@@ -109,12 +106,7 @@ function EditProduct() {
         instructions: response.instructions || [],
         infos: infos,
       });
-    } catch (error) {
-      console.error(
-        "Error during API calls:",
-        error.response ? error.response.data : error.message
-      );
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {
@@ -135,10 +127,7 @@ function EditProduct() {
 
         const latestEntry = data.sort((a, b) => new Date(b.in_date) - new Date(a.in_date))[0];
         setInPrice(latestEntry.in_price);
-        console.log("Updated inPrice:", latestEntry.in_price);
-      } catch (error) {
-        console.error("Error fetching history:", error);
-      }
+      } catch (error) {}
     }
     fetchPrice();
   }, [prod_id]);
@@ -221,20 +210,10 @@ function EditProduct() {
     QuantityBlur();
     if (!quantityError && quantity && !inPriceError && inPrice) {
       try {
-        const response = await ProductService.updateProductQuantity(
-          prod_id,
-          parseInt(quantity),
-          Number(inPrice)
-        );
-        console.log("Update quantity and price successful", response);
+        await ProductService.updateProductQuantity(prod_id, parseInt(quantity), Number(inPrice));
         setUpdateQuantitySuccess("Quantity and price updated successfully.");
         window.location.reload(); // Refresh the page
-      } catch (error) {
-        console.error(
-          "Error during API calls:",
-          error.response ? error.response.data : error.message
-        );
-      }
+      } catch (error) {}
     }
   };
 
@@ -243,16 +222,10 @@ function EditProduct() {
     StatusBlur();
     if (!statusError && status) {
       try {
-        const response = await ProductService.updateProductStatus(prod_id, status.toString());
-        console.log("Update status successful", response);
+        await ProductService.updateProductStatus(prod_id, status.toString());
         setUpdateStatusSuccess("Status updated successfully.");
         window.location.reload(); // Refresh the page
-      } catch (error) {
-        console.error(
-          "Error during API calls:",
-          error.response ? error.response.data : error.message
-        );
-      }
+      } catch (error) {}
     }
   };
 
@@ -261,24 +234,13 @@ function EditProduct() {
     PriceBlur();
     SalePersentBlur();
     if (!prod_id || priceError || saleError || !price || !sale_percent) {
-      console.error("Cannot proceed: Price or Sale Percent is still blurred.");
       return;
     } else {
       try {
-        console.log("Price", price, "Sale percent", sale_percent);
-        const response = await ProductService.updateProductPrice(
-          prod_id,
-          Number(price),
-          Number(sale_percent)
-        );
+        await ProductService.updateProductPrice(prod_id, Number(price), Number(sale_percent));
         setUpdatePriceSuccess("Price and sale percent updated successfully.");
         window.location.reload(); // Refresh the page
-      } catch (error) {
-        console.error(
-          "Error during API calls:",
-          error.response ? error.response.data : error.message
-        );
-      }
+      } catch (error) {}
     }
   };
 
@@ -292,21 +254,13 @@ function EditProduct() {
     synchronizeInfosWithRows();
 
     if (!prod_id || dayBeforeExpiryError || descriptionError || !dayBeforeExpiry || !description) {
-      console.error("Invalid input data");
       return;
     } else {
       try {
-        console.log(productInfo);
-        const response = await ProductService.updateProductInfo(prod_id, productInfo);
-        console.log("Update infos successful", response);
+        await ProductService.updateProductInfo(prod_id, productInfo);
         setUpdateInfomationSuccess("Infor of ingredients updated successfully.");
         window.location.reload(); // Refresh the page
-      } catch (error) {
-        console.error(
-          "Error during API calls:",
-          error.response ? error.response.data : error.message
-        );
-      }
+      } catch (error) {}
     }
   };
 

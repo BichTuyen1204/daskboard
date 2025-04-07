@@ -18,8 +18,6 @@ export default function confirmOrder(pageOnConfirm, rowsPerPageOnConfirm) {
           pageOnConfirm,
           rowsPerPageOnConfirm
         );
-        console.log("Confirm Response:", response);
-
         if (Array.isArray(response.content)) {
           setOrders(response.content);
           setTotalPages(response.total_page || 1);
@@ -28,7 +26,6 @@ export default function confirmOrder(pageOnConfirm, rowsPerPageOnConfirm) {
           setTotalPages(1);
         }
       } catch (error) {
-        console.error("Error fetching orders:", error);
         setOrders([]);
         setTotalPages(1);
       }
@@ -41,7 +38,7 @@ export default function confirmOrder(pageOnConfirm, rowsPerPageOnConfirm) {
   const columns = [
     { Header: "Receiver", accessor: "name", align: "center" },
     { Header: "Order Date", accessor: "order_date", align: "center" },
-    { Header: "Address", accessor: "address", align: "center" },
+    { Header: "Address", accessor: "address", align: "left" },
     { Header: "Phone", accessor: "phone", align: "center" },
     { Header: "Payment Status", accessor: "payment_status", align: "center" },
     { Header: "Total Price", accessor: "total_price", align: "center" },
@@ -59,16 +56,6 @@ export default function confirmOrder(pageOnConfirm, rowsPerPageOnConfirm) {
           utcDate.setHours(utcDate.getHours() + 7);
           return utcDate.toLocaleString("vi-VN");
         })()}
-        {/* {new Date(item.order_date).toLocaleString("en-US", {
-          timeZone: "Asia/Ho_Chi_Minh",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: false,
-        })} */}
       </MDTypography>
     ),
     address: <MDTypography variant="caption">{item.delivery_address}</MDTypography>,

@@ -150,9 +150,7 @@ function MealkitDetail() {
 
             setLatestPrice(sortedPriceList[0]);
           }
-        } catch (error) {
-          console.error("Can't access the server", error);
-        }
+        } catch (error) {}
       }
     };
 
@@ -178,9 +176,7 @@ function MealkitDetail() {
         try {
           const response = await ProductService.getIngredient(prod_id, 1, 100);
           setIngredients(response?.content || []);
-        } catch (error) {
-          console.error("Error fetching ingredients:", error);
-        }
+        } catch (error) {}
       }
     };
 

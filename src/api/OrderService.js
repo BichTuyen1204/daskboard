@@ -50,6 +50,24 @@ class OrderService {
     }
   }
 
+  async getOrderItem(id, index, size) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      if (!token) {
+        return;
+      }
+      const response = await axios.get(
+        `${API_BASE_URL}/fetch/${id}/items?index=${index - 1}&size=${size}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async cancelOrder(id) {
     try {
       const token = sessionStorage.getItem("jwtToken");

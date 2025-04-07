@@ -65,7 +65,7 @@ class AccountService {
       });
       return response.data;
     } catch (error) {
-      return { content: [], total_page: 0 }; // Return empty results on error
+      return { content: [], total_page: 0 };
     }
   }
 
@@ -73,8 +73,6 @@ class AccountService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       let url = `${API_BASE_URL_4}/all?index=${page - 1}&size=${size}`;
-
-      // Add search parameter if provided
       if (searchQuery) {
         url += `&id=${encodeURIComponent(searchQuery)}`;
       }
@@ -164,7 +162,7 @@ class AccountService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.post(
-        `${REACT_APP_BACKEND_API_ENDPOINT}/api/manager/staff/edit/info?id=${id}`,
+        `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/customer/edit/info?id=${id}`,
         data,
         {
           headers: {

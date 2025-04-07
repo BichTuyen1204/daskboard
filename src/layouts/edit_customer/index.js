@@ -24,7 +24,9 @@ function EditCustomer() {
   const [address, setAddress] = useState("");
   const [addressError, setAddressError] = useState("");
   const [phone, setPhone] = useState("");
-  const [profile_description, setProfile_description] = useState("");
+  const [profileName, setProfileName] = useState("");
+  const [profileNameError, setProfileNameError] = useState("");
+  const [profileDescription, setProfileDescription] = useState("");
   const [profileDescriptionError, setProfileDescriptionError] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [updateInforSuccess, setUpdateInforSuccess] = useState("");
@@ -43,6 +45,7 @@ function EditCustomer() {
     address: "",
     phone: "",
     profile_description: "",
+    profile_name: "",
   });
 
   useEffect(() => {
@@ -62,6 +65,8 @@ function EditCustomer() {
         email: response.email || "",
         phone: response.phone || "",
         address: response.address || "",
+        profile_name: response.profile_name || "",
+        profile_description: "",
       });
     } catch (error) {}
   };
@@ -107,7 +112,12 @@ function EditCustomer() {
       try {
         await AccountService.updateInforCustomer(id, customerInfor);
         setUpdateInforSuccess("Info updated successfully.");
-      } catch (error) {}
+      } catch (error) {
+        console.error("Update failed:", error.response?.data || error.message);
+        throw error; // đừng nuốt lỗi
+      }
+    } else {
+      console.log("Validation failed");
     }
   };
 
@@ -237,17 +247,32 @@ function EditCustomer() {
     }
   };
 
+  const ProfileNameChange = (e) => {
+    const { value } = e.target;
+    setProfileName(value);
+    setProfileNameError(false);
+    updateField("profile_name", value);
+    setUpdateInforSuccess(false);
+  };
+
+  const ProfileNameBlur = () => {
+    if (profileName === "") {
+      setProfileNameError("Please enter a real name");
+    } else {
+      setProfileNameError("");
+    }
+  };
+
   const ProfileDescriptionChange = (e) => {
     const { value } = e.target;
-    setProfile_description(value);
-    setProfileDescriptionError(false);
+    setProfileDescription(value);
     updateField("profile_description", value);
     setUpdateInforSuccess(false);
   };
 
   const ProfileDescriptionBlur = () => {
-    if (address === "") {
-      setProfileDescriptionError("Please enter a profile");
+    if (profileDescription === "") {
+      setProfileDescriptionError("Please enter a profile description");
     } else {
       setProfileDescriptionError("");
     }
@@ -482,10 +507,25 @@ function EditCustomer() {
                         <TextField
                           fullWidth
                           type="text"
-                          value={profile_description || ""}
+                          value={profileName || ""}
+                          onChange={ProfileNameChange}
+                          onBlur={ProfileNameBlur}
+                          label="Real name"
+                          margin="normal"
+                        />
+                        {profileNameError && (
+                          <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                            {profileNameError}
+                          </p>
+                        )}
+
+                        <TextField
+                          fullWidth
+                          type="text"
+                          value={profileDescription || ""}
                           onChange={ProfileDescriptionChange}
                           onBlur={ProfileDescriptionBlur}
-                          label="Profile description"
+                          label="Profile Description"
                           margin="normal"
                         />
                         {profileDescriptionError && (

@@ -45,6 +45,7 @@ export default function DataTable(page, rowsPerPage, selectedType, searchQuery) 
       VEG: "Vegetable",
       MEAT: "Meat",
       SS: "Season",
+      MK: "Mealkit",
     };
     return typeMap[type] || type;
   };
@@ -87,7 +88,9 @@ export default function DataTable(page, rowsPerPage, selectedType, searchQuery) 
   ];
 
   const rows = (Array.isArray(product) ? product : [])
-    .filter((item) => item.type !== "MK")
+    // .filter((item) => {
+    //   return true;
+    // })
     .map((item) => ({
       image: (
         <MDBox display="flex" alignItems="center" lineHeight={1}>

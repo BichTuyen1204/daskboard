@@ -254,6 +254,13 @@ function AddMealkit() {
   };
 
   const handleAmountChange = (id, amount) => {
+    // Convert to number for proper comparison
+    const numAmount = parseFloat(amount);
+
+    // Validate amount is a positive number
+    const error =
+      !amount || isNaN(numAmount) || numAmount <= 0 ? "Amount must be greater than 0" : "";
+
     setProduct((prev) => ({
       ...prev,
       ingredients: {
@@ -261,6 +268,25 @@ function AddMealkit() {
         [id]: amount,
       },
     }));
+
+    // Update ingredient errors
+    if (error) {
+      // Set error for this specific ingredient
+      setIngredientsError((prev) => ({
+        ...prev,
+        [id]: error,
+      }));
+    } else {
+      // Clear error for this ingredient
+      setIngredientsError((prev) => {
+        // If ingredients error is a string, convert to object first
+        const errors = typeof prev === "string" ? {} : { ...prev };
+        delete errors[id];
+
+        // If no more errors, return empty string, otherwise return object
+        return Object.keys(errors).length > 0 ? errors : "";
+      });
+    }
   };
 
   const handleDeleteIngredient = (id) => {
@@ -461,21 +487,27 @@ function AddMealkit() {
     }
 
     // Add validation for ingredients - ensure we have at least one ingredient
-    if (Object.keys(ingredients).length === 0) {
+    const ingredientIds = Object.keys(product.ingredients);
+    if (ingredientIds.length === 0) {
       setIngredientsError("At least one ingredient is required.");
       return false;
     }
 
-    // Check if any ingredient has an empty amount
-    let hasEmptyAmount = false;
-    Object.entries(ingredients).forEach(([id, amount]) => {
-      if (!amount || amount.trim() === "") {
-        hasEmptyAmount = true;
+    // Check if any ingredient has an invalid amount
+    let hasInvalidAmount = false;
+    const errors = {};
+
+    ingredientIds.forEach((id) => {
+      const amount = product.ingredients[id];
+      const numAmount = parseFloat(amount);
+      if (!amount || isNaN(numAmount) || numAmount <= 0) {
+        errors[id] = "Amount must be greater than 0";
+        hasInvalidAmount = true;
       }
     });
 
-    if (hasEmptyAmount) {
-      setIngredientsError("All ingredients must have an amount specified.");
+    if (hasInvalidAmount) {
+      setIngredientsError(errors);
       return false;
     }
 
@@ -865,7 +897,7 @@ function AddMealkit() {
                         </p>
                         {/* Search Bar */}
                         <Autocomplete
-                          freeSolo
+                          freeSolo={false}
                           options={searchResults}
                           getOptionLabel={(option) => option.name || ""}
                           loading={loading}
@@ -873,7 +905,11 @@ function AddMealkit() {
                             setSearchQuery(value); // Update the search query
                             setSearchResults([]); // Clear previous results
                           }}
-                          onChange={(e, value) => value && handleAddIngredient(value)}
+                          onChange={(e, value) => {
+                            if (value && typeof value === "object" && value.id) {
+                              handleAddIngredient(value);
+                            }
+                          }}
                           ListboxProps={{
                             style: {
                               maxHeight: "100px", // Set a maximum height for the dropdown
@@ -917,7 +953,7 @@ function AddMealkit() {
                               style={{ marginTop: "15px" }}
                               {...params}
                               label="Search Ingredients"
-                              placeholder="Type to search..."
+                              placeholder="Type to search and select from the list..."
                               InputProps={{
                                 ...params.InputProps,
                                 endAdornment: (
@@ -929,6 +965,7 @@ function AddMealkit() {
                                   </>
                                 ),
                               }}
+                              helperText="Please select an ingredient from the search results"
                             />
                           )}
                         />
@@ -981,6 +1018,24 @@ function AddMealkit() {
                                         value={amount}
                                         onChange={(e) => handleAmountChange(id, e.target.value)}
                                         size="small"
+                                        inputProps={{ min: "0", step: "any" }}
+                                        onKeyDown={(e) => {
+                                          if (e.key.toLowerCase() === "e") {
+                                            e.preventDefault();
+                                          }
+                                        }}
+                                        error={
+                                          !!ingredientsError &&
+                                          typeof ingredientsError === "object" &&
+                                          ingredientsError[id]
+                                        }
+                                        helperText={
+                                          ingredientsError &&
+                                          typeof ingredientsError === "object" &&
+                                          ingredientsError[id]
+                                            ? ingredientsError[id]
+                                            : ""
+                                        }
                                       />
                                     </TableCell>
                                     <TableCell>
@@ -1000,16 +1055,18 @@ function AddMealkit() {
                           </Table>
                         </TableContainer>
 
-                        <p
-                          style={{
-                            color: "red",
-                            fontSize: "0.6em",
-                            fontWeight: "450",
-                            marginLeft: "5px",
-                          }}
-                        >
-                          {ingredientsError}
-                        </p>
+                        {typeof ingredientsError === "string" && ingredientsError && (
+                          <p
+                            style={{
+                              color: "red",
+                              fontSize: "0.6em",
+                              fontWeight: "450",
+                              marginLeft: "5px",
+                            }}
+                          >
+                            {ingredientsError}
+                          </p>
+                        )}
                       </MDBox>
                     </MDBox>
                   </Grid>
@@ -1133,6 +1190,13 @@ function AddMealkit() {
                                         ...prev,
                                         instructions: updatedInstructions,
                                       }));
+
+                                      // Clear instruction error if there's at least one non-empty instruction
+                                      if (
+                                        updatedInstructions.some((instr) => instr.trim() !== "")
+                                      ) {
+                                        setInstructionsError("");
+                                      }
                                     }}
                                   />
                                 </TableCell>
@@ -1166,12 +1230,30 @@ function AddMealkit() {
                               ...prev,
                               instructions: [...(prev.instructions || []), ""],
                             }));
+                            // Clear instruction error when adding a new instruction (assuming at least one other instruction exists)
+                            if (
+                              product.instructions &&
+                              product.instructions.length > 0 &&
+                              product.instructions.some((instr) => instr.trim() !== "")
+                            ) {
+                              setInstructionsError("");
+                            }
                           }}
                           style={{ backgroundColor: "green", color: "white", margin: "10px" }}
                         >
                           Add Instruction
                         </Button>
                       </TableContainer>
+                      <p
+                        style={{
+                          color: "red",
+                          fontSize: "0.6em",
+                          fontWeight: "450",
+                          marginLeft: "5px",
+                        }}
+                      >
+                        {instructionsError}
+                      </p>
                       <TableContainer
                         component={Paper}
                         style={{

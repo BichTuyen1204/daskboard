@@ -321,6 +321,12 @@ function EditMealkit() {
       } catch (error) {}
     }
   };
+  const updateField = (field, value) => {
+    setMealkitInfo((prevState) => ({
+      ...prevState,
+      [field]: value !== undefined && value !== null ? value : prevState[field],
+    }));
+  };
 
   const validateIngredients = () => {
     const ingredients = mealkitInfo.ingredients || {};

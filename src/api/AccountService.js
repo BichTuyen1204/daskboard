@@ -32,7 +32,9 @@ class AccountService {
           Authorization: `Bearer ${token}`,
         },
       });
-    } catch (error) {}
+    } catch (error) {
+      throw error;
+    }
   }
 
   async getAllStaff(page, size, searchId) {

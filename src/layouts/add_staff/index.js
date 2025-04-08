@@ -78,7 +78,21 @@ function AddStaff() {
         break;
 
       case "dob":
-        if (!value) errorMessage = "Please enter the date of birth";
+        if (!value) {
+          errorMessage = "Please enter the date of birth";
+        } else {
+          const dob = new Date(value);
+          const today = new Date();
+          const minAllowedDob = new Date(
+            today.getFullYear() - 16,
+            today.getMonth(),
+            today.getDate()
+          );
+
+          if (dob > minAllowedDob) {
+            errorMessage = "Staff must be at least 16 years old";
+          }
+        }
         break;
 
       default:
@@ -100,8 +114,7 @@ function AddStaff() {
     } else {
       setStaff((prevStaff) => ({ ...prevStaff, [name]: value }));
     }
-
-    validateField(name, value); // Kiểm tra lỗi ngay khi nhập
+    validateField(name, value);
   };
 
   const handleSubmit = async () => {
@@ -114,7 +127,44 @@ function AddStaff() {
         const response = await AccountService.addStaff(staff);
         setAddSuccess(true);
       } catch (error) {
-        setAddSuccess(false);
+        if (error.response && error.response.status === 500) {
+          const message = error.response.data.message;
+
+          const newErrors = {};
+
+          const matchUsername = message.match(/\(username\)=\((.+?)\)/);
+          if (matchUsername) {
+            const duplicatedUsername = matchUsername[1];
+            newErrors.username = `Username '${duplicatedUsername}' already exists.`;
+          }
+
+          const matchSsn = message.match(/\(ssn\)=\((.+?)\)/);
+          if (matchSsn) {
+            const duplicatedSsn = matchSsn[1];
+            newErrors.ssn = `SSN '${duplicatedSsn}' already exists.`;
+          }
+
+          const matchPhone = message.match(/\(phonenumber\)=\((.+?)\)/);
+          if (matchPhone) {
+            const duplicatedPhone = matchPhone[1];
+            newErrors.phonenumber = `Phone number '${duplicatedPhone}' already exists.`;
+          }
+
+          const matchEmail = message.match(/\(email\)=\((.+?)\)/);
+          if (matchEmail) {
+            const duplicatedEmail = matchEmail[1];
+            newErrors.email = `The email '${duplicatedEmail}' already exists.`;
+          }
+
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            ...newErrors,
+          }));
+
+          setAddSuccess(false);
+        } else {
+          console.error("Unhandled error:", error);
+        }
       }
     }
   };
@@ -194,6 +244,11 @@ function AddStaff() {
                     InputLabelProps={{ shrink: true }}
                     error={!!errors.dob}
                     helperText={errors.dob}
+                    inputProps={{
+                      max: new Date(new Date().setFullYear(new Date().getFullYear() - 18))
+                        .toISOString()
+                        .split("T")[0],
+                    }}
                     sx={{
                       marginTop: "20px",
                       "& .MuiInputLabel-root": {

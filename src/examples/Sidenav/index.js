@@ -67,7 +67,11 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
           if (account.type === 1) {
             return name !== "Chat with customer";
           } else if (account.type === 2) {
-            return name !== "Staff Management" && name !== "Dash board";
+            return (
+              name !== "Staff Management" && name !== "Dash board" && name !== "Coupon Management"
+            );
+          } else if (account.type === 3) {
+            return name === "Logout";
           }
           return true;
         })
@@ -137,7 +141,13 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
       <MDBox pt={3} px={4} textAlign="center">
         {account?.type ? (
           <MDTypography variant="h6" color="white">
-            {account.type === 2 ? "STAFF" : "MANAGER"}
+            {account.type === 1
+              ? "MANAGER"
+              : account.type === 2
+              ? "STAFF"
+              : account.type === 3
+              ? "SHIPPER"
+              : "UNKNOWN"}
           </MDTypography>
         ) : (
           <MDTypography variant="h6" color="white" sx={{ opacity: 0.5 }}></MDTypography>

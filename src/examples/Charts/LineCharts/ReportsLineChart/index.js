@@ -151,7 +151,7 @@ const RevenueLineChart = () => {
       </div>
       <div style={{ marginTop: "300px", width: "100%", marginLeft: "35px" }}>
         <p style={{ color: "#333", fontWeight: "bold", fontSize: "0.85em" }}>Revenue 7 days</p>
-        <p style={{ color: "#73777B", fontWeight: "150", fontSize: "0.7em", marginTop: "5px" }}>
+        <p style={{ color: "#333", fontWeight: "400", fontSize: "0.7em", marginTop: "5px" }}>
           Revenue in the last 7 days
         </p>
         <Divider />

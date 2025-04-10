@@ -7,12 +7,12 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link } from "react-router-dom";
 import AccountService from "api/AccountService";
 
-function AddStaff() {
+function AddShipper() {
   const [addSuccess, setAddSuccess] = useState(false);
-  const [staff, setStaff] = useState({
+  const [shipper, setShipper] = useState({
     username: "",
     password: "",
-    type: 2,
+    type: 3,
     employee_info: {
       ssn: "",
       phonenumber: "",
@@ -38,59 +38,59 @@ function AddStaff() {
 
     switch (name) {
       case "username":
-        if (!value) errorMessage = "Please enter your full name";
-        else if (value.length < 2) errorMessage = "The full name must be at least 2 characters";
+        if (!value) errorMessage = "Please enter the username of the shipper.";
+        else if (value.length < 2) errorMessage = "The full name must be at least 2 characters.";
         else if (value.length > 100)
-          errorMessage = "The full name must be less than 100 characters";
+          errorMessage = "The full name must be less than 100 characters.";
         break;
 
       case "password":
-        if (!value) errorMessage = "Please enter your password";
-        else if (value.length < 6) errorMessage = "Password must be longer than 6 characters";
-        else if (value.length > 30) errorMessage = "Password must be shorter than 30 characters";
+        if (!value) errorMessage = "Please enter the password.";
+        else if (value.length < 6) errorMessage = "Password must be longer than 6 characters.";
+        else if (value.length > 30) errorMessage = "Password must be shorter than 30 characters.";
         break;
 
       case "ssn":
-        if (!value) errorMessage = "Please enter SSN";
-        else if (value.length !== 12) errorMessage = "SSN must be 12 digits";
-        else if (!/^\d+$/.test(value)) errorMessage = "The SSN must be a number";
-        else if (!/^0/.test(value)) errorMessage = "The SSN must start with 0";
+        if (!value) errorMessage = "Please enter the SSN.";
+        else if (value.length !== 12) errorMessage = "SSN must be 12 digits.";
+        else if (!/^\d+$/.test(value)) errorMessage = "The SSN must be a number.";
+        else if (!/^0/.test(value)) errorMessage = "The SSN must start with 0.";
         break;
 
       case "phonenumber":
-        if (!value) errorMessage = "Please enter the phone number";
-        else if (value.length !== 10) errorMessage = "Your phone number must be 10 digits";
-        else if (!/^\d+$/.test(value)) errorMessage = "Your phone number must contain only numbers";
-        else if (!/^0/.test(value)) errorMessage = "Phone number must start with 0";
+        if (!value) errorMessage = "Please enter the phone number.";
+        else if (value.length !== 10) errorMessage = "The phone number must be 10 digits.";
+        else if (!/^\d+$/.test(value)) errorMessage = "The phone number must contain only numbers.";
+        else if (!/^0/.test(value)) errorMessage = "The phone number must start with 0.";
         break;
 
       case "realname":
-        if (!value) errorMessage = "Please enter real name";
-        else if (value.length < 4) errorMessage = "The real name must be at least 4 characters";
+        if (!value) errorMessage = "Please enter the real name of the shipper.";
+        else if (value.length < 4) errorMessage = "The real name must be at least 4 characters.";
         else if (value.length > 100)
-          errorMessage = "The real name must be less than 100 characters";
+          errorMessage = "The real name must be less than 100 characters.";
         break;
 
       case "email":
-        if (!value) errorMessage = "Please enter the email";
+        if (!value) errorMessage = "Please enter the email.";
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
-          errorMessage = "Please enter a valid email address";
+          errorMessage = "Please enter a valid email address.";
         break;
 
       case "dob":
         if (!value) {
-          errorMessage = "Please enter the date of birth";
+          errorMessage = "Please enter the date of birth.";
         } else {
           const dob = new Date(value);
           const today = new Date();
           const minAllowedDob = new Date(
-            today.getFullYear() - 16,
+            today.getFullYear() - 18,
             today.getMonth(),
             today.getDate()
           );
 
           if (dob > minAllowedDob) {
-            errorMessage = "Staff must be at least 16 years old";
+            errorMessage = "Shipper must be at least 18 years old.";
           }
         }
         break;
@@ -98,40 +98,36 @@ function AddStaff() {
       default:
         break;
     }
-
     setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
     return errorMessage === "";
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    if (name in staff.employee_info) {
-      setStaff((prevStaff) => ({
-        ...prevStaff,
-        employee_info: { ...prevStaff.employee_info, [name]: value },
+    if (name in shipper.employee_info) {
+      setShipper((prevShipper) => ({
+        ...prevShipper,
+        employee_info: { ...prevShipper.employee_info, [name]: value },
       }));
     } else {
-      setStaff((prevStaff) => ({ ...prevStaff, [name]: value }));
+      setShipper((prevShipper) => ({ ...prevShipper, [name]: value }));
     }
+    setAddSuccess(false);
     validateField(name, value);
   };
 
   const handleSubmit = async () => {
     const isValid = Object.keys(errors).every((key) =>
-      validateField(key, key in staff.employee_info ? staff.employee_info[key] : staff[key])
+      validateField(key, key in shipper.employee_info ? shipper.employee_info[key] : shipper[key])
     );
-
     if (isValid) {
       try {
-        const response = await AccountService.addStaff(staff);
+        const response = await AccountService.addStaff(shipper);
         setAddSuccess(true);
       } catch (error) {
         if (error.response && error.response.status === 500) {
           const message = error.response.data.message;
-
           const newErrors = {};
-
           const matchUsername = message.match(/\(username\)=\((.+?)\)/);
           if (matchUsername) {
             const duplicatedUsername = matchUsername[1];
@@ -185,32 +181,32 @@ function AddStaff() {
                 borderRadius="lg"
               >
                 <MDTypography variant="h6" color="white">
-                  Add Staff
+                  Add Shipper
                 </MDTypography>
               </MDBox>
 
               <MDBox p={3}>
                 <form>
-                  <Link to="/staff">
+                  <Link to="/shipper">
                     <Icon sx={{ cursor: "pointer", "&:hover": { color: "gray" } }}>arrow_back</Icon>
                   </Link>
 
                   {[
-                    { label: "Username", name: "username", value: staff.username },
-                    { label: "Password", name: "password", value: staff.password },
-                    { label: "SSN", name: "ssn", value: staff.employee_info.ssn },
+                    { label: "Username", name: "username", value: shipper.username },
+                    { label: "Password", name: "password", value: shipper.password },
+                    { label: "SSN", name: "ssn", value: shipper.employee_info.ssn },
                     {
                       label: "Phone Number",
                       name: "phonenumber",
-                      value: staff.employee_info.phonenumber,
+                      value: shipper.employee_info.phonenumber,
                     },
-                    { label: "Real Name", name: "realname", value: staff.employee_info.realname },
-                    { label: "Email", name: "email", value: staff.employee_info.email },
+                    { label: "Real Name", name: "realname", value: shipper.employee_info.realname },
+                    { label: "Email", name: "email", value: shipper.employee_info.email },
                   ].map((field) => (
                     <TextField
                       fullWidth
                       label={
-                        <span style={{ fontSize: "0.9em" }}>
+                        <span>
                           {field.label} <span style={{ color: "red" }}>*</span>
                         </span>
                       }
@@ -230,7 +226,6 @@ function AddStaff() {
                           fontSize: "0.6em",
                           marginLeft: "10px",
                           marginTop: "7px",
-                          marginBottom: "-15px",
                           fontWeight: "500",
                         },
                       }}
@@ -240,13 +235,13 @@ function AddStaff() {
                   <TextField
                     fullWidth
                     label={
-                      <span style={{ fontSize: "0.9em" }}>
+                      <span>
                         Date of Birth <span style={{ color: "red" }}>*</span>
                       </span>
                     }
                     type="date"
                     name="dob"
-                    value={staff.employee_info.dob}
+                    value={shipper.employee_info.dob}
                     onChange={handleChange}
                     onBlur={(e) => validateField("dob", e.target.value)}
                     InputLabelProps={{ shrink: true }}
@@ -277,12 +272,13 @@ function AddStaff() {
                       style={{
                         color: "green",
                         fontSize: "0.6em",
+                        fontWeight: "500",
                         marginLeft: "5px",
                         marginTop: "15px",
                         marginBottom: "-20px",
                       }}
                     >
-                      Add staff successful
+                      Shipper added successfully.
                     </p>
                   )}
 
@@ -310,4 +306,4 @@ function AddStaff() {
   );
 }
 
-export default AddStaff;
+export default AddShipper;

@@ -22,7 +22,7 @@ import { ArrowBackIos, ArrowForwardIos, Search } from "@mui/icons-material";
 function Product() {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
-  const rowsPerPage = 10;
+  const rowsPerPage = 30;
   const [selectedType, setSelectedType] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");

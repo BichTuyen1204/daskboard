@@ -9,6 +9,7 @@ import Icon from "@mui/material/Icon";
 import MDBox from "components/MDBox";
 import Breadcrumbs from "examples/Breadcrumbs";
 import NotificationItem from "examples/Items/NotificationItem";
+import { useRef } from "react";
 import {
   navbar,
   navbarContainer,
@@ -29,9 +30,21 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const { miniSidenav, transparentNavbar, fixedNavbar, openConfigurator, darkMode } = controller;
   const [openMenu, setOpenMenu] = useState(false);
   const route = useLocation().pathname.split("/").slice(1);
+  const iconBoxRef = useRef(null);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (iconBoxRef.current && !iconBoxRef.current.contains(event.target)) {
+        setOpenMenu(false); // đóng menu nếu click ngoài vùng icon
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
-    // Setting the navbar type
     if (fixedNavbar) {
       setNavbarType("sticky");
     } else {
@@ -103,8 +116,21 @@ function DashboardNavbar({ absolute, light, isMini }) {
           <Breadcrumbs icon="home" title={route[route.length - 1]} route={route} light={light} />
         </MDBox>
         {isMini ? null : (
-          <MDBox sx={(theme) => navbarRow(theme, { isMini })}>
-            <MDBox color={light ? "white" : "inherit"}>
+          <>
+            {/* Wrapper icon luôn nằm góc trên bên phải */}
+            <MDBox
+              ref={iconBoxRef}
+              sx={{
+                position: "absolute", // luôn cố định tại vị trí
+                top: 10, // cách trên 10px
+                right: 10, // cách phải 10px
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                zIndex: 999,
+                color: light ? "white" : "inherit",
+              }}
+            >
               {/* Icon setting start */}
               <IconButton
                 size="small"
@@ -129,7 +155,9 @@ function DashboardNavbar({ absolute, light, isMini }) {
               {/* Icon setting end */}
               {renderMenu()}
             </MDBox>
-          </MDBox>
+
+            {/* Nếu có thêm nội dung dưới, bạn đặt trong một MDBox khác nếu cần */}
+          </>
         )}
       </Toolbar>
     </AppBar>

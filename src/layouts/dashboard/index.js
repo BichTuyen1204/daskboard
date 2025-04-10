@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Grid from "@mui/material/Grid";
 import MDBox from "components/MDBox";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -10,7 +10,7 @@ import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
 import Projects from "layouts/dashboard/components/Projects";
 import ExpectedProduct from "./components/ExpectedProduct";
 import AccountService from "api/AccountService";
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { RestaurantMenu } from "@mui/icons-material";
 function Dashboard() {
   const navigate = useNavigate();
@@ -55,6 +55,7 @@ function Dashboard() {
 
   return (
     <DashboardLayout>
+      <DashboardNavbar />
       {account.type === 2 ? (
         <Box
           display="flex"
@@ -126,9 +127,62 @@ function Dashboard() {
             </Typography>
           </Box>
         </Box>
+      ) : account.type === 3 ? (
+        <Box
+          sx={{
+            height: "100vh",
+            width: "100%",
+            background: "linear-gradient(135deg, #A2D5F2 20%, #89CFF0 80%)",
+            borderRadius: "5px",
+            overflowY: "auto",
+            paddingTop: "20px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "flex-start",
+          }}
+        >
+          <Box
+            sx={{
+              width: "90%",
+              background: "white",
+              padding: "10px",
+              borderRadius: "20px",
+              boxShadow: "0 12px 30px rgba(0,0,0,0.15)",
+              color: "#333",
+            }}
+          >
+            <Typography fontWeight="bold" gutterBottom style={{ fontSize: "0.8em" }}>
+              📦 Delivery Order
+            </Typography>
+
+            <Typography variant="body1" gutterBottom style={{ fontSize: "0.65em" }}>
+              <strong>Customer Name:</strong> John Doe
+            </Typography>
+            <Typography variant="body1" gutterBottom style={{ fontSize: "0.65em" }}>
+              <strong>Delivery Address:</strong> 123 Le Loi Street, District 1, HCMC
+            </Typography>
+            <Typography variant="body1" gutterBottom style={{ fontSize: "0.65em" }}>
+              <strong>Phone Number:</strong> 0987 654 321
+            </Typography>
+            <Typography variant="body1" gutterBottom style={{ fontSize: "0.65em" }}>
+              <strong>Total Price:</strong> $150
+            </Typography>
+
+            <Box sx={{ textAlign: "right", marginTop: "10px" }}>
+              <Link to={`/order_processing_to_shipping}`}>
+                {/* <Link to={`/order_processing_to_shipping/${id}`}> */}
+                <Button
+                  variant="contained"
+                  style={{ color: "white", fontSize: "10px", padding: "10px" }}
+                >
+                  View Details
+                </Button>
+              </Link>
+            </Box>
+          </Box>
+        </Box>
       ) : (
         <>
-          <DashboardNavbar />
           <MDBox py={3}>
             <Grid container spacing={3}></Grid>
 

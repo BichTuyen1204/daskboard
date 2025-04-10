@@ -37,12 +37,29 @@ class AccountService {
     }
   }
 
+  async chooseShipper(orderId, id) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.put(
+        `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/shipper/assign?order_id=${orderId}&shipper_id=${id}`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async getAllStaff(page, size, searchId) {
     try {
       const token = sessionStorage.getItem("jwtToken");
       let url = `${API_BASE_URL_3}/all`;
-
-      // Add query parameters if they exist
       const params = new URLSearchParams();
       if (page !== undefined && size !== undefined) {
         params.append("index", page - 1);
@@ -57,6 +74,44 @@ class AccountService {
         url += `?${queryString}`;
       }
 
+      const response = await axios.get(url, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return { content: [], total_page: 0 };
+    }
+  }
+
+  async getAllShipper(occupied, page, size) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      let url = `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/shipper/fetch?occupied=${occupied}&index=${
+        page - 1
+      }&size=${size}`;
+      const params = new URLSearchParams();
+      const response = await axios.get(url, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return { content: [], total_page: 0 };
+    }
+  }
+
+  async getCallShipper(page, size) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      let url = `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/shipper/fetch?&index=${
+        page - 1
+      }&size=${size}`;
+      const params = new URLSearchParams();
       const response = await axios.get(url, {
         headers: {
           "Content-Type": "application/json",
@@ -110,6 +165,22 @@ class AccountService {
           Authorization: `Bearer ${token}`,
         },
       });
+      return response.data;
+    } catch (error) {}
+  }
+
+  async updateTimeShipper(data) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.post(
+        `${REACT_APP_BACKEND_API_ENDPOINT}/api/manager/shipper/shift/set`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response.data;
     } catch (error) {}
   }

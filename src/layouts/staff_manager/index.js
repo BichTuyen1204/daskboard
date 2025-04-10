@@ -15,7 +15,7 @@ function Staff() {
   const navigate = useNavigate();
 
   const [pageStaff, setPageStaff] = useState(1);
-  const rowsPerPageStaff = 6;
+  const rowsPerPageStaff = 50;
   const [searchId, setSearchId] = useState("");
   const [debouncedSearchId, setDebouncedSearchId] = useState("");
   const { columns, rows, hasNextPageStaff } = authorsTableData(

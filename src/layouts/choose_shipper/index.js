@@ -5,21 +5,21 @@ import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
-import authorsTableData from "layouts/customer_manager/data/authorsTableData";
-import { useNavigate } from "react-router-dom";
+import index from "layouts/choose_shipper/data/data_choose_shipper";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ArrowBackIos, ArrowForwardIos, Search } from "@mui/icons-material";
 import { Box, IconButton, Typography, TextField, InputAdornment } from "@mui/material";
 
-function Customer() {
-  const [pageCustomer, setPageCustomer] = useState(1);
-  const rowsPerPageCustomer = 50;
+function ChooseShipper() {
+  const [pageShipper, setPageShipper] = useState(1);
+  const rowsPerPageShipper = 50;
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
-  const { columns, rows, hasNextPageCustomer } = authorsTableData(
-    pageCustomer,
-    rowsPerPageCustomer,
+  const { columns, rows, hasNextPageShipper } = index(
+    pageShipper,
+    rowsPerPageShipper,
     debouncedSearchQuery
   );
 
@@ -27,7 +27,7 @@ function Customer() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
-      setPageCustomer(1); // Reset to first page when searching
+      setPageShipper(1);
     }, 500);
 
     return () => clearTimeout(timer);
@@ -37,15 +37,15 @@ function Customer() {
     setSearchQuery(event.target.value);
   };
 
-  const handlePrevPageCustomer = () => {
-    if (pageCustomer > 1) {
-      setPageCustomer((prev) => prev - 1);
+  const handlePrevPageShipper = () => {
+    if (pageShipper > 1) {
+      setPageShipper((prev) => prev - 1);
     }
   };
 
-  const handleNextPageCustomer = () => {
-    if (hasNextPageCustomer) {
-      setPageCustomer((prev) => prev + 1);
+  const handleNextPageShipper = () => {
+    if (hasNextPageShipper) {
+      setPageShipper((prev) => prev + 1);
     }
   };
 
@@ -79,7 +79,7 @@ function Customer() {
                 gap={{ xs: 2, sm: 0 }}
               >
                 <MDTypography variant="h6" color="white">
-                  Customer list
+                  Shipper list
                 </MDTypography>
                 <Box
                   sx={{
@@ -89,7 +89,7 @@ function Customer() {
                 >
                   <TextField
                     size="small"
-                    placeholder="Search customers"
+                    placeholder="Search shippers"
                     value={searchQuery}
                     onChange={handleSearchChange}
                     fullWidth
@@ -131,8 +131,8 @@ function Customer() {
                 mx={5}
               >
                 <IconButton
-                  onClick={handlePrevPageCustomer}
-                  disabled={pageCustomer === 1}
+                  onClick={handlePrevPageShipper}
+                  disabled={pageShipper === 1}
                   sx={{
                     bgcolor: "black",
                     fontSize: "0.6em",
@@ -141,7 +141,7 @@ function Customer() {
                     height: "30px",
                     borderRadius: "50%",
                     "&:hover, &:focus": { bgcolor: "#333 !important", color: "white !important" },
-                    opacity: pageCustomer === 1 ? 0.3 : 1,
+                    opacity: pageShipper === 1 ? 0.3 : 1,
                   }}
                 >
                   <ArrowBackIos sx={{ fontSize: "14px" }} />
@@ -160,13 +160,13 @@ function Customer() {
                   }}
                 >
                   <Typography color="white" fontWeight="bold">
-                    <p style={{ fontSize: "14px", color: "white" }}>{pageCustomer}</p>
+                    <p style={{ fontSize: "14px", color: "white" }}>{pageShipper}</p>
                   </Typography>
                 </Box>
 
                 <IconButton
-                  onClick={handleNextPageCustomer}
-                  disabled={!hasNextPageCustomer}
+                  onClick={handleNextPageShipper}
+                  disabled={!hasNextPageShipper}
                   sx={{
                     bgcolor: "black",
                     fontSize: "0.6em",
@@ -175,7 +175,7 @@ function Customer() {
                     height: "30px",
                     borderRadius: "50%",
                     "&:hover, &:focus": { bgcolor: "#333 !important", color: "white !important" },
-                    opacity: hasNextPageCustomer ? 1 : 0.3,
+                    opacity: hasNextPageShipper ? 1 : 0.3,
                   }}
                 >
                   <ArrowForwardIos sx={{ fontSize: "14px" }} />
@@ -189,4 +189,4 @@ function Customer() {
   );
 }
 
-export default Customer;
+export default ChooseShipper;

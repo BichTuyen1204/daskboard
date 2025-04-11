@@ -1,5 +1,7 @@
 import axios from "axios";
-const API_BASE_URL = "https://culcon-ad-be-30883260979.asia-east1.run.app/api/staff/order";
+
+const REACT_APP_BACKEND_API_ENDPOINT = process.env.REACT_APP_BACKEND_API_ENDPOINT;
+const API_BASE_URL = `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/order`;
 
 class OrderService {
   async getAllOrder(page, size) {

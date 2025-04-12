@@ -89,7 +89,6 @@ export default function data(pageShipper, rowsPerPageShipper) {
     { Header: "email", accessor: "email", align: "left" },
     { Header: "start time", accessor: "start", align: "center" },
     { Header: "end time", accessor: "end", align: "center" },
-    { Header: "action", accessor: "action", align: "center" },
   ];
 
   const rows = Array.isArray(shipper)
@@ -99,53 +98,6 @@ export default function data(pageShipper, rowsPerPageShipper) {
         email: <Email email={item.email} />,
         start: <Start start={item.start_ship} />,
         end: <End end={item.end_shift} />,
-        action: (
-          <MDBox display="flex" justifyContent="center">
-            <>
-              <MDTypography
-                component="button"
-                variant="caption"
-                color="white"
-                fontWeight="medium"
-                style={{
-                  backgroundColor: "#1976d2",
-                  fontSize: "0.8em",
-                  border: "none",
-                  borderRadius: "2px",
-                  padding: "5px 10px",
-                  cursor: "pointer",
-                }}
-              >
-                View
-              </MDTypography>
-              <Link
-                to={`/edit_shipper/${item.id}`}
-                style={{ textDecoration: "none", marginLeft: "15px" }}
-              >
-                <MDTypography
-                  component="button"
-                  variant="caption"
-                  fontWeight="medium"
-                  style={{
-                    backgroundColor: "white",
-                    color: "#1976d2",
-                    fontSize: "0.8em",
-                    border: "none",
-                    padding: "5px 10px",
-                    cursor: "pointer",
-                    transition: "all 0.3s ease",
-                  }}
-                  onMouseEnter={(e) => (e.target.style.backgroundColor = "#f0f4ff")}
-                  onMouseLeave={(e) => (e.target.style.backgroundColor = "white")}
-                >
-                  <Icon fontSize="small" style={{ marginRight: "5px" }}>
-                    edit
-                  </Icon>
-                </MDTypography>
-              </Link>
-            </>
-          </MDBox>
-        ),
       }))
     : [];
 

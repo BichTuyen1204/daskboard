@@ -49,6 +49,7 @@ import Choose_shipper from "layouts/choose_shipper/index";
 import Edit_Shipper from "layouts/edit_shipper/index";
 import OrderWaitingShipper from "layouts/orders_waiting_shipper/index";
 import Waiting_Shipper from "layouts/order_manager/data/shipping_order/index";
+import Order_Shipper_Detail from "layouts/dashboard/order_waiting_shipper/order_shipper_detail";
 
 const token = sessionStorage.getItem("jwtToken");
 
@@ -188,6 +189,10 @@ const routes = [
   {
     route: "/order_detail/:id",
     component: <Order_Confirm />,
+  },
+  {
+    route: "/order_shipper_detail/:id",
+    component: <Order_Shipper_Detail />,
   },
   {
     route: "/order_processing_to_shipping/:id",

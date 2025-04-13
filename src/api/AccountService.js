@@ -86,10 +86,10 @@ class AccountService {
     }
   }
 
-  async getAllShipper(occupied, page, size) {
+  async getAllShipper(status, page, size) {
     try {
       const token = sessionStorage.getItem("jwtToken");
-      let url = `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/shipper/fetch?occupied=${occupied}&index=${
+      let url = `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/shipper/fetch?status=${status}&index=${
         page - 1
       }&size=${size}`;
       const params = new URLSearchParams();
@@ -105,21 +105,34 @@ class AccountService {
     }
   }
 
-  async getCallShipper(page, size) {
+  async getCallShipper(selectedType, page, size) {
     try {
       const token = sessionStorage.getItem("jwtToken");
-      let url = `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/shipper/fetch?&index=${
-        page - 1
-      }&size=${size}`;
-      const params = new URLSearchParams();
+      if (!token) {
+        return { content: [], total_page: 0 };
+      }
+
+      let url = `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/shipper/fetch`;
+      const params = {
+        index: page - 1,
+        size: size,
+      };
+
+      if (selectedType && selectedType !== "ALL") {
+        params.status = selectedType;
+      }
+
       const response = await axios.get(url, {
+        params: params,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
+
       return response.data;
     } catch (error) {
+      console.error("Lỗi khi gọi API:", error);
       return { content: [], total_page: 0 };
     }
   }

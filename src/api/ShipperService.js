@@ -74,6 +74,39 @@ class ShipperService {
       return null;
     }
   }
+
+  async getOrderDetailShipper(id) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      if (!token) {
+        return;
+      }
+      const response = await axios.get(`${API_BASE_URL}/api/shipper/order/fetch/detail/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getOrderItemsShipper(id, index, size) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      if (!token) {
+        return;
+      }
+      const response = await axios.get(
+        `${API_BASE_URL}/api/shipper/order/fetch/items/${id}?index=${index - 1}&size=${size}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export default new ShipperService();

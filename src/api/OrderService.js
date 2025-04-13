@@ -1,5 +1,5 @@
 import axios from "axios";
-const API_BASE_URL = "https://culcon-ad-be-30883260979.asia-east1.run.app/api/staff/order";
+const API_BASE_URL = "https://culcon-ad-be-30883260979.asia-southeast1.run.app/api/staff/order";
 
 class OrderService {
   async getAllOrder(page, size) {
@@ -23,7 +23,7 @@ class OrderService {
         return;
       }
       const response = await axios.get(
-        `${API_BASE_URL}/fetch/status?status=${status}&index=${page - 1}&size=${size}`,
+        `${API_BASE_URL}/fetch/all?status=${status}&index=${page - 1}&size=${size}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

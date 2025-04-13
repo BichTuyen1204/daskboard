@@ -81,9 +81,9 @@ function Order() {
               alignItems="center"
             >
               <MDTypography variant="h6" color="white">
-                Order Waiting For Shipper
+                Order Processing for Shippers
               </MDTypography>
-              <Link to="/order_waiting">
+              <Link to="/shipper">
                 <button
                   style={{
                     backgroundColor: "white",

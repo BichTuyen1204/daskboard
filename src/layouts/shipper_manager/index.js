@@ -6,7 +6,15 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
 import authorsTableData from "layouts/shipper_manager/data/data_shipper";
-import { Box, Icon, IconButton, Typography, TextField, InputAdornment } from "@mui/material";
+import {
+  Box,
+  Icon,
+  IconButton,
+  Typography,
+  TextField,
+  InputAdornment,
+  Button,
+} from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ArrowBackIos, ArrowForwardIos, Search } from "@mui/icons-material";
@@ -15,27 +23,12 @@ function Shipper() {
   const navigate = useNavigate();
   const [pageShipper, setPageShipper] = useState(1);
   const rowsPerPageShipper = 50;
-  const [searchId, setSearchId] = useState("");
-  const [debouncedSearchId, setDebouncedSearchId] = useState("");
+  const [selectedType, setSelectedType] = useState(null);
   const { columns, rows, hasNextPageShipper } = authorsTableData(
     pageShipper,
-    rowsPerPageShipper,
-    debouncedSearchId
+    selectedType,
+    rowsPerPageShipper
   );
-
-  // Debounce search input
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchId(searchId);
-      setPageShipper(1); // Reset to first page when searching
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [searchId]);
-
-  const handleSearchChange = (event) => {
-    setSearchId(event.target.value);
-  };
 
   const handlePrevPageShipper = () => {
     if (pageShipper > 1) {
@@ -81,6 +74,134 @@ function Shipper() {
                 <MDTypography variant="h6" color="white">
                   Shipper List
                 </MDTypography>
+              </MDBox>
+
+              <MDBox mx={3} mt={2}>
+                <Box display="flex" justifyContent="space-between">
+                  <Button
+                    variant={selectedType === "ALL" ? "contained" : "outlined"}
+                    onClick={() => setSelectedType("ALL")}
+                    sx={{
+                      color: selectedType === "ALL" ? "rgb(255, 255, 255)" : "rgb(70, 70, 70)",
+                      borderColor: selectedType === "ALL" ? "transparent" : "rgb(34, 178, 255)",
+                      "&:hover": {
+                        color: "black !important",
+                        borderColor: "rgba(0, 0, 255, 0.5)",
+                        backgroundColor: "rgba(168, 227, 255, 0.2)",
+                      },
+                    }}
+                  >
+                    All
+                  </Button>
+
+                  <Button
+                    variant={selectedType === "ACCEPTED" ? "contained" : "outlined"}
+                    color="primary"
+                    onClick={() => setSelectedType("ACCEPTED")}
+                    sx={{
+                      color: selectedType === "ACCEPTED" ? "rgb(255, 255, 255)" : "rgb(70, 70, 70)",
+                      borderColor:
+                        selectedType === "ACCEPTED" ? "transparent" : "rgb(34, 178, 255)",
+                      "&:hover": {
+                        color: "black !important",
+                        borderColor: "rgba(0, 0, 255, 0.5)",
+                        backgroundColor: "rgba(168, 227, 255, 0.2)",
+                      },
+                    }}
+                  >
+                    ACCEPTED
+                  </Button>
+
+                  <Button
+                    variant={selectedType === "REJECTED" ? "contained" : "outlined"}
+                    color="primary"
+                    onClick={() => setSelectedType("REJECTED")}
+                    sx={{
+                      color: selectedType === "REJECTED" ? "rgb(255, 255, 255)" : "rgb(70, 70, 70)",
+                      borderColor:
+                        selectedType === "REJECTED" ? "transparent" : "rgb(34, 178, 255)",
+                      "&:hover": {
+                        color: "black !important",
+                        borderColor: "rgba(0, 0, 255, 0.5)",
+                        backgroundColor: "rgba(168, 227, 255, 0.2)",
+                      },
+                    }}
+                  >
+                    REJECTED
+                  </Button>
+
+                  <Button
+                    variant={selectedType === "ON_SHIPPING" ? "contained" : "outlined"}
+                    color="primary"
+                    onClick={() => setSelectedType("ON_SHIPPING")}
+                    sx={{
+                      color:
+                        selectedType === "ON_SHIPPING" ? "rgb(255, 255, 255)" : "rgb(70, 70, 70)",
+                      borderColor:
+                        selectedType === "ON_SHIPPING" ? "transparent" : "rgb(34, 178, 255)",
+                      "&:hover": {
+                        color: "black !important",
+                        borderColor: "rgba(0, 0, 255, 0.5)",
+                        backgroundColor: "rgba(168, 227, 255, 0.2)",
+                      },
+                    }}
+                  >
+                    ON SHIPPING
+                  </Button>
+
+                  <Button
+                    variant={selectedType === "DELIVERED" ? "contained" : "outlined"}
+                    color="primary"
+                    onClick={() => setSelectedType("DELIVERED")}
+                    sx={{
+                      color:
+                        selectedType === "DELIVERED" ? "rgb(255, 255, 255)" : "rgb(70, 70, 70)",
+                      borderColor:
+                        selectedType === "DELIVERED" ? "transparent" : "rgb(34, 178, 255)",
+                      "&:hover": {
+                        color: "black !important",
+                        borderColor: "rgba(0, 0, 255, 0.5)",
+                        backgroundColor: "rgba(168, 227, 255, 0.2)",
+                      },
+                    }}
+                  >
+                    DELIVERED
+                  </Button>
+
+                  <Button
+                    variant={selectedType === "ASSIGN" ? "contained" : "outlined"}
+                    color="primary"
+                    onClick={() => setSelectedType("ASSIGN")}
+                    sx={{
+                      color: selectedType === "ASSIGN" ? "rgb(255, 255, 255)" : "rgb(70, 70, 70)",
+                      borderColor: selectedType === "ASSIGN" ? "transparent" : "rgb(34, 178, 255)",
+                      "&:hover": {
+                        color: "black !important",
+                        borderColor: "rgba(0, 0, 255, 0.5)",
+                        backgroundColor: "rgba(168, 227, 255, 0.2)",
+                      },
+                    }}
+                  >
+                    ASSIGN
+                  </Button>
+
+                  <Button
+                    variant={selectedType === "IDLE" ? "contained" : "outlined"}
+                    color="primary"
+                    onClick={() => setSelectedType("IDLE")}
+                    sx={{
+                      color: selectedType === "IDLE" ? "rgb(255, 255, 255)" : "rgb(70, 70, 70)",
+                      borderColor: selectedType === "IDLE" ? "transparent" : "rgb(34, 178, 255)",
+                      "&:hover": {
+                        color: "black !important",
+                        borderColor: "rgba(0, 0, 255, 0.5)",
+                        backgroundColor: "rgba(168, 227, 255, 0.2)",
+                      },
+                    }}
+                  >
+                    IDLE
+                  </Button>
+                </Box>
               </MDBox>
               <MDBox pt={3}>
                 <DataTable

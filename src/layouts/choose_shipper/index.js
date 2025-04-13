@@ -16,17 +16,11 @@ function ChooseShipper() {
   const rowsPerPageShipper = 50;
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
-  const { columns, rows, hasNextPageShipper } = index(
-    pageShipper,
-    rowsPerPageShipper,
-    debouncedSearchQuery
-  );
+  const { columns, rows, hasNextPageShipper } = index(pageShipper, rowsPerPageShipper);
 
   // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery);
       setPageShipper(1);
     }, 500);
 

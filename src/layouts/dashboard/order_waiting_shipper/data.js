@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, Button, Icon } from "@mui/material";
 import ShipperService from "api/ShipperService";
+import { Link } from "react-router-dom";
 
 const DataShipper = () => {
   const [shipper, setShipper] = useState(null);
@@ -11,7 +12,9 @@ const DataShipper = () => {
   const [popupAccept, setPopupAccept] = useState(false);
   const [popupShipped, setPopupShipped] = useState(false);
   const [popupReject, setPopupReject] = useState(false);
-  const [jwtToken] = useState(sessionStorage.getItem("jwtToken"));
+  const [jwtToken, setJwtToken] = useState(sessionStorage.getItem("jwtToken"));
+  const [popupShippedSuccess, setPopupShippedSuccess] = useState(false);
+  const [popupRejectSuccess, setPopupRejectSuccess] = useState(false);
 
   const openModal = (id) => {
     setSelectedItemId(id);
@@ -64,7 +67,6 @@ const DataShipper = () => {
 
   const acceptOrder = async (id) => {
     if (!jwtToken) return;
-
     try {
       const response = await ShipperService.acceptOrder(id);
       if (response) {
@@ -83,11 +85,12 @@ const DataShipper = () => {
   const orderShipped = async (id) => {
     if (!jwtToken) return;
     try {
-      const response = await ShipperService.orderShipped(id);
+      await ShipperService.orderShipped(id);
       setPopupShipped(false);
-      setPopupAccept(false);
-      window.location.reload();
-      console.log(response);
+      setTimeout(() => {
+        setPopupShippedSuccess(true);
+        navigate("/dashboard");
+      }, 2000);
     } catch (error) {
       console.error("Accept order failed:", error);
     }
@@ -97,10 +100,11 @@ const DataShipper = () => {
     if (!jwtToken) return;
     try {
       const response = await ShipperService.cancelOrder(id);
-      setPopupShipped(false);
-      setPopupAccept(false);
-      window.location.reload();
-      console.log(response);
+      setPopupReject(false);
+      setTimeout(() => {
+        setPopupRejectSuccess(true);
+        navigate("/dashboard");
+      }, 2000);
     } catch (error) {
       console.error("Accept order failed:", error);
     }
@@ -133,7 +137,7 @@ const DataShipper = () => {
             <strong>Phone Number:</strong> {orderCurrent.phone}
           </Typography>
           <Typography variant="body1" style={{ fontSize: "0.65em" }}>
-            <strong>Total Price:</strong> ${orderCurrent.pay}
+            <strong>Total Price:</strong> $<strong>{orderCurrent.pay}</strong>
           </Typography>
           <Typography variant="body1" style={{ fontSize: "0.65em" }}>
             <strong>Note:</strong> {orderCurrent.note || "Nothing"}
@@ -179,13 +183,30 @@ const DataShipper = () => {
             Orders waiting for shipper
           </Typography>
           <Box sx={{ padding: "10px", borderBottom: "1px solid #ccc" }}>
-            <Typography fontSize="0.65em">
-              <strong>Customer:</strong> {shipper.receiver}
+            <Typography variant="body1" fontSize="0.6em">
+              <strong>Customer Name:</strong> {shipper.receiver}
             </Typography>
-            <Typography fontSize="0.65em">
-              <strong>Address:</strong> {shipper.address}
+            <Typography variant="body1" style={{ fontSize: "0.6em" }}>
+              <strong>Phone Number:</strong> {shipper.phone}
             </Typography>
-            <Button
+            <Typography variant="body1" style={{ fontSize: "0.6em" }}>
+              <strong>Delivery Address:</strong> {shipper.address}
+            </Typography>
+            <Typography variant="body1" style={{ fontSize: "0.6em" }}>
+              <strong>Total Price:</strong> $<strong>{shipper.pay}</strong>
+            </Typography>
+            <Typography variant="body1" style={{ fontSize: "0.6em" }}>
+              <strong>Note:</strong> {shipper.note || "Nothing"}
+            </Typography>
+            <Link to={`/order_shipper_detail/${shipper.id}`}>
+              <Button
+                size="small"
+                sx={{ mt: 1, fontSize: "0.5em", color: "black", border: "1px solid gray" }}
+              >
+                View Detail
+              </Button>
+            </Link>
+            {/* <Button
               onClick={() => openModal(shipper.id)}
               size="small"
               sx={{ mt: 1, fontSize: "0.6em" }}
@@ -201,7 +222,7 @@ const DataShipper = () => {
               variant="outlined"
             >
               Not Accept
-            </Button>
+            </Button> */}
           </Box>
         </>
       ) : (
@@ -436,7 +457,7 @@ const DataShipper = () => {
             </p>
             <div style={{ display: "flex", justifyContent: "space-between", gap: "10px" }}>
               <button
-                onClick={() => opencancelOrder(idCancelOrder)}
+                onClick={() => cancelOrder(idCancelOrder)}
                 style={{
                   flex: 1,
                   padding: "10px",
@@ -481,6 +502,172 @@ const DataShipper = () => {
           </div>
         </>
       )}
+
+      {popupRejectSuccess &&
+        ReactDOM.createPortal(
+          <>
+            {/* Overlay */}
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100vw",
+                height: "100vh",
+                backgroundColor: "rgba(0, 0, 0, 0.2)",
+                backdropFilter: "blur(2px)",
+                zIndex: 999,
+              }}
+              onClick={closerAccept}
+            />
+
+            {/* Popup */}
+            <div
+              style={{
+                position: "fixed",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                backgroundColor: "white",
+                borderRadius: "8px",
+                padding: "20px",
+                width: "90%",
+                maxWidth: "360px",
+                boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
+                zIndex: 1000,
+                textAlign: "center",
+              }}
+            >
+              {/* SVG Icon */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 52 52"
+                width="55"
+                height="55"
+                style={{
+                  marginBottom: "15px",
+                  animation: "popIn 0.6s ease",
+                  borderRadius: "30px",
+                }}
+              >
+                <circle cx="27" cy="26" r="25" fill="none" stroke="#4caf50" strokeWidth="4" />
+                <path fill="none" stroke="#4caf50" strokeWidth="4" d="M14 26l7 7 15-15" />
+              </svg>
+
+              {/* Message */}
+              <p
+                style={{
+                  color: "green",
+                  fontSize: "0.8em",
+                  fontWeight: "600",
+                  margin: 0,
+                }}
+              >
+                Order rejected successfully
+              </p>
+            </div>
+
+            {/* Animation keyframes */}
+            <style>
+              {`
+                @keyframes popIn {
+                  0% {
+                    transform: scale(0);
+                    opacity: 0;
+                  }
+                  100% {
+                    transform: scale(1);
+                    opacity: 1;
+                  }
+                }
+              `}
+            </style>
+          </>,
+          document.body
+        )}
+
+      {popupShippedSuccess &&
+        ReactDOM.createPortal(
+          <>
+            {/* Overlay */}
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100vw",
+                height: "100vh",
+                backgroundColor: "rgba(0, 0, 0, 0.2)",
+                backdropFilter: "blur(2px)",
+                zIndex: 999,
+              }}
+              onClick={closerAccept}
+            />
+
+            {/* Popup */}
+            <div
+              style={{
+                position: "fixed",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                backgroundColor: "white",
+                borderRadius: "8px",
+                padding: "20px",
+                width: "90%",
+                maxWidth: "360px",
+                boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
+                zIndex: 1000,
+                textAlign: "center",
+              }}
+            >
+              {/* SVG Icon */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 52 52"
+                width="55"
+                height="55"
+                style={{
+                  marginBottom: "15px",
+                  animation: "popIn 0.6s ease",
+                  borderRadius: "30px",
+                }}
+              >
+                <circle cx="27" cy="26" r="25" fill="none" stroke="#4caf50" strokeWidth="4" />
+                <path fill="none" stroke="#4caf50" strokeWidth="4" d="M14 26l7 7 15-15" />
+              </svg>
+
+              {/* Message */}
+              <p
+                style={{
+                  color: "green",
+                  fontSize: "0.8em",
+                  fontWeight: "600",
+                  margin: 0,
+                }}
+              >
+                Order shipped successfully
+              </p>
+            </div>
+
+            {/* Animation keyframes */}
+            <style>
+              {`
+                  @keyframes popIn {
+                    0% {
+                      transform: scale(0);
+                      opacity: 0;
+                    }
+                    100% {
+                      transform: scale(1);
+                      opacity: 1;
+                    }
+                  }
+                `}
+            </style>
+          </>,
+          document.body
+        )}
     </Box>
   );
 };

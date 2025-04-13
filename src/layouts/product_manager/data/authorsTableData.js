@@ -45,7 +45,6 @@ export default function DataTable(page, rowsPerPage, selectedType, searchQuery) 
       VEG: "Vegetable",
       MEAT: "Meat",
       SS: "Season",
-      MK: "Mealkit",
     };
     return typeMap[type] || type;
   };

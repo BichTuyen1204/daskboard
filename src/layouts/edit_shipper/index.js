@@ -1,181 +1,66 @@
 import { useEffect, useState } from "react";
-import {
-  Card,
-  Grid,
-  TextField,
-  Button,
-  MenuItem,
-  Icon,
-  InputAdornment,
-  IconButton,
-  Box,
-} from "@mui/material";
+import { Card, Grid, TextField, Button, Icon, Box } from "@mui/material";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import AccountService from "api/AccountService";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 
 function EditShipper() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [jwtToken, setJwtToken] = useState(sessionStorage.getItem("jwtToken"));
-  const [shipper, setShipper] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [startTimeError, setStartTimeError] = useState("");
-  const [endTime, setEndTime] = useState("");
-  const [endTimeError, setEndTimeError] = useState("");
   const [updateTimeShipperSuccess, setUpdateTimeShipperSuccess] = useState("");
+  const [startTimeError, setStartTimeError] = useState("");
+  const [endTimeError, setEndTimeError] = useState("");
 
   const [shipperAccount, setShipperAccount] = useState({
     shipper_id: "",
-    start_time: "",
-    end_time: "",
+    start_time: null,
+    end_time: null,
   });
-
-  const formatTimeOnly = (date) => {
-    return new Date(date).toISOString().split("T")[1]; // Lấy phần giờ từ chuỗi ISO
-  };
 
   const updateTimeShipper = async (e) => {
     e.preventDefault();
-    StartTimeBlur();
-    EndTimeBlur();
 
-    if (!startTimeError && startTime && !endTimeError && endTime) {
-      const start = new Date(shipperAccount.start_time);
-      const end = new Date(shipperAccount.end_time);
-
-      if (end <= start) {
-        setEndTimeError("End time must be after start time.");
-        setUpdateTimeShipperSuccess("");
-        return;
-      }
-
-      // Format lại chỉ gửi phần giờ
-      const payload = {
-        shipper_id: shipperAccount.shipper_id,
-        start_time: formatTimeOnly(shipperAccount.start_time),
-        end_time: formatTimeOnly(shipperAccount.end_time),
-      };
-
-      try {
-        const response = await AccountService.updateTimeShipper(payload);
-        setUpdateTimeShipperSuccess("Updated successfully.");
-        setStartTimeError("");
-        setEndTimeError("");
-      } catch (error) {
-        throw error;
-      }
-    }
-  };
-
-  const StartTimeChange = (e) => {
-    const value = e.target.value;
-    setStartTime(value);
-
-    const timeRegex = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i;
-    const match = value.match(timeRegex);
-
-    if (match) {
-      let hours = parseInt(match[1], 10);
-      const minutes = parseInt(match[2], 10);
-      const period = match[3].toUpperCase();
-
-      if (period === "PM" && hours !== 12) hours += 12;
-      if (period === "AM" && hours === 12) hours = 0;
-
-      const now = new Date();
-      const vietnamDate = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        hours,
-        minutes
-      );
-
-      const utcISOString = vietnamDate.toISOString();
-
-      setShipperAccount((preState) => ({
-        ...preState,
-        start_time: utcISOString,
-      }));
-    }
-    setStartTimeError("");
-    setUpdateTimeShipperSuccess(false);
-  };
-
-  const StartTimeBlur = () => {
-    if (startTime === "") {
+    if (!shipperAccount.start_time) {
       setStartTimeError("Please enter a start time.");
+      return;
     } else {
       setStartTimeError("");
     }
-  };
 
-  const EndTimeChange = (e) => {
-    const value = e.target.value;
-    setEndTime(value);
-
-    const timeRegex = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i;
-    const match = value.match(timeRegex);
-
-    if (match) {
-      let hours = parseInt(match[1], 10);
-      const minutes = parseInt(match[2], 10);
-      const period = match[3].toUpperCase();
-
-      if (period === "PM" && hours !== 12) hours += 12;
-      if (period === "AM" && hours === 12) hours = 0;
-
-      const now = new Date();
-      const vietnamDate = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        hours,
-        minutes
-      );
-
-      const utcISOString = vietnamDate.toISOString();
-
-      setShipperAccount((preState) => ({
-        ...preState,
-        end_time: utcISOString,
-      }));
-    }
-    setEndTimeError("");
-    setUpdateTimeShipperSuccess(false);
-  };
-
-  // Check end time
-  const EndTimeBlur = () => {
-    if (endTime === "") {
-      setEndTimeError("Please enter a end time.");
+    if (!shipperAccount.end_time) {
+      setEndTimeError("Please enter an end time.");
+      return;
     } else {
       setEndTimeError("");
     }
-  };
 
-  const utcToAMPM = (utcString) => {
-    const date = new Date(utcString);
-    return date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
+    if (shipperAccount.end_time.isBefore(shipperAccount.start_time)) {
+      setEndTimeError("End time must be after start time.");
+      return;
+    }
 
-  useEffect(() => {
-    if (shipperAccount.start_time) {
-      setStartTime(utcToAMPM(shipperAccount.start_time));
+    const formatTimeOnly = (time) => {
+      return dayjs(time).format("HH:mm:ss");
+    };
+
+    const payload = {
+      shipper_id: shipperAccount.shipper_id,
+      start_time: formatTimeOnly(shipperAccount.start_time),
+      end_time: formatTimeOnly(shipperAccount.end_time),
+    };
+
+    try {
+      await AccountService.updateTimeShipper(payload);
+      setUpdateTimeShipperSuccess("Updated successfully.");
+    } catch (error) {
+      console.error(error);
     }
-    if (shipperAccount.end_time) {
-      setEndTime(utcToAMPM(shipperAccount.end_time));
-    }
-  }, [shipperAccount]);
+  };
 
   useEffect(() => {
     setShipperAccount((prev) => ({
@@ -183,7 +68,6 @@ function EditShipper() {
       shipper_id: id,
     }));
   }, [id]);
-  console.log("Sending data:", shipperAccount);
 
   return (
     <DashboardLayout>
@@ -191,7 +75,6 @@ function EditShipper() {
         <Grid container justifyContent="center">
           <Grid item xs={12} md={10}>
             <Card>
-              {/* Header */}
               <MDBox
                 mx={2}
                 mt={-3}
@@ -207,141 +90,122 @@ function EditShipper() {
                 </MDTypography>
               </MDBox>
 
-              {/* Content */}
               <MDBox p={3}>
                 <Grid container spacing={3}>
-                  {/* Account */}
                   <Grid item xs={12}>
                     <Link
                       to="/shipper"
-                      onClick={() => {
-                        setTimeout(() => {
-                          window.location.reload();
-                        }, 0);
-                      }}
+                      onClick={() => setTimeout(() => window.location.reload(), 0)}
                     >
                       <Icon sx={{ cursor: "pointer", "&:hover": { color: "gray" } }}>
                         arrow_back
                       </Icon>
                     </Link>
 
-                    <div>
-                      <p
-                        style={{
-                          fontWeight: "700",
-                          fontSize: "0.6em",
-                          marginTop: "15px",
-                          marginBottom: "-5px",
-                        }}
-                      >
-                        UPDATE ACCOUNT
-                      </p>
+                    <p
+                      style={{
+                        fontWeight: "700",
+                        fontSize: "0.6em",
+                        marginTop: "15px",
+                        marginBottom: "-5px",
+                      }}
+                    >
+                      UPDATE ACCOUNT
+                    </p>
 
-                      {/* ID */}
-                      <TextField
-                        fullWidth
-                        type="text"
-                        value={id}
-                        label="ID"
-                        margin="normal"
-                        InputProps={{ readOnly: true }}
-                      />
+                    <TextField
+                      fullWidth
+                      type="text"
+                      value={id}
+                      label="ID"
+                      margin="normal"
+                      InputProps={{ readOnly: true }}
+                    />
 
-                      {/* Start & End Time side by side */}
-                      <Box sx={{ display: "flex", gap: 2, mb: 2, mt: 2 }}>
-                        {/* Start time */}
-                        <Box sx={{ flex: 1 }}>
-                          <TextField
-                            type="text"
-                            fullWidth
-                            value={startTime}
-                            onChange={StartTimeChange}
-                            onBlur={StartTimeBlur}
+                    <Box sx={{ display: "flex", gap: 2, mb: 2, mt: 2 }}>
+                      <Box sx={{ flex: 1 }}>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <TimePicker
                             label={
                               <span style={{ fontSize: "0.9em" }}>
-                                Start Time (AM/PM) <span style={{ color: "red" }}>*</span>
+                                Start Time <span style={{ color: "red" }}>*</span>
                               </span>
                             }
-                            placeholder="02:30 PM"
+                            value={shipperAccount.start_time}
+                            onChange={(newValue) => {
+                              setShipperAccount((prev) => ({
+                                ...prev,
+                                start_time: newValue,
+                              }));
+                              setStartTimeError("");
+                            }}
+                            ampm
+                            componentsProps={{
+                              openPickerButton: { sx: { display: "none" } },
+                            }}
+                            renderInput={(params) => <TextField {...params} fullWidth />}
                           />
-                          {startTimeError && (
-                            <p
-                              style={{
-                                fontWeight: "450",
-                                color: "red",
-                                fontSize: "0.6em",
-                                marginTop: "4px",
-                                marginLeft: "4px",
-                              }}
-                            >
-                              {startTimeError}
-                            </p>
-                          )}
-                        </Box>
-
-                        {/* End time */}
-                        <Box sx={{ flex: 1 }}>
-                          <TextField
-                            type="text"
-                            fullWidth
-                            value={endTime}
-                            onChange={EndTimeChange}
-                            onBlur={EndTimeBlur}
-                            label={
-                              <span style={{ fontSize: "0.9em" }}>
-                                End Time (AM/PM) <span style={{ color: "red" }}>*</span>
-                              </span>
-                            }
-                            placeholder="02:30 PM"
-                          />
-                          {endTimeError && (
-                            <p
-                              style={{
-                                fontWeight: "450",
-                                color: "red",
-                                fontSize: "0.6em",
-                                marginTop: "4px",
-                                marginLeft: "4px",
-                              }}
-                            >
-                              {endTimeError}
-                            </p>
-                          )}
-                        </Box>
+                        </LocalizationProvider>
+                        {startTimeError && (
+                          <p style={{ color: "red", fontSize: "0.7em", marginTop: "4px" }}>
+                            {startTimeError}
+                          </p>
+                        )}
                       </Box>
 
-                      {/* Success message */}
-                      {updateTimeShipperSuccess && (
-                        <p
-                          style={{
-                            color: "green",
-                            fontSize: "0.6em",
-                            fontWeight: "600",
-                            marginLeft: "5px",
-                            marginBottom: "5px",
-                          }}
-                        >
-                          {updateTimeShipperSuccess}
-                        </p>
-                      )}
+                      <Box sx={{ flex: 1 }}>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <TimePicker
+                            label={
+                              <span style={{ fontSize: "0.9em" }}>
+                                End Time <span style={{ color: "red" }}>*</span>
+                              </span>
+                            }
+                            value={shipperAccount.end_time}
+                            onChange={(newValue) => {
+                              setShipperAccount((prev) => ({
+                                ...prev,
+                                end_time: newValue,
+                              }));
+                              setEndTimeError("");
+                            }}
+                            ampm
+                            componentsProps={{
+                              openPickerButton: { sx: { display: "none" } },
+                            }}
+                            renderInput={(params) => <TextField {...params} fullWidth />}
+                          />
+                        </LocalizationProvider>
+                        {endTimeError && (
+                          <p style={{ color: "red", fontSize: "0.7em", marginTop: "4px" }}>
+                            {endTimeError}
+                          </p>
+                        )}
+                      </Box>
+                    </Box>
 
-                      {/* Save button */}
-                      <Button
-                        variant="contained"
-                        color="success"
-                        fullWidth
-                        onClick={updateTimeShipper}
-                        style={{
-                          backgroundColor: "#00C1FF",
-                          color: "white",
-                          padding: "5px 10px",
-                          fontSize: "0.6em",
-                        }}
-                      >
-                        Save
-                      </Button>
-                      <hr style={{ marginTop: "40px" }} />
-                    </div>
+                    {updateTimeShipperSuccess && (
+                      <p style={{ color: "green", fontSize: "0.6em", fontWeight: "600" }}>
+                        {updateTimeShipperSuccess}
+                      </p>
+                    )}
+
+                    <Button
+                      variant="contained"
+                      color="success"
+                      fullWidth
+                      onClick={updateTimeShipper}
+                      style={{
+                        backgroundColor: "#00C1FF",
+                        color: "white",
+                        padding: "5px 10px",
+                        fontSize: "0.6em",
+                      }}
+                    >
+                      Save
+                    </Button>
+
+                    <hr style={{ marginTop: "40px" }} />
                   </Grid>
                 </Grid>
               </MDBox>

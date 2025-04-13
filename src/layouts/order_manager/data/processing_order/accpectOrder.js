@@ -66,7 +66,15 @@ export default function data(pageShipper, selectedType, rowsPerPageShipper) {
   const Status = ({ status }) => (
     <MDBox lineHeight={1} textAlign="center">
       <MDTypography display="block" variant="button" fontWeight="medium" fontSize="0.8em">
-        {status}
+        <span style={{ green }}>{status}</span>
+      </MDTypography>
+    </MDBox>
+  );
+
+  const Order = ({ order }) => (
+    <MDBox lineHeight={1} textAlign="center">
+      <MDTypography display="block" variant="button" fontWeight="medium" fontSize="0.8em">
+        {order}
       </MDTypography>
     </MDBox>
   );
@@ -100,13 +108,13 @@ export default function data(pageShipper, selectedType, rowsPerPageShipper) {
   };
 
   const columns = [
-    { Header: "id", accessor: "id", width: "25%", align: "left" },
+    { Header: "id of shipper", accessor: "id", width: "25%", align: "left" },
     { Header: "name of shipper", accessor: "username", align: "center" },
     { Header: "email", accessor: "email", align: "center" },
     { Header: "status", accessor: "status", align: "center" },
+    { Header: "current order", accessor: "order", align: "center" },
     { Header: "start time", accessor: "start", align: "center" },
     { Header: "end time", accessor: "end", align: "center" },
-    { Header: "action", accessor: "action", align: "center" },
   ];
 
   const rows = Array.isArray(shipper)
@@ -115,39 +123,9 @@ export default function data(pageShipper, selectedType, rowsPerPageShipper) {
         username: <Username username={item.name} />,
         email: <Email email={item.email} />,
         status: <Status status={mapStatusToLabel(item.status)} />,
+        order: <Order order={item.current_order} />,
         start: <Start start={item.start_shift} />,
         end: <End end={item.end_shift} />,
-        action: (
-          <MDBox display="flex" justifyContent="center">
-            <>
-              <Link
-                to={`/edit_shipper/${item.id}`}
-                style={{ textDecoration: "none", marginLeft: "15px" }}
-              >
-                <MDTypography
-                  component="button"
-                  variant="caption"
-                  fontWeight="medium"
-                  style={{
-                    backgroundColor: "white",
-                    color: "#1976d2",
-                    fontSize: "0.8em",
-                    border: "none",
-                    padding: "5px 10px",
-                    cursor: "pointer",
-                    transition: "all 0.3s ease",
-                  }}
-                  onMouseEnter={(e) => (e.target.style.backgroundColor = "#f0f4ff")}
-                  onMouseLeave={(e) => (e.target.style.backgroundColor = "white")}
-                >
-                  <Icon fontSize="small" style={{ marginRight: "5px" }}>
-                    edit
-                  </Icon>
-                </MDTypography>
-              </Link>
-            </>
-          </MDBox>
-        ),
       }))
     : [];
 

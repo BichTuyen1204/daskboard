@@ -44,17 +44,13 @@ const OrderShipperDetail = () => {
   useEffect(() => {
     const getOrderDetailShipper = async () => {
       if (!id) {
-        console.error("Order ID bị undefined");
         return;
       }
       try {
         const data = await ShipperService.getOrderDetailShipper(id);
         setShipper(data);
-      } catch (err) {
-        console.error("Lỗi khi gọi getOrderDetailShipper:", err);
-      }
+      } catch (err) {}
     };
-
     getOrderDetailShipper();
   }, [id]);
 
@@ -65,13 +61,9 @@ const OrderShipperDetail = () => {
         const response = await ShipperService.getOrderItemsShipper(id, page, pageSize);
         if (response) {
           setItem(response);
-          console.log("Order item:", response);
         }
-      } catch (error) {
-        console.error("Lỗi khi lấy order items:", error);
-      }
+      } catch (error) {}
     };
-
     getOrderItemsShipper();
   }, [id, page, pageSize]);
 
@@ -79,15 +71,12 @@ const OrderShipperDetail = () => {
     if (!jwtToken) return;
     try {
       const response = await ShipperService.acceptOrder(id);
-      console.log("accept success", response);
       setTimeout(() => {
         setPopupAccept(false);
         setPopupAcceptSuccess(true);
         navigate("/dashboard");
       }, 2000);
-    } catch (error) {
-      console.error("Accept order failed:", error);
-    }
+    } catch (error) {}
   };
 
   const cancelOrder = async (id) => {
@@ -96,15 +85,11 @@ const OrderShipperDetail = () => {
       const response = await ShipperService.cancelOrder(id);
       setPopupReject(false);
       setPopupAccept(false);
-      window.location.reload();
       setTimeout(() => {
         setPopupRejectSuccess(true);
         navigate("/dashboard");
       }, 2000);
-      console.log(response);
-    } catch (error) {
-      console.error("Reject order failed:", error);
-    }
+    } catch (error) {}
   };
 
   const mapTypeToLabel = (type) => {

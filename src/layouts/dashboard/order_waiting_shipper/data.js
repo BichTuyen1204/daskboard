@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, Button, Icon } from "@mui/material";
 import ShipperService from "api/ShipperService";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const DataShipper = () => {
   const [shipper, setShipper] = useState(null);
@@ -15,6 +15,7 @@ const DataShipper = () => {
   const [jwtToken, setJwtToken] = useState(sessionStorage.getItem("jwtToken"));
   const [popupShippedSuccess, setPopupShippedSuccess] = useState(false);
   const [popupRejectSuccess, setPopupRejectSuccess] = useState(false);
+  const navigate = useNavigate();
 
   const openModal = (id) => {
     setSelectedItemId(id);

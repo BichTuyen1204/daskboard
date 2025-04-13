@@ -5,54 +5,41 @@ import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
-import authorsTableData from "layouts/product_manager/data/authorsTableData";
+import authorsTableData from "layouts/shipper_manager/data/data_shipper";
 import {
   Box,
-  Button,
   Icon,
   IconButton,
   Typography,
   TextField,
   InputAdornment,
+  Button,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ArrowBackIos, ArrowForwardIos, Search } from "@mui/icons-material";
 
-function Product() {
+function Shipper() {
   const navigate = useNavigate();
-  const [page, setPage] = useState(1);
-  const rowsPerPage = 30;
+  const [pageShipper, setPageShipper] = useState(1);
+  const rowsPerPageShipper = 50;
   const [selectedType, setSelectedType] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
-  const { columns, rows, totalPages } = authorsTableData(
-    page,
-    rowsPerPage,
+  const { columns, rows, hasNextPageShipper } = authorsTableData(
+    pageShipper,
     selectedType,
-    debouncedSearchQuery
+    rowsPerPageShipper
   );
 
-  // Handle debounced search
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery);
-      setPage(1); // Reset to first page when searching
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
-
-  const handleSearchChange = (event) => {
-    setSearchQuery(event.target.value);
+  const handlePrevPageShipper = () => {
+    if (pageShipper > 1) {
+      setPageShipper((prev) => prev - 1);
+    }
   };
 
-  const handlePrevPage = () => {
-    if (page > 1) setPage(page - 1);
-  };
-
-  const handleNextPage = () => {
-    if (page < totalPages) setPage(page + 1);
+  const handleNextPageShipper = () => {
+    if (hasNextPageShipper) {
+      setPageShipper((prev) => prev + 1);
+    }
   };
 
   useEffect(() => {
@@ -85,46 +72,15 @@ function Product() {
                 gap={{ xs: 2, sm: 0 }}
               >
                 <MDTypography variant="h6" color="white">
-                  Ingredient list
+                  Shipper List
                 </MDTypography>
-                <Box
-                  sx={{
-                    width: { xs: "100%", sm: "50%", md: "40%", lg: "30%" },
-                    transition: "width 0.3s ease",
-                  }}
-                >
-                  <TextField
-                    size="small"
-                    placeholder="Search ingredients"
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    fullWidth
-                    style={{
-                      backgroundColor: "white",
-                      borderRadius: 1,
-                      "& .MuiOutlinedInput-root": {
-                        "& fieldset": { border: "none" },
-                      },
-                      "& .MuiInputBase-input": {
-                        fontSize: { xs: "0.85rem", sm: "0.875rem" },
-                      },
-                    }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Search />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Box>
               </MDBox>
 
               <MDBox mx={3} mt={2}>
                 <Box display="flex" justifyContent="space-between">
                   <Button
                     variant={selectedType === "ALL" ? "contained" : "outlined"}
-                    onClick={() => setSelectedType(null)}
+                    onClick={() => setSelectedType("ALL")}
                     sx={{
                       color: selectedType === "ALL" ? "rgb(255, 255, 255)" : "rgb(70, 70, 70)",
                       borderColor: selectedType === "ALL" ? "transparent" : "rgb(34, 178, 255)",
@@ -139,12 +95,13 @@ function Product() {
                   </Button>
 
                   <Button
-                    variant={selectedType === "VEG" ? "contained" : "outlined"}
+                    variant={selectedType === "ACCEPTED" ? "contained" : "outlined"}
                     color="primary"
-                    onClick={() => setSelectedType("VEG")}
+                    onClick={() => setSelectedType("ACCEPTED")}
                     sx={{
-                      color: selectedType === "VEG" ? "rgb(255, 255, 255)" : "rgb(70, 70, 70)",
-                      borderColor: selectedType === "VEG" ? "transparent" : "rgb(34, 178, 255)",
+                      color: selectedType === "ACCEPTED" ? "rgb(255, 255, 255)" : "rgb(70, 70, 70)",
+                      borderColor:
+                        selectedType === "ACCEPTED" ? "transparent" : "rgb(34, 178, 255)",
                       "&:hover": {
                         color: "black !important",
                         borderColor: "rgba(0, 0, 255, 0.5)",
@@ -152,16 +109,17 @@ function Product() {
                       },
                     }}
                   >
-                    Vegetable
+                    ACCEPTED
                   </Button>
 
                   <Button
-                    variant={selectedType === "MEAT" ? "contained" : "outlined"}
+                    variant={selectedType === "REJECTED" ? "contained" : "outlined"}
                     color="primary"
-                    onClick={() => setSelectedType("MEAT")}
+                    onClick={() => setSelectedType("REJECTED")}
                     sx={{
-                      color: selectedType === "MEAT" ? "rgb(255, 255, 255)" : "rgb(70, 70, 70)",
-                      borderColor: selectedType === "MEAT" ? "transparent" : "rgb(34, 178, 255)",
+                      color: selectedType === "REJECTED" ? "rgb(255, 255, 255)" : "rgb(70, 70, 70)",
+                      borderColor:
+                        selectedType === "REJECTED" ? "transparent" : "rgb(34, 178, 255)",
                       "&:hover": {
                         color: "black !important",
                         borderColor: "rgba(0, 0, 255, 0.5)",
@@ -169,16 +127,18 @@ function Product() {
                       },
                     }}
                   >
-                    Meat
+                    REJECTED
                   </Button>
 
                   <Button
-                    variant={selectedType === "SS" ? "contained" : "outlined"}
+                    variant={selectedType === "ON_SHIPPING" ? "contained" : "outlined"}
                     color="primary"
-                    onClick={() => setSelectedType("SS")}
+                    onClick={() => setSelectedType("ON_SHIPPING")}
                     sx={{
-                      color: selectedType === "SS" ? "rgb(255, 255, 255)" : "rgb(70, 70, 70)",
-                      borderColor: selectedType === "SS" ? "transparent" : "rgb(34, 178, 255)",
+                      color:
+                        selectedType === "ON_SHIPPING" ? "rgb(255, 255, 255)" : "rgb(70, 70, 70)",
+                      borderColor:
+                        selectedType === "ON_SHIPPING" ? "transparent" : "rgb(34, 178, 255)",
                       "&:hover": {
                         color: "black !important",
                         borderColor: "rgba(0, 0, 255, 0.5)",
@@ -186,7 +146,60 @@ function Product() {
                       },
                     }}
                   >
-                    Season
+                    ON SHIPPING
+                  </Button>
+
+                  <Button
+                    variant={selectedType === "DELIVERED" ? "contained" : "outlined"}
+                    color="primary"
+                    onClick={() => setSelectedType("DELIVERED")}
+                    sx={{
+                      color:
+                        selectedType === "DELIVERED" ? "rgb(255, 255, 255)" : "rgb(70, 70, 70)",
+                      borderColor:
+                        selectedType === "DELIVERED" ? "transparent" : "rgb(34, 178, 255)",
+                      "&:hover": {
+                        color: "black !important",
+                        borderColor: "rgba(0, 0, 255, 0.5)",
+                        backgroundColor: "rgba(168, 227, 255, 0.2)",
+                      },
+                    }}
+                  >
+                    DELIVERED
+                  </Button>
+
+                  <Button
+                    variant={selectedType === "ASSIGN" ? "contained" : "outlined"}
+                    color="primary"
+                    onClick={() => setSelectedType("ASSIGN")}
+                    sx={{
+                      color: selectedType === "ASSIGN" ? "rgb(255, 255, 255)" : "rgb(70, 70, 70)",
+                      borderColor: selectedType === "ASSIGN" ? "transparent" : "rgb(34, 178, 255)",
+                      "&:hover": {
+                        color: "black !important",
+                        borderColor: "rgba(0, 0, 255, 0.5)",
+                        backgroundColor: "rgba(168, 227, 255, 0.2)",
+                      },
+                    }}
+                  >
+                    ASSIGN
+                  </Button>
+
+                  <Button
+                    variant={selectedType === "IDLE" ? "contained" : "outlined"}
+                    color="primary"
+                    onClick={() => setSelectedType("IDLE")}
+                    sx={{
+                      color: selectedType === "IDLE" ? "rgb(255, 255, 255)" : "rgb(70, 70, 70)",
+                      borderColor: selectedType === "IDLE" ? "transparent" : "rgb(34, 178, 255)",
+                      "&:hover": {
+                        color: "black !important",
+                        borderColor: "rgba(0, 0, 255, 0.5)",
+                        backgroundColor: "rgba(168, 227, 255, 0.2)",
+                      },
+                    }}
+                  >
+                    IDLE
                   </Button>
                 </Box>
               </MDBox>
@@ -206,31 +219,34 @@ function Product() {
                 mt={2}
                 pb={2}
                 mx={5}
-                sx={{ marginRight: "60px" }}
               >
+                {/* Nút Previous */}
                 <IconButton
-                  onClick={handlePrevPage}
-                  disabled={page === 1}
+                  onClick={handlePrevPageShipper}
+                  disabled={pageShipper === 1}
                   sx={{
                     bgcolor: "black",
                     fontSize: "0.6em",
                     color: "white",
                     width: "30px",
                     height: "30px",
+                    minWidth: "30px",
                     borderRadius: "50%",
                     "&:hover, &:focus": { bgcolor: "#333 !important", color: "white !important" },
-                    opacity: page === 1 ? 0.3 : 1,
+                    opacity: pageShipper === 1 ? 0.3 : 1,
                   }}
                 >
                   <ArrowBackIos sx={{ fontSize: "14px" }} />
                 </IconButton>
 
+                {/* Số trang */}
                 <Box
                   sx={{
                     mx: 2,
                     width: 30,
                     height: 30,
                     display: "flex",
+                    border: "1px solid white",
                     alignItems: "center",
                     justifyContent: "center",
                     borderRadius: "50%",
@@ -238,22 +254,24 @@ function Product() {
                   }}
                 >
                   <Typography color="white" fontWeight="bold">
-                    <p style={{ fontSize: "14px", color: "white" }}>{page}</p>
+                    <p style={{ fontSize: "0.7em", color: "white" }}>{pageShipper}</p>
                   </Typography>
                 </Box>
 
+                {/* Nút Next */}
                 <IconButton
-                  onClick={handleNextPage}
-                  disabled={page >= totalPages}
+                  onClick={handleNextPageShipper}
+                  disabled={!hasNextPageShipper}
                   sx={{
                     bgcolor: "black",
                     fontSize: "0.6em",
                     color: "white",
                     width: "30px",
                     height: "30px",
+                    minWidth: "30px",
                     borderRadius: "50%",
                     "&:hover, &:focus": { bgcolor: "#333 !important", color: "white !important" },
-                    opacity: page >= totalPages ? 0.3 : 1,
+                    opacity: hasNextPageShipper ? 1 : 0.3,
                   }}
                 >
                   <ArrowForwardIos sx={{ fontSize: "14px" }} />
@@ -263,7 +281,8 @@ function Product() {
           </Grid>
         </Grid>
       </MDBox>
-      <Link to="/add_product">
+
+      <Link to="/add_shipper">
         <MDBox
           display="flex"
           justifyContent="center"
@@ -281,7 +300,7 @@ function Product() {
           sx={{ cursor: "pointer" }}
         >
           <Icon fontSize="small" color="inherit">
-            add
+            person_add
           </Icon>
         </MDBox>
       </Link>
@@ -289,4 +308,4 @@ function Product() {
   );
 }
 
-export default Product;
+export default Shipper;

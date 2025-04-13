@@ -27,11 +27,10 @@ import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link } from "react-router-dom";
 import ClearIcon from "@mui/icons-material/Delete";
-import CropIcon from "@mui/icons-material/Crop";
 import ProductService from "api/ProductService";
 import MDEditor from "@uiw/react-md-editor";
 import Cropper from "react-easy-crop";
-import getCroppedImg from "utils/cropImage"; // Utility function to crop the image
+import getCroppedImg from "utils/cropImage";
 
 function AddProduct() {
   const [mainImage, setMainImage] = useState(null);
@@ -49,11 +48,6 @@ function AddProduct() {
   const [salePercentError, setSalePercentError] = useState("");
   const [dayBeforeExpiryError, setDayBeforeExpiryError] = useState("");
   const [descriptionError, setDescriptionError] = useState("");
-  const [weightError, setWeightError] = useState("");
-  const [storageInstructionsError, setStorageInstructionsError] = useState("");
-  const [brandError, setBrandError] = useState("");
-  const [usageInstructionsError, setUsageInstructionsError] = useState("");
-  const [madeInError, setMadeInError] = useState("");
   const [infoRows, setInfoRows] = useState([{ key: "", value: "" }]);
   const [product, setProduct] = useState({
     article_md: "",
@@ -92,52 +86,34 @@ function AddProduct() {
     switch (field) {
       case "product_type":
         if (!value.trim()) {
-          setProductTypeError("Product type is required.");
+          setProductTypeError("Please enter the type of product.");
         } else {
-          setProductNameError("");
+          setProductTypeError("");
         }
         break;
       case "product_name":
         if (!value.trim()) {
-          setProductNameError("Product name is required.");
+          setProductNameError("Please enter the product name.");
         } else {
           setProductNameError("");
         }
         break;
       case "article_md":
         if (!value.trim()) {
-          setArticleMDError("Article MD is required.");
+          setArticleMDError("Please enter the article.");
         } else {
           setArticleMDError("");
         }
         break;
-      case "price":
-        if (!value) {
-          setPriceError("Price is required.");
-        } else if (value < 0) {
-          setPriceError("Price must be greater than 0.");
-        } else {
-          setPriceError("");
-        }
-        break;
       case "day_before_expiry":
         if (!value) {
-          setDayBeforeExpiryError("Day before expiry is required.");
+          setDayBeforeExpiryError("Please enter day before expiry.");
         } else if (value <= 0) {
           setDayBeforeExpiryError("Day before expiry cannot be negative.");
         } else if (/^0\d*/.test(value)) {
           setDayBeforeExpiryError("Day before expiry cannot start with 0.");
         } else {
           setDayBeforeExpiryError("");
-        }
-        break;
-      case "sale_percent":
-        if (!value) {
-          setSalePercentError("Sale percent is required.");
-        } else if (value < 0 || value > 100) {
-          setSalePercentError("Sale percent must be between 0 and 100.");
-        } else {
-          setSalePercentError("");
         }
         break;
       case "description":
@@ -181,24 +157,20 @@ function AddProduct() {
   const handleCropSave = async () => {
     try {
       const croppedImage = await getCroppedImg(imageToCrop, croppedAreaPixels);
-
       if (currentAdditionalImageIndex !== null) {
         // Update the cropped additional image
         const updatedPreviews = [...additionalImagePreviews];
         updatedPreviews[currentAdditionalImageIndex] = URL.createObjectURL(croppedImage);
         setAdditionalImagePreviews(updatedPreviews);
-
         const updatedImages = [...additionalImages];
         updatedImages[currentAdditionalImageIndex] = croppedImage;
         setAdditionalImages(updatedImages);
-
         setCurrentAdditionalImageIndex(null); // Reset the index
       } else {
         // Update the cropped main image
         setMainImage(croppedImage);
         setMainImagePreview(URL.createObjectURL(croppedImage));
       }
-
       setCropModalOpen(false);
       setMainImageError("");
     } catch (error) {}
@@ -213,14 +185,11 @@ function AddProduct() {
         const updatedPreviews = [...additionalImagePreviews];
         updatedPreviews[currentAdditionalImageIndex] = URL.createObjectURL(croppedImage);
         setAdditionalImagePreviews(updatedPreviews);
-
         const updatedImages = [...additionalImages];
         updatedImages[currentAdditionalImageIndex] = croppedImage;
         setAdditionalImages(updatedImages);
-
         setCurrentAdditionalImageIndex(null); // Reset the index
       }
-
       setCropModalOpen(false);
       setAdditionalImagesError("");
     } catch (error) {}
@@ -245,7 +214,6 @@ function AddProduct() {
       setCurrentAdditionalImageIndex(additionalImagePreviews.length); // Set the index of the image being cropped
       setCropModalOpen(true);
     }
-
     setAdditionalImagesError("");
   };
 
@@ -258,7 +226,6 @@ function AddProduct() {
     const {
       product_name,
       article_md,
-      price,
       day_before_expiry,
       sale_percent,
       product_type,
@@ -267,32 +234,31 @@ function AddProduct() {
     } = product;
 
     if (!product_name.trim()) {
-      setProductNameError("Product name is required.");
+      setProductNameError("The product name is required.");
       return false;
     }
-
     if (!day_before_expiry) {
-      setDayBeforeExpiryError("Day Before Expiry is required");
+      setDayBeforeExpiryError("The day before expiry is required");
       return false;
     }
-
     if (!product_type.trim()) {
-      setProductTypeError("Product Type is required.");
+      setProductTypeError("The product type is required.");
       return false;
     }
     if (!description.trim()) {
-      setDescriptionError("Description is required.");
+      setDescriptionError("The description is required.");
       return false;
     } else if (description.length > 255) {
-      setDescriptionError("Description cannot be longer than 255 characters.");
+      setDescriptionError("The description cannot be longer than 255 characters.");
+      return false;
+    } else if (article_md.length > 255) {
+      setArticleMDError("The article cannot be longer than 255 characters.");
       return false;
     }
-
     if (!mainImage) {
       setMainImageError("The main image is required.");
       return false;
     }
-
     setErrorMessage("");
     return true;
   };
@@ -313,10 +279,8 @@ function AddProduct() {
 
   const handleSubmit = async () => {
     if (!validateForm() || additionalImagesError || mainImageError) return;
-
     // Synchronize infoRows with product.infos before submission
     synchronizeInfosWithRows();
-
     const formData = new FormData();
     formData.append("main_image", mainImage);
     additionalImages.forEach((image) => {
@@ -444,7 +408,9 @@ function AddProduct() {
                     <MDBox>
                       {/* Main Image */}
                       <MDTypography variant="h6" mb={2}>
-                        Main Image
+                        <span>
+                          Main Image <span style={{ color: "red" }}>*</span>
+                        </span>
                       </MDTypography>
                       <MDBox
                         sx={{
@@ -526,7 +492,7 @@ function AddProduct() {
                           hidden
                           onChange={(e) => {
                             handleMainImageChange(e);
-                            e.target.value = ""; // Reset the input value
+                            e.target.value = "";
                           }}
                         />
                       </Button>
@@ -551,8 +517,8 @@ function AddProduct() {
                             sx={{
                               position: "relative",
                               width: "100%",
-                              height: "300px", // Fixed height for the cropper
-                              background: "#333", // Optional: Add a background color
+                              height: "300px",
+                              background: "#333",
                             }}
                           >
                             <Cropper
@@ -711,7 +677,11 @@ function AddProduct() {
                     <form>
                       <TextField
                         fullWidth
-                        label="Product Name"
+                        label={
+                          <span>
+                            Product Name <span style={{ color: "red" }}>*</span>
+                          </span>
+                        }
                         value={product.product_name}
                         onChange={(e) => handleChange("product_name", e.target.value)}
                         margin="normal"
@@ -722,6 +692,7 @@ function AddProduct() {
                           fontSize: "0.6em",
                           fontWeight: "450",
                           marginLeft: "5px",
+                          marginTop: "-5px",
                         }}
                       >
                         {productNameError}
@@ -729,7 +700,11 @@ function AddProduct() {
 
                       <TextField
                         fullWidth
-                        label="Day Before Expiry (days)"
+                        label={
+                          <span>
+                            Day Before Expiry (days) <span style={{ color: "red" }}>*</span>
+                          </span>
+                        }
                         type="number"
                         value={product.day_before_expiry}
                         onChange={(e) => {
@@ -756,6 +731,7 @@ function AddProduct() {
                           fontSize: "0.6em",
                           fontWeight: "450",
                           marginLeft: "5px",
+                          marginTop: "-5px",
                         }}
                       >
                         {dayBeforeExpiryError}
@@ -764,7 +740,11 @@ function AddProduct() {
                       <TextField
                         fullWidth
                         select
-                        label="Product Type"
+                        label={
+                          <span>
+                            Product Type <span style={{ color: "red" }}>*</span>
+                          </span>
+                        }
                         value={product.product_type}
                         onChange={(e) => handleChange("product_type", e.target.value)}
                         margin="normal"
@@ -783,6 +763,7 @@ function AddProduct() {
                           fontSize: "0.6em",
                           fontWeight: "450",
                           marginLeft: "5px",
+                          marginTop: "-5px",
                         }}
                       >
                         {productTypeError}
@@ -790,7 +771,11 @@ function AddProduct() {
 
                       <TextField
                         fullWidth
-                        label="Description"
+                        label={
+                          <span>
+                            Description <span style={{ color: "red" }}>*</span>
+                          </span>
+                        }
                         value={product.description}
                         onChange={(e) => handleChange("description", e.target.value)}
                         margin="normal"
@@ -803,6 +788,7 @@ function AddProduct() {
                           fontSize: "0.6em",
                           fontWeight: "450",
                           marginLeft: "5px",
+                          marginTop: "-5px",
                         }}
                       >
                         {descriptionError}
@@ -810,7 +796,7 @@ function AddProduct() {
 
                       <FormControl fullWidth>
                         <FormLabel style={{ fontSize: "0.7em", marginTop: "15px" }}>
-                          Article
+                          <span>Article</span> <span style={{ color: "red" }}>*</span>
                         </FormLabel>
                         <div style={{ marginBottom: "20px" }}>
                           <MDEditor
@@ -825,6 +811,7 @@ function AddProduct() {
                           fontSize: "0.6em",
                           fontWeight: "450",
                           marginLeft: "5px",
+                          marginTop: "-15px",
                         }}
                       >
                         {articleMDError}

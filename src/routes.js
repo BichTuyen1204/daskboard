@@ -12,6 +12,7 @@ import Add_Coupon from "layouts/add_coupon";
 import View_Coupon from "layouts/view_coupon";
 import View_Staff from "layouts/view_staff";
 import Add_Staff from "layouts/add_staff";
+import Add_Shipper from "layouts/add_shipper";
 import Add_Product from "layouts/add_product";
 import Logout from "layouts/logout";
 import Edit_Product from "layouts/edit_product";
@@ -43,6 +44,12 @@ import Order_Shipped from "layouts/order_shipped/index";
 import Order_Cancel_Detail from "layouts/order_cancel_detail/index";
 import Delivered_Order from "layouts/order_manager/data/delivered_order/index";
 import Order_Delivered_Detail from "layouts/order_delivered/index";
+import Shipper from "layouts/shipper_manager/index";
+import Choose_shipper from "layouts/choose_shipper/index";
+import Edit_Shipper from "layouts/edit_shipper/index";
+import OrderWaitingShipper from "layouts/orders_waiting_shipper/index";
+import Waiting_Shipper from "layouts/order_manager/data/shipping_order/index";
+import Order_Shipper_Detail from "layouts/dashboard/order_waiting_shipper/order_shipper_detail";
 
 const token = sessionStorage.getItem("jwtToken");
 
@@ -102,6 +109,14 @@ const routes = [
     icon: <Icon fontSize="small">diversity_3</Icon>,
     route: "/staff",
     component: <Staff />,
+  },
+  {
+    type: "collapse",
+    name: "Shipper Management",
+    key: "shipper",
+    icon: <Icon fontSize="small">directions_bike</Icon>,
+    route: "/shipper",
+    component: <Shipper />,
   },
   {
     type: "collapse",
@@ -168,8 +183,16 @@ const routes = [
     component: <Edit_Staff />,
   },
   {
+    route: "/edit_shipper/:id",
+    component: <Edit_Shipper />,
+  },
+  {
     route: "/order_detail/:id",
     component: <Order_Confirm />,
+  },
+  {
+    route: "/order_shipper_detail/:id",
+    component: <Order_Shipper_Detail />,
   },
   {
     route: "/order_processing_to_shipping/:id",
@@ -194,6 +217,10 @@ const routes = [
   {
     route: "/add_coupon",
     component: <Add_Coupon />,
+  },
+  {
+    route: "/choose_shipper/:id",
+    component: <Choose_shipper />,
   },
   {
     route: "/view_coupon/:id",
@@ -224,6 +251,10 @@ const routes = [
     component: <Add_Staff />,
   },
   {
+    route: "/add_shipper",
+    component: <Add_Shipper />,
+  },
+  {
     route: "/add_product",
     component: <Add_Product />,
   },
@@ -248,8 +279,16 @@ const routes = [
     component: <Shipping_Order />,
   },
   {
+    route: "/orderWaitingShipper",
+    component: <OrderWaitingShipper />,
+  },
+  {
     route: "/shipped_order",
     component: <Shipped_Order />,
+  },
+  {
+    route: "/order_waiting",
+    component: <Waiting_Shipper />,
   },
   {
     route: "/cancel_order",

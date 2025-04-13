@@ -107,7 +107,7 @@ function OrderDetail() {
         setPopupProcessingOrderSuccess(true);
         setTimeout(() => {
           setPopupProcessingOrderSuccess(false);
-          navigate("/confirm_order");
+          navigate(`/choose_shipper/${id}`);
         }, 4000);
       }
     } catch (error) {}

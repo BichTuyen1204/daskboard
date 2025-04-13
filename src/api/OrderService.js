@@ -25,7 +25,7 @@ class OrderService {
         return;
       }
       const response = await axios.get(
-        `${API_BASE_URL}/fetch/status?status=${status}&index=${page - 1}&size=${size}`,
+        `${API_BASE_URL}/fetch/all?status=${status}&index=${page - 1}&size=${size}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

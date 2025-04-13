@@ -13,7 +13,7 @@ import { Box, IconButton, Typography, TextField, InputAdornment } from "@mui/mat
 
 function Customer() {
   const [pageCustomer, setPageCustomer] = useState(1);
-  const rowsPerPageCustomer = 7;
+  const rowsPerPageCustomer = 50;
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");

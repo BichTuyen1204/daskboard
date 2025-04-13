@@ -229,7 +229,9 @@ function AddBlog() {
                     <MDBox>
                       {/* Main Image */}
                       <MDTypography variant="h6" mb={2}>
-                        Main Image
+                        <span style={{ fontSize: "0.9em" }}>
+                          Main Image <span style={{ color: "red" }}>*</span>
+                        </span>
                       </MDTypography>
                       <MDBox
                         sx={{
@@ -437,7 +439,11 @@ function AddBlog() {
                     <form>
                       <TextField
                         fullWidth
-                        label="Title"
+                        label={
+                          <span style={{ fontSize: "0.9em" }}>
+                            Title <span style={{ color: "red" }}>*</span>
+                          </span>
+                        }
                         value={blog.title}
                         onChange={(e) => handleChange("title", e.target.value)}
                         margin="normal"
@@ -455,7 +461,11 @@ function AddBlog() {
 
                       <TextField
                         fullWidth
-                        label="Content"
+                        label={
+                          <span style={{ fontSize: "0.9em" }}>
+                            Content <span style={{ color: "red" }}>*</span>
+                          </span>
+                        }
                         value={blog.description}
                         onChange={(e) => handleChange("description", e.target.value)}
                         margin="normal"
@@ -473,7 +483,7 @@ function AddBlog() {
 
                       <FormControl fullWidth>
                         <FormLabel style={{ fontSize: "0.7em", marginTop: "15px" }}>
-                          Article
+                          Article <span style={{ color: "red" }}>*</span>
                         </FormLabel>
                         <div style={{ marginBottom: "20px" }}>
                           <MDEditor

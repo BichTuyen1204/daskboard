@@ -479,6 +479,11 @@ function AddMealkit() {
       return false;
     }
 
+    if (!article_md.trim()) {
+      setArticleMDError("The article is required.");
+      return false;
+    }
+
     // Add validation for ingredients - ensure we have at least one ingredient
     const ingredientIds = Object.keys(product.ingredients);
     if (ingredientIds.length === 0) {
@@ -538,8 +543,6 @@ function AddMealkit() {
       formData.append("additional_images", image);
     });
     formData.append("product_detail", JSON.stringify(product));
-
-    // 🛠 In dữ liệu để kiểm tra trước khi gửi
     for (const pair of formData.entries()) {
     }
     additionalImages.forEach((image, index) => {});
@@ -679,7 +682,7 @@ function AddMealkit() {
                       {/* Main Image */}
 
                       <MDTypography variant="h6" mb={2}>
-                        Main Image
+                        Main Image <span style={{ color: "red" }}>*</span>
                       </MDTypography>
                       <MDBox
                         sx={{
@@ -877,7 +880,9 @@ function AddMealkit() {
                             marginBottom: "-10px",
                           }}
                         >
-                          Ingredient
+                          <span style={{ fontSize: "0.9em" }}>
+                            Ingredient <span style={{ color: "red" }}>*</span>
+                          </span>
                         </p>
                         {/* Search Bar */}
                         <Autocomplete
@@ -1060,7 +1065,11 @@ function AddMealkit() {
                     <form>
                       <TextField
                         fullWidth
-                        label="Mealkit name"
+                        label={
+                          <span style={{ fontSize: "0.9em" }}>
+                            Mealkit name <span style={{ color: "red" }}>*</span>
+                          </span>
+                        }
                         value={product.product_name}
                         onChange={(e) => handleChange("product_name", e.target.value)}
                         margin="normal"
@@ -1071,6 +1080,8 @@ function AddMealkit() {
                           fontSize: "0.6em",
                           fontWeight: "450",
                           marginLeft: "5px",
+                          marginTop: "-5px",
+                          marginBottom: "5px",
                         }}
                       >
                         {productNameError}
@@ -1078,7 +1089,11 @@ function AddMealkit() {
 
                       <TextField
                         fullWidth
-                        label="Day Before Expiry"
+                        label={
+                          <span style={{ fontSize: "0.9em" }}>
+                            Day Before Expiry (days) <span style={{ color: "red" }}>*</span>
+                          </span>
+                        }
                         type="number"
                         value={product.day_before_expiry}
                         onChange={(e) => handleChange("day_before_expiry", e.target.value)}
@@ -1097,6 +1112,8 @@ function AddMealkit() {
                           fontSize: "0.6em",
                           fontWeight: "450",
                           marginLeft: "5px",
+                          marginTop: "-5px",
+                          marginBottom: "5px",
                         }}
                       >
                         {dayBeforeExpiryError}
@@ -1104,7 +1121,11 @@ function AddMealkit() {
 
                       <TextField
                         fullWidth
-                        label="Description"
+                        label={
+                          <span style={{ fontSize: "0.9em" }}>
+                            Description <span style={{ color: "red" }}>*</span>
+                          </span>
+                        }
                         value={product.description}
                         onChange={(e) => handleChange("description", e.target.value)}
                         margin="normal"
@@ -1117,6 +1138,8 @@ function AddMealkit() {
                           fontSize: "0.6em",
                           fontWeight: "450",
                           marginLeft: "5px",
+                          marginTop: "-5px",
+                          marginBottom: "5px",
                         }}
                       >
                         {descriptionError}
@@ -1124,7 +1147,9 @@ function AddMealkit() {
 
                       <FormControl fullWidth>
                         <FormLabel style={{ fontSize: "0.7em", marginTop: "15px" }}>
-                          Article
+                          <span style={{ fontSize: "0.9em" }}>
+                            Article <span style={{ color: "red" }}>*</span>
+                          </span>
                         </FormLabel>
                         <div style={{ marginBottom: "20px" }}>
                           <MDEditor
@@ -1139,6 +1164,8 @@ function AddMealkit() {
                           fontSize: "0.6em",
                           fontWeight: "450",
                           marginLeft: "5px",
+                          marginTop: "-15px",
+                          marginBottom: "5px",
                         }}
                       >
                         {articleMDError}
@@ -1156,7 +1183,9 @@ function AddMealkit() {
                         <Table>
                           <TableHead>
                             <TableRow>
-                              <TableCell>Instructions</TableCell>
+                              <TableCell>
+                                Instructions <span style={{ color: "red" }}>*</span>
+                              </TableCell>
                             </TableRow>
                           </TableHead>
                           <TableBody>
@@ -1250,7 +1279,9 @@ function AddMealkit() {
                         <Table>
                           <TableHead>
                             <TableRow>
-                              <TableCell colSpan={2}>Additional Informations</TableCell>
+                              <TableCell colSpan={2}>
+                                Additional Informations <span style={{ color: "red" }}>*</span>
+                              </TableCell>
                             </TableRow>
                           </TableHead>
                           <TableBody>

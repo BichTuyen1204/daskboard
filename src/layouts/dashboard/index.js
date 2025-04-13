@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Grid from "@mui/material/Grid";
 import MDBox from "components/MDBox";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -7,10 +7,11 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import ReportsBarChart from "examples/Charts/BarCharts/ReportsBarChart";
 import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
+import DataShipper from "layouts/dashboard/order_waiting_shipper/data";
 import Projects from "layouts/dashboard/components/Projects";
 import ExpectedProduct from "./components/ExpectedProduct";
 import AccountService from "api/AccountService";
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { RestaurantMenu } from "@mui/icons-material";
 function Dashboard() {
   const navigate = useNavigate();
@@ -55,6 +56,7 @@ function Dashboard() {
 
   return (
     <DashboardLayout>
+      <DashboardNavbar />
       {account.type === 2 ? (
         <Box
           display="flex"
@@ -126,9 +128,24 @@ function Dashboard() {
             </Typography>
           </Box>
         </Box>
+      ) : account.type === 3 ? (
+        <Box
+          sx={{
+            height: "100vh",
+            width: "100%",
+            background: "linear-gradient(135deg, #A2D5F2 20%, #89CFF0 80%)",
+            borderRadius: "5px",
+            overflowY: "auto",
+            paddingTop: "20px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "flex-start",
+          }}
+        >
+          <DataShipper />
+        </Box>
       ) : (
         <>
-          <DashboardNavbar />
           <MDBox py={3}>
             <Grid container spacing={3}></Grid>
 

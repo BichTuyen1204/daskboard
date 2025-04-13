@@ -386,7 +386,11 @@ function EditStaff() {
                         value={userName || ""}
                         onChange={UserNameChange}
                         onBlur={UserNameBlur}
-                        label="Username"
+                        label={
+                          <span style={{ fontSize: "0.9em" }}>
+                            Username <span style={{ color: "red" }}>*</span>
+                          </span>
+                        }
                         margin="normal"
                       />
                       {userNameError && (
@@ -401,7 +405,11 @@ function EditStaff() {
                         value={password || ""}
                         onChange={PasswordChange}
                         onBlur={PasswordBlur}
-                        label="Password"
+                        label={
+                          <span style={{ fontSize: "0.9em" }}>
+                            Password <span style={{ color: "red" }}>*</span>
+                          </span>
+                        }
                         margin="normal"
                         InputProps={{
                           endAdornment: (
@@ -468,7 +476,11 @@ function EditStaff() {
                         <TextField
                           fullWidth
                           select
-                          label="Status"
+                          label={
+                            <span style={{ fontSize: "0.9em" }}>
+                              Status <span style={{ color: "red" }}>*</span>
+                            </span>
+                          }
                           value={status || ""}
                           onChange={StatusChange}
                           onBlur={StatusBlur}
@@ -534,7 +546,11 @@ function EditStaff() {
                           value={email || ""}
                           onChange={EmailChange}
                           onBlur={EmailBlur}
-                          label="Email"
+                          label={
+                            <span style={{ fontSize: "0.9em" }}>
+                              Email <span style={{ color: "red" }}>*</span>
+                            </span>
+                          }
                           margin="normal"
                         />
                         {emailError && (
@@ -550,7 +566,11 @@ function EditStaff() {
                           value={phone || ""}
                           onChange={PhoneChange}
                           onBlur={PhoneBlur}
-                          label="Phone number"
+                          label={
+                            <span style={{ fontSize: "0.9em" }}>
+                              Phone number <span style={{ color: "red" }}>*</span>
+                            </span>
+                          }
                           margin="normal"
                         />
                         {phoneError && (
@@ -566,7 +586,11 @@ function EditStaff() {
                           value={realName || ""}
                           onChange={RealNameChange}
                           onBlur={RealNameBlur}
-                          label="Real name"
+                          label={
+                            <span style={{ fontSize: "0.9em" }}>
+                              Real name <span style={{ color: "red" }}>*</span>
+                            </span>
+                          }
                           margin="normal"
                         />
                         {realNameError && (
@@ -582,7 +606,11 @@ function EditStaff() {
                           value={ssn || ""}
                           onChange={SsnChange}
                           onBlur={SsnBlur}
-                          label="SSN (Social Security Number)"
+                          label={
+                            <span style={{ fontSize: "0.9em" }}>
+                              SSN (Social Security Number) <span style={{ color: "red" }}>*</span>
+                            </span>
+                          }
                           margin="normal"
                         />
                         {ssnError && (
@@ -598,7 +626,11 @@ function EditStaff() {
                           value={dob || ""}
                           onChange={DobChange}
                           onBlur={DobBlur}
-                          label="DOB (Date of birth)"
+                          label={
+                            <span style={{ fontSize: "0.9em" }}>
+                              DOB (Date of birth) <span style={{ color: "red" }}>*</span>
+                            </span>
+                          }
                           margin="normal"
                         />
                         {dobError && (

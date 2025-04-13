@@ -19,12 +19,10 @@ import {
 } from "@mui/material";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import MDBox from "components/MDBox";
-import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import ProductService from "api/ProductService";
 import axios from "axios";
 import MDEditor from "@uiw/react-md-editor";
-import Container from "@mui/material/Container";
 
 const REACT_APP_BACKEND_API_ENDPOINT = process.env.REACT_APP_BACKEND_API_ENDPOINT;
 
@@ -54,7 +52,7 @@ function EditProduct() {
   const [articleMdError, setArticleMdError] = useState("");
   const [weight, setWeight] = useState("");
   const [weightError, setWeightError] = useState("");
-  const [instructions, setInstructions] = useState([]); // Ensure it's initialized as an array
+  const [instructions, setInstructions] = useState([]);
   const [instructionsError, setInstructionsError] = useState("");
   const [madeIn, setMadeIn] = useState("");
   const [madeInError, setMadeInError] = useState("");
@@ -208,6 +206,7 @@ function EditProduct() {
   const updateQuantity = async (e) => {
     e.preventDefault();
     QuantityBlur();
+    InPriceBlur();
     if (!quantityError && quantity && !inPriceError && inPrice) {
       try {
         await ProductService.updateProductQuantity(prod_id, parseInt(quantity), Number(inPrice));
@@ -236,9 +235,7 @@ function EditProduct() {
     e.preventDefault();
     PriceBlur();
     SalePersentBlur();
-    if (!prod_id || priceError || saleError || !price || !sale_percent) {
-      return;
-    } else {
+    if (!priceError && !saleError && price && sale_percent) {
       try {
         await ProductService.updateProductPrice(prod_id, Number(price), Number(sale_percent));
         setUpdatePriceSuccess("Price and sale percent updated successfully.");
@@ -250,14 +247,17 @@ function EditProduct() {
     e.preventDefault();
     DayBeforeExpiryBlur();
     DescriptionBlur();
-    InstructionsBlur();
-    MadeInBlur();
-
+    ArticleMdBlur();
     synchronizeInfosWithRows();
 
-    if (!prod_id || dayBeforeExpiryError || descriptionError || !dayBeforeExpiry || !description) {
-      return;
-    } else {
+    if (
+      !dayBeforeExpiryError &&
+      !descriptionError &&
+      !articleMdError &&
+      articleMdError &&
+      dayBeforeExpiry &&
+      description
+    ) {
       try {
         await ProductService.updateProductInfo(prod_id, productInfo);
         setUpdateInfomationSuccess("Infor of ingredients updated successfully.");
@@ -324,7 +324,7 @@ function EditProduct() {
   const PriceBlur = () => {
     if (price === "") {
       setPriceError("Please enter a price");
-    } else if (price < 0) {
+    } else if (price < 1) {
       setPriceError("Please enter a price greater than 0");
     } else {
       setPriceError("");
@@ -393,6 +393,7 @@ function EditProduct() {
     setArticleMd(value || "");
     updateField("article_md", value);
     setUpdateInfomationSuccess(false);
+    setArticleMdError("");
   };
 
   const ArticleMdBlur = () => {
@@ -403,43 +404,12 @@ function EditProduct() {
     }
   };
 
-  const WeightChange = (e) => {
-    const { value } = e.target;
-    setWeight(value);
-    updateInfoField("weight", value);
-    setUpdateInfomationSuccess(false);
-  };
-
-  const WeightBlur = () => {
-    if (weight === "") {
-      setWeightError("Please enter a weight");
-    } else if (weight < 1) {
-      setWeightError("Please enter a weight greater than 0");
-    } else {
-      setWeightError("");
-    }
-  };
-
-  const InstructionsChange = (e) => {
-    const { value } = e.target;
-    setInstructions(value);
-    updateInfoField("storage_instructions", value);
-    setUpdateInfomationSuccess(false);
-  };
-
   const InstructionsBlur = () => {
     if (instructions === "") {
       setInstructionsError("Please enter a instruction");
     } else {
       setInstructionsError("");
     }
-  };
-
-  const MadeInChange = (e) => {
-    const { value } = e.target;
-    setMadeIn(value);
-    updateInfoField("made_in", value);
-    setUpdateInfomationSuccess(false);
   };
 
   const MadeInBlur = () => {
@@ -473,9 +443,7 @@ function EditProduct() {
                 >
                   <Icon sx={{ cursor: "pointer", "&:hover": { color: "gray" } }}>arrow_back</Icon>
                 </Link>
-                <p style={{ fontSize: "0.8em" }}>
-                  INGREDIENT NAME: <strong>{product.product_name}</strong>
-                </p>
+
                 {/* Update Quantity */}
                 <p style={{ fontWeight: "700", fontSize: "0.6em", marginBottom: "-5px" }}>
                   UPDATE QUANTITY
@@ -491,18 +459,34 @@ function EditProduct() {
                       e.preventDefault();
                     }
                   }}
-                  label="Quantity"
+                  label={
+                    <span style={{ fontSize: "0.9em" }}>
+                      Quantity <span style={{ color: "red" }}>*</span>
+                    </span>
+                  }
                   margin="normal"
                 />
                 {quantityError && (
-                  <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                  <p
+                    style={{
+                      color: "red",
+                      fontSize: "0.6em",
+                      marginLeft: "5px",
+                      marginTop: "-5px",
+                      fontWeight: "500",
+                    }}
+                  >
                     {quantityError}
                   </p>
                 )}
 
                 <TextField
                   fullWidth
-                  label="Purchase price"
+                  label={
+                    <span style={{ fontSize: "0.9em" }}>
+                      Purchase price <span style={{ color: "red" }}>*</span>
+                    </span>
+                  }
                   type="number"
                   value={inPrice}
                   onChange={InPriceChange}
@@ -515,7 +499,16 @@ function EditProduct() {
                   margin="normal"
                 />
                 {inPriceError && (
-                  <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                  <p
+                    style={{
+                      color: "red",
+                      fontSize: "0.6em",
+                      marginLeft: "5px",
+                      marginTop: "-5px",
+                      fontWeight: "500",
+                      marginBottom: "15px",
+                    }}
+                  >
                     {inPriceError}
                   </p>
                 )}
@@ -554,7 +547,11 @@ function EditProduct() {
                 </p>
                 <TextField
                   fullWidth
-                  label="Selling price"
+                  label={
+                    <span style={{ fontSize: "0.9em" }}>
+                      Selling price <span style={{ color: "red" }}>*</span>
+                    </span>
+                  }
                   type="number"
                   value={price}
                   onChange={PriceChange}
@@ -572,7 +569,11 @@ function EditProduct() {
 
                 <TextField
                   fullWidth
-                  label="Sale Percent"
+                  label={
+                    <span style={{ fontSize: "0.9em" }}>
+                      Sale percent <span style={{ color: "red" }}>*</span>
+                    </span>
+                  }
                   type="number"
                   value={sale_percent}
                   onChange={SalePersentChange}
@@ -623,7 +624,11 @@ function EditProduct() {
                 <TextField
                   fullWidth
                   select
-                  label="Status"
+                  label={
+                    <span style={{ fontSize: "0.9em" }}>
+                      Status <span style={{ color: "red" }}>*</span>
+                    </span>
+                  }
                   value={status}
                   onChange={StatusChange}
                   onBlur={StatusBlur}
@@ -674,14 +679,31 @@ function EditProduct() {
           <Grid item xs={12} md={9}>
             <Card>
               <MDBox p={3}>
+                <p style={{ fontSize: "0.8em" }}>
+                  <strong>
+                    INGREDIENT NAME:{" "}
+                    <strong style={{ color: "tomato" }}>{product.product_name}</strong>
+                  </strong>
+                </p>
                 {/* Update Information */}
-                <p style={{ fontWeight: "700", fontSize: "0.6em", marginBottom: "-5px" }}>
+                <p
+                  style={{
+                    fontWeight: "700",
+                    fontSize: "0.6em",
+                    marginBottom: "-5px",
+                    marginTop: "15px",
+                  }}
+                >
                   UPDATE INFORMATION
                 </p>
                 <TextField
                   fullWidth
                   type="text"
-                  label="Description"
+                  label={
+                    <span style={{ fontSize: "0.9em" }}>
+                      Description <span style={{ color: "red" }}>*</span>
+                    </span>
+                  }
                   value={description || ""}
                   onChange={DescriptionChange}
                   onBlur={DescriptionBlur}
@@ -698,7 +720,11 @@ function EditProduct() {
                 <TextField
                   fullWidth
                   type="number"
-                  label="Day before expiry"
+                  label={
+                    <span style={{ fontSize: "0.9em" }}>
+                      Day before expiry (days) <span style={{ color: "red" }}>*</span>
+                    </span>
+                  }
                   value={dayBeforeExpiry || ""}
                   onChange={DayBeforeExpiryChange}
                   onBlur={DayBeforeExpiryBlur}
@@ -716,7 +742,11 @@ function EditProduct() {
                 )}
 
                 <FormControl fullWidth>
-                  <FormLabel style={{ fontSize: "0.7em", marginTop: "15px" }}>Article</FormLabel>
+                  <FormLabel style={{ fontSize: "0.7em", marginTop: "15px" }}>
+                    {" "}
+                    <span style={{ fontSize: "0.9em" }}>Article</span>{" "}
+                    <span style={{ color: "red" }}>*</span>
+                  </FormLabel>
                   <div style={{ marginBottom: "20px" }}>
                     <MDEditor value={articleMd} onChange={ArticleMdChange} />
                   </div>
@@ -727,6 +757,7 @@ function EditProduct() {
                     fontSize: "0.6em",
                     fontWeight: "450",
                     marginLeft: "5px",
+                    marginTop: "-15px",
                   }}
                 >
                   {articleMdError}

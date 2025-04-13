@@ -24,7 +24,9 @@ function EditCustomer() {
   const [address, setAddress] = useState("");
   const [addressError, setAddressError] = useState("");
   const [phone, setPhone] = useState("");
-  const [profile_description, setProfile_description] = useState("");
+  const [profileName, setProfileName] = useState("");
+  const [profileNameError, setProfileNameError] = useState("");
+  const [profileDescription, setProfileDescription] = useState("");
   const [profileDescriptionError, setProfileDescriptionError] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [updateInforSuccess, setUpdateInforSuccess] = useState("");
@@ -43,6 +45,7 @@ function EditCustomer() {
     address: "",
     phone: "",
     profile_description: "",
+    profile_name: "",
   });
 
   useEffect(() => {
@@ -62,6 +65,8 @@ function EditCustomer() {
         email: response.email || "",
         phone: response.phone || "",
         address: response.address || "",
+        profile_name: response.profile_name || "",
+        profile_description: "",
       });
     } catch (error) {}
   };
@@ -95,6 +100,8 @@ function EditCustomer() {
         await AccountService.updateStatusCustomer(id, status);
         setUpdateStatusSuccess("Status updated successfully.");
       } catch (error) {}
+    } else {
+      setStatusError("You need to choose a status before saving.");
     }
   };
 
@@ -102,12 +109,16 @@ function EditCustomer() {
     e.preventDefault();
     EmailBlur();
     PhoneBlur();
-    AddressBlur();
-    if (!emailError && email && !phoneError && phone && !addressError && address) {
+    if (!emailError && email && !phoneError && phone) {
       try {
         await AccountService.updateInforCustomer(id, customerInfor);
         setUpdateInforSuccess("Info updated successfully.");
-      } catch (error) {}
+      } catch (error) {
+        console.error("Update failed:", error.response?.data || error.message);
+        throw error;
+      }
+    } else {
+      console.log("Validation failed");
     }
   };
 
@@ -237,17 +248,32 @@ function EditCustomer() {
     }
   };
 
+  const ProfileNameChange = (e) => {
+    const { value } = e.target;
+    setProfileName(value);
+    setProfileNameError(false);
+    updateField("profile_name", value);
+    setUpdateInforSuccess(false);
+  };
+
+  const ProfileNameBlur = () => {
+    if (profileName === "") {
+      setProfileNameError("Please enter a real name");
+    } else {
+      setProfileNameError("");
+    }
+  };
+
   const ProfileDescriptionChange = (e) => {
     const { value } = e.target;
-    setProfile_description(value);
-    setProfileDescriptionError(false);
+    setProfileDescription(value);
     updateField("profile_description", value);
     setUpdateInforSuccess(false);
   };
 
   const ProfileDescriptionBlur = () => {
-    if (address === "") {
-      setProfileDescriptionError("Please enter a profile");
+    if (profileDescription === "") {
+      setProfileDescriptionError("Please enter a profile description");
     } else {
       setProfileDescriptionError("");
     }
@@ -315,8 +341,11 @@ function EditCustomer() {
                         value={userName || ""}
                         onChange={UserNameChange}
                         onBlur={UserNameBlur}
-                        label="Username"
+                        label={"User name (Read only)"}
                         margin="normal"
+                        InputProps={{
+                          readOnly: true,
+                        }}
                       />
                       {userNameError && (
                         <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
@@ -331,11 +360,23 @@ function EditCustomer() {
                         value={password || ""}
                         onChange={PasswordChange}
                         onBlur={PasswordBlur}
-                        label="Password"
+                        label={
+                          <span>
+                            Password <span style={{ color: "red" }}>*</span>
+                          </span>
+                        }
                         margin="normal"
                       />
                       {passwordError && (
-                        <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                        <p
+                          style={{
+                            color: "red",
+                            fontSize: "0.6em",
+                            marginLeft: "5px",
+                            marginTop: "-5px",
+                            marginBottom: "15px",
+                          }}
+                        >
                           {passwordError}
                         </p>
                       )}
@@ -385,20 +426,30 @@ function EditCustomer() {
                         <TextField
                           fullWidth
                           select
-                          label="Status"
+                          label={
+                            <span>
+                              Status <span style={{ color: "red" }}>*</span>
+                            </span>
+                          }
                           value={status || ""}
                           onChange={StatusChange}
                           onBlur={StatusBlur}
                           sx={{ height: "45px", ".MuiInputBase-root": { height: "45px" } }}
                           margin="normal"
                         >
-                          <MenuItem value="NON_ACTIVE">NON ACTIVE</MenuItem>
                           <MenuItem value="NORMAL">NORMAL</MenuItem>
                           <MenuItem value="BANNED">BANNED</MenuItem>
-                          <MenuItem value="DEACTIVATE">DEACTIVATE</MenuItem>
                         </TextField>
                         {statusError && (
-                          <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                          <p
+                            style={{
+                              color: "red",
+                              fontSize: "0.6em",
+                              marginLeft: "5px",
+                              marginTop: "-5px",
+                              marginBottom: "15px",
+                            }}
+                          >
                             {statusError}
                           </p>
                         )}
@@ -453,11 +504,22 @@ function EditCustomer() {
                           value={email || ""}
                           onChange={EmailChange}
                           onBlur={EmailBlur}
-                          label="Email"
+                          label={
+                            <span>
+                              Email <span style={{ color: "red" }}>*</span>
+                            </span>
+                          }
                           margin="normal"
                         />
                         {emailError && (
-                          <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                          <p
+                            style={{
+                              color: "red",
+                              fontSize: "0.6em",
+                              marginLeft: "5px",
+                              marginTop: "-6px",
+                            }}
+                          >
                             {emailError}
                           </p>
                         )}
@@ -469,11 +531,22 @@ function EditCustomer() {
                           value={phone || ""}
                           onChange={PhoneChange}
                           onBlur={PhoneBlur}
-                          label="Phone number"
+                          label={
+                            <span>
+                              Phone number <span style={{ color: "red" }}>*</span>
+                            </span>
+                          }
                           margin="normal"
                         />
                         {phoneError && (
-                          <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                          <p
+                            style={{
+                              color: "red",
+                              fontSize: "0.6em",
+                              marginLeft: "5px",
+                              marginTop: "-6px",
+                            }}
+                          >
                             {phoneError}
                           </p>
                         )}
@@ -482,14 +555,43 @@ function EditCustomer() {
                         <TextField
                           fullWidth
                           type="text"
-                          value={profile_description || ""}
+                          value={profileName || ""}
+                          onChange={ProfileNameChange}
+                          onBlur={ProfileNameBlur}
+                          label="Real name"
+                          margin="normal"
+                        />
+                        {profileNameError && (
+                          <p
+                            style={{
+                              color: "red",
+                              fontSize: "0.6em",
+                              marginLeft: "5px",
+                              marginTop: "-6px",
+                            }}
+                          >
+                            {profileNameError}
+                          </p>
+                        )}
+
+                        <TextField
+                          fullWidth
+                          type="text"
+                          value={profileDescription || ""}
                           onChange={ProfileDescriptionChange}
                           onBlur={ProfileDescriptionBlur}
-                          label="Profile description"
+                          label="Profile Description"
                           margin="normal"
                         />
                         {profileDescriptionError && (
-                          <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                          <p
+                            style={{
+                              color: "red",
+                              fontSize: "0.6em",
+                              marginLeft: "5px",
+                              marginTop: "-6px",
+                            }}
+                          >
                             {profileDescriptionError}
                           </p>
                         )}
@@ -505,7 +607,15 @@ function EditCustomer() {
                           margin="normal"
                         />
                         {addressError && (
-                          <p style={{ color: "red", fontSize: "0.6em", marginLeft: "5px" }}>
+                          <p
+                            style={{
+                              color: "red",
+                              fontSize: "0.6em",
+                              marginLeft: "5px",
+                              marginTop: "-6px",
+                              marginBottom: "15px",
+                            }}
+                          >
                             {addressError}
                           </p>
                         )}

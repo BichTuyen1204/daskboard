@@ -51,7 +51,6 @@ function AddCoupon() {
 
       case "minimum_price":
         if (!value) errorMessage = "Please enter the minimum price";
-        else if (value < 100) errorMessage = "The minimum price must be at least 100";
         break;
 
       case "expire_date":
@@ -159,7 +158,11 @@ function AddCoupon() {
                       <TextField
                         fullWidth
                         name="id"
-                        label="Coupon ID"
+                        label={
+                          <span style={{ fontSize: "0.9em" }}>
+                            Coupon ID <span style={{ color: "red" }}>*</span>
+                          </span>
+                        }
                         value={coupon.id}
                         onChange={handleChange}
                         error={!!errors.id}
@@ -193,7 +196,11 @@ function AddCoupon() {
                       <TextField
                         fullWidth
                         name="minimum_price"
-                        label="Minimum Price ($)"
+                        label={
+                          <span style={{ fontSize: "0.9em" }}>
+                            Minimum Price ($) <span style={{ color: "red" }}>*</span>
+                          </span>
+                        }
                         value={coupon.minimum_price}
                         onChange={handleChange}
                         onFocus={handleFocus}
@@ -219,7 +226,11 @@ function AddCoupon() {
                       <TextField
                         fullWidth
                         name="usage_amount"
-                        label="Usage Amount"
+                        label={
+                          <span style={{ fontSize: "0.9em" }}>
+                            Usage Amount <span style={{ color: "red" }}>*</span>
+                          </span>
+                        }
                         type="number"
                         value={coupon.usage_amount}
                         onChange={handleChange}
@@ -245,7 +256,11 @@ function AddCoupon() {
                       <TextField
                         fullWidth
                         name="expire_date"
-                        label="Expiration Date"
+                        label={
+                          <span style={{ fontSize: "0.9em" }}>
+                            Expiration Date <span style={{ color: "red" }}>*</span>
+                          </span>
+                        }
                         type="date"
                         value={coupon.expire_date}
                         onChange={handleChange}
@@ -276,7 +291,11 @@ function AddCoupon() {
                       <TextField
                         fullWidth
                         name="sale_percent"
-                        label="Sale Percentage (%)"
+                        label={
+                          <span style={{ fontSize: "0.9em" }}>
+                            Sale Percentage (%) <span style={{ color: "red" }}>*</span>
+                          </span>
+                        }
                         type="number"
                         value={coupon.sale_percent}
                         onChange={handleChange}

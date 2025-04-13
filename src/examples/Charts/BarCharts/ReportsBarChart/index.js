@@ -192,10 +192,10 @@ const RevenueBarChart = () => {
       </div>
       <div style={{ marginTop: "320px", width: "100%", marginLeft: "35px" }}>
         <p style={{ color: "#333", fontWeight: "bold", fontSize: "0.85em" }}>Revenue 6 Months</p>
-        <p style={{ color: "#73777B", fontWeight: "150", fontSize: "0.7em", marginTop: "5px" }}>
+        <p style={{ color: "#333", fontWeight: "400", fontSize: "0.7em", marginTop: "5px" }}>
           Revenue over the last 6 months
         </p>
-        <p style={{ color: "#73777B", fontWeight: "150", fontSize: "0.7em" }}>
+        <p style={{ color: "#333", fontWeight: "400", fontSize: "0.7em" }}>
           The projected revenue for next month is{" "}
           <strong>${predictNextMonth ? parseFloat(predictNextMonth).toFixed(2) : "0"}</strong>
         </p>

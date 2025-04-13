@@ -5,33 +5,41 @@ import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
-import confirmOrder from "layouts/order_manager/data/confirm_order/confirmOrder";
-import { Link, useNavigate } from "react-router-dom";
+import index from "layouts/choose_shipper/data/data_choose_shipper";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Box, Icon, IconButton, Typography } from "@mui/material";
-import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
+import { ArrowBackIos, ArrowForwardIos, Search } from "@mui/icons-material";
+import { Box, IconButton, Typography, TextField, InputAdornment } from "@mui/material";
 
-function Order() {
+function ChooseShipper() {
+  const [pageShipper, setPageShipper] = useState(1);
+  const rowsPerPageShipper = 50;
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const { columns, rows, hasNextPageShipper } = index(pageShipper, rowsPerPageShipper);
 
-  // On Confirm
-  const [pageOnConfirm, setPageOnConfirm] = useState(1);
-  const rowsPerPageOnConfirm = 50;
-  const {
-    columns: pColumns,
-    rows: pRows,
-    hasNextPageOnConfirm,
-  } = confirmOrder(pageOnConfirm, rowsPerPageOnConfirm);
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPageShipper(1);
+    }, 500);
 
-  const handlePrevPageOnConfirm = () => {
-    if (pageOnConfirm > 1) {
-      setPageOnConfirm((prev) => prev - 1);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const handlePrevPageShipper = () => {
+    if (pageShipper > 1) {
+      setPageShipper((prev) => prev - 1);
     }
   };
 
-  const handleNextPageOnConfirm = () => {
-    if (hasNextPageOnConfirm) {
-      setPageOnConfirm((prev) => prev + 1);
+  const handleNextPageShipper = () => {
+    if (hasNextPageShipper) {
+      setPageShipper((prev) => prev + 1);
     }
   };
 
@@ -47,7 +55,6 @@ function Order() {
       <DashboardNavbar />
       <MDBox pt={6} pb={3}>
         <Grid container spacing={6}>
-          {/* On Confirm */}
           <Grid item xs={12}>
             <Card>
               <MDBox
@@ -55,28 +62,54 @@ function Order() {
                 mt={-3}
                 py={3}
                 px={2}
-                bgColor="green"
+                variant="gradient"
+                bgColor="info"
                 borderRadius="lg"
                 coloredShadow="info"
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                flexDirection={{ xs: "column", sm: "row" }}
+                gap={{ xs: 2, sm: 0 }}
               >
                 <MDTypography variant="h6" color="white">
-                  Confirmed Order
+                  Shipper list
                 </MDTypography>
-              </MDBox>
-              <MDBox pt={2}>
-                <Link
-                  style={{ marginLeft: "15px" }}
-                  to="/order"
-                  onClick={() => {
-                    setTimeout(() => {
-                      window.location.reload();
-                    }, 0);
+                <Box
+                  sx={{
+                    width: { xs: "100%", sm: "50%", md: "40%", lg: "30%" },
+                    transition: "width 0.3s ease",
                   }}
                 >
-                  <Icon sx={{ cursor: "pointer", "&:hover": { color: "gray" } }}>arrow_back</Icon>
-                </Link>
+                  <TextField
+                    size="small"
+                    placeholder="Search shippers"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    fullWidth
+                    style={{
+                      backgroundColor: "white",
+                      borderRadius: 1,
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": { border: "none" },
+                      },
+                      "& .MuiInputBase-input": {
+                        fontSize: { xs: "0.85rem", sm: "0.875rem" },
+                      },
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Search />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Box>
+              </MDBox>
+              <MDBox pt={3}>
                 <DataTable
-                  table={{ columns: pColumns, rows: pRows }}
+                  table={{ columns, rows }}
                   isSorted={false}
                   entriesPerPage={false}
                   showTotalEntries={false}
@@ -91,58 +124,52 @@ function Order() {
                 pb={2}
                 mx={5}
               >
-                {/* Nút Previous */}
                 <IconButton
-                  onClick={handlePrevPageOnConfirm}
-                  disabled={pageOnConfirm === 1}
+                  onClick={handlePrevPageShipper}
+                  disabled={pageShipper === 1}
                   sx={{
                     bgcolor: "black",
                     fontSize: "0.6em",
                     color: "white",
                     width: "30px",
                     height: "30px",
-                    minWidth: "30px",
                     borderRadius: "50%",
                     "&:hover, &:focus": { bgcolor: "#333 !important", color: "white !important" },
-                    opacity: pageOnConfirm === 1 ? 0.3 : 1,
+                    opacity: pageShipper === 1 ? 0.3 : 1,
                   }}
                 >
                   <ArrowBackIos sx={{ fontSize: "14px" }} />
                 </IconButton>
 
-                {/* Số trang */}
                 <Box
                   sx={{
                     mx: 2,
                     width: 30,
                     height: 30,
                     display: "flex",
-                    border: "1px solid white",
                     alignItems: "center",
                     justifyContent: "center",
                     borderRadius: "50%",
-                    bgcolor: "green",
+                    bgcolor: "#1b98e0",
                   }}
                 >
                   <Typography color="white" fontWeight="bold">
-                    <p style={{ fontSize: "0.7em", color: "white" }}>{pageOnConfirm}</p>
+                    <p style={{ fontSize: "14px", color: "white" }}>{pageShipper}</p>
                   </Typography>
                 </Box>
 
-                {/* Nút Next */}
                 <IconButton
-                  onClick={handleNextPageOnConfirm}
-                  disabled={!hasNextPageOnConfirm}
+                  onClick={handleNextPageShipper}
+                  disabled={!hasNextPageShipper}
                   sx={{
                     bgcolor: "black",
                     fontSize: "0.6em",
                     color: "white",
                     width: "30px",
                     height: "30px",
-                    minWidth: "30px",
                     borderRadius: "50%",
                     "&:hover, &:focus": { bgcolor: "#333 !important", color: "white !important" },
-                    opacity: hasNextPageOnConfirm ? 1 : 0.3,
+                    opacity: hasNextPageShipper ? 1 : 0.3,
                   }}
                 >
                   <ArrowForwardIos sx={{ fontSize: "14px" }} />
@@ -156,4 +183,4 @@ function Order() {
   );
 }
 
-export default Order;
+export default ChooseShipper;

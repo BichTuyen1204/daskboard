@@ -20,6 +20,26 @@ function OrderProcessingToShipping() {
   const [selectedItemIdShipping, setSelectedItemIdShipping] = useState(null);
   const page = 1;
   const pageSize = 50;
+  const [account, setAccount] = useState(null);
+
+  useEffect(() => {
+    const getProfile = async () => {
+      if (!jwtToken) return;
+
+      try {
+        const response = await AccountService.getProfile(jwtToken);
+        if (response) {
+          setAccount(response);
+        } else {
+          setAccount(null);
+        }
+      } catch (error) {
+        setAccount(null);
+      }
+    };
+
+    getProfile();
+  }, [jwtToken]);
 
   useEffect(() => {
     const token = sessionStorage.getItem("jwtToken");
@@ -127,6 +147,7 @@ function OrderProcessingToShipping() {
 
   return (
     <DashboardLayout>
+      {account.type === 1}
       <MDBox pb={3}>
         <Grid container justifyContent="center">
           <Grid item xs={12} md={12} lg={12}>

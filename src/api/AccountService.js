@@ -37,12 +37,29 @@ class AccountService {
     }
   }
 
+  async chooseShipper(orderId, id) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.put(
+        `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/shipper/assign?order_id=${orderId}&shipper_id=${id}`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async getAllStaff(page, size, searchId) {
     try {
       const token = sessionStorage.getItem("jwtToken");
       let url = `${API_BASE_URL_3}/all`;
-
-      // Add query parameters if they exist
       const params = new URLSearchParams();
       if (page !== undefined && size !== undefined) {
         params.append("index", page - 1);
@@ -65,7 +82,58 @@ class AccountService {
       });
       return response.data;
     } catch (error) {
-      return { content: [], total_page: 0 }; // Return empty results on error
+      return { content: [], total_page: 0 };
+    }
+  }
+
+  async getAllShipper(status, page, size) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      let url = `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/shipper/fetch?status=${status}&index=${
+        page - 1
+      }&size=${size}`;
+      const params = new URLSearchParams();
+      const response = await axios.get(url, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return { content: [], total_page: 0 };
+    }
+  }
+
+  async getCallShipper(selectedType, page, size) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      if (!token) {
+        return { content: [], total_page: 0 };
+      }
+
+      let url = `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/shipper/fetch`;
+      const params = {
+        index: page - 1,
+        size: size,
+      };
+
+      if (selectedType && selectedType !== "ALL") {
+        params.status = selectedType;
+      }
+
+      const response = await axios.get(url, {
+        params: params,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("Lỗi khi gọi API:", error);
+      return { content: [], total_page: 0 };
     }
   }
 
@@ -73,8 +141,6 @@ class AccountService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       let url = `${API_BASE_URL_4}/all?index=${page - 1}&size=${size}`;
-
-      // Add search parameter if provided
       if (searchQuery) {
         url += `&id=${encodeURIComponent(searchQuery)}`;
       }
@@ -112,6 +178,22 @@ class AccountService {
           Authorization: `Bearer ${token}`,
         },
       });
+      return response.data;
+    } catch (error) {}
+  }
+
+  async updateTimeShipper(data) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.post(
+        `${REACT_APP_BACKEND_API_ENDPOINT}/api/manager/shipper/shift/set`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response.data;
     } catch (error) {}
   }
@@ -164,7 +246,7 @@ class AccountService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.post(
-        `${REACT_APP_BACKEND_API_ENDPOINT}/api/manager/staff/edit/info?id=${id}`,
+        `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/customer/edit/info?id=${id}`,
         data,
         {
           headers: {

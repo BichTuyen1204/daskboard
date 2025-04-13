@@ -46,10 +46,10 @@ function ExpectedProduct() {
           "rgba(75, 192, 192, 0.6)",
           "rgba(153, 102, 255, 0.6)",
           "rgba(255, 159, 64, 0.6)",
-          "rgba(255, 99, 71, 0.6)", // New color 1
-          "rgba(139, 69, 19, 0.6)", // New color 2
-          "rgba(0, 255, 255, 0.6)", // New color 3
-          "rgba(255, 165, 0, 0.6)", // New color 4
+          "rgba(255, 99, 71, 0.6)",
+          "rgba(139, 69, 19, 0.6)",
+          "rgba(0, 255, 255, 0.6)",
+          "rgba(255, 165, 0, 0.6)",
         ],
         borderColor: [
           "rgba(255, 99, 132, 1)",
@@ -58,10 +58,10 @@ function ExpectedProduct() {
           "rgba(75, 192, 192, 1)",
           "rgba(153, 102, 255, 1)",
           "rgba(255, 159, 64, 1)",
-          "rgba(255, 99, 71, 1)", // New color 1
-          "rgba(139, 69, 19, 1)", // New color 2
-          "rgba(0, 255, 255, 1)", // New color 3
-          "rgba(255, 165, 0, 1)", // New color 4
+          "rgba(255, 99, 71, 1)",
+          "rgba(139, 69, 19, 1)",
+          "rgba(0, 255, 255, 1)",
+          "rgba(255, 165, 0, 1)",
         ],
         borderWidth: 2,
         hoverBackgroundColor: [
@@ -71,10 +71,10 @@ function ExpectedProduct() {
           "rgba(75, 192, 192, 1)",
           "rgba(153, 102, 255, 1)",
           "rgba(255, 159, 64, 1)",
-          "rgba(255, 99, 71, 1)", // New color 1
-          "rgba(139, 69, 19, 1)", // New color 2
-          "rgba(0, 255, 255, 1)", // New color 3
-          "rgba(255, 165, 0, 1)", // New color 4
+          "rgba(255, 99, 71, 1)",
+          "rgba(139, 69, 19, 1)",
+          "rgba(0, 255, 255, 1)",
+          "rgba(255, 165, 0, 1)",
         ],
       },
     ],

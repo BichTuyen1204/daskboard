@@ -6,7 +6,6 @@ import {
   Button,
   MenuItem,
   Icon,
-  Typography,
   FormControl,
   FormLabel,
   Table,
@@ -55,14 +54,8 @@ function EditMealkit() {
   const [descriptionError, setDescriptionError] = useState("");
   const [articleMd, setArticleMd] = useState("");
   const [articleMdError, setArticleMdError] = useState("");
-  const [weight, setWeight] = useState("");
-  const [weightError, setWeightError] = useState("");
   const [instructions, setInstructions] = useState([]);
   const [instructionsError, setInstructionsError] = useState("");
-  const [madeIn, setMadeIn] = useState("");
-  const [madeInError, setMadeInError] = useState("");
-  const [ingredient, setIngredient] = useState("");
-  const [ingredientError, setIngredientError] = useState("");
   const [updateInfomationSuccess, setUpdateInfomationSuccess] = useState("");
   const [infoRows, setInfoRows] = useState([{ key: "", value: "" }]);
   const [ingredientsError, setIngredientsError] = useState("");
@@ -627,9 +620,7 @@ function EditMealkit() {
                 >
                   <Icon sx={{ cursor: "pointer", "&:hover": { color: "gray" } }}>arrow_back</Icon>
                 </Link>
-                <p style={{ fontSize: "0.8em" }}>
-                  INGREDIENT NAME: <strong>{product.product_name}</strong>
-                </p>
+
                 {/* Update Quantity */}
                 <p style={{ fontWeight: "700", fontSize: "0.6em", marginBottom: "-5px" }}>
                   UPDATE QUANTITY
@@ -645,7 +636,11 @@ function EditMealkit() {
                       e.preventDefault();
                     }
                   }}
-                  label="Quantity"
+                  label={
+                    <span>
+                      Quantity <span style={{ color: "red" }}>*</span>
+                    </span>
+                  }
                   margin="normal"
                 />
                 {quantityError && (
@@ -656,7 +651,11 @@ function EditMealkit() {
 
                 <TextField
                   fullWidth
-                  label="Purchase price"
+                  label={
+                    <span>
+                      Purchase price <span style={{ color: "red" }}>*</span>
+                    </span>
+                  }
                   type="number"
                   value={in_price}
                   onChange={InPriceChange}
@@ -708,7 +707,11 @@ function EditMealkit() {
                 </p>
                 <TextField
                   fullWidth
-                  label="Selling price"
+                  label={
+                    <span>
+                      Selling price <span style={{ color: "red" }}>*</span>
+                    </span>
+                  }
                   type="number"
                   value={price}
                   onChange={PriceChange}
@@ -726,7 +729,11 @@ function EditMealkit() {
 
                 <TextField
                   fullWidth
-                  label="Sale Percent"
+                  label={
+                    <span>
+                      Sale Percent <span style={{ color: "red" }}>*</span>
+                    </span>
+                  }
                   type="number"
                   value={sale_percent}
                   onChange={SalePersentChange}
@@ -777,7 +784,11 @@ function EditMealkit() {
                 <TextField
                   fullWidth
                   select
-                  label="Status"
+                  label={
+                    <span>
+                      Status <span style={{ color: "red" }}>*</span>
+                    </span>
+                  }
                   value={status}
                   onChange={StatusChange}
                   onBlur={StatusBlur}
@@ -828,14 +839,28 @@ function EditMealkit() {
           <Grid item xs={12} md={9}>
             <Card>
               <MDBox p={3}>
+                <p style={{ fontSize: "0.8em" }}>
+                  INGREDIENT NAME: <strong>{product.product_name}</strong>
+                </p>
                 {/* Update Information */}
-                <p style={{ fontWeight: "700", fontSize: "0.6em", marginBottom: "-5px" }}>
+                <p
+                  style={{
+                    fontWeight: "700",
+                    fontSize: "0.6em",
+                    marginBottom: "-5px",
+                    marginTop: "15px",
+                  }}
+                >
                   UPDATE INFORMATION
                 </p>
                 <TextField
                   fullWidth
                   type="text"
-                  label="Description"
+                  label={
+                    <span>
+                      Description <span style={{ color: "red" }}>*</span>
+                    </span>
+                  }
                   value={description || ""}
                   onChange={DescriptionChange}
                   onBlur={DescriptionBlur}
@@ -852,7 +877,11 @@ function EditMealkit() {
                 <TextField
                   fullWidth
                   type="number"
-                  label="Day before expiry"
+                  label={
+                    <span>
+                      Day before expiry <span style={{ color: "red" }}>*</span>
+                    </span>
+                  }
                   value={dayBeforeExpiry || ""}
                   onChange={DayBeforeExpiryChange}
                   onBlur={DayBeforeExpiryBlur}
@@ -870,7 +899,11 @@ function EditMealkit() {
                 )}
 
                 <FormControl fullWidth>
-                  <FormLabel style={{ fontSize: "0.7em", marginTop: "15px" }}>Article</FormLabel>
+                  <FormLabel style={{ fontSize: "0.7em", marginTop: "15px" }}>
+                    <span>
+                      Article <span style={{ color: "red" }}>*</span>
+                    </span>
+                  </FormLabel>
                   <div style={{ marginBottom: "20px" }}>
                     <MDEditor value={articleMd} onChange={ArticleMdChange} />
                   </div>
@@ -883,7 +916,9 @@ function EditMealkit() {
 
                 {/* Ingredients Section */}
                 <MDBox mt={4} mb={2}>
-                  <MDTypography variant="h6">Ingredients</MDTypography>
+                  <MDTypography variant="h6">
+                    Ingredients <span style={{ color: "red" }}>*</span>
+                  </MDTypography>
 
                   {/* Search Bar */}
                   <Autocomplete
@@ -1059,7 +1094,9 @@ function EditMealkit() {
                     <Table>
                       <TableHead>
                         <TableRow>
-                          <TableCell>Instructions</TableCell>
+                          <TableCell>
+                            Instructions <span style={{ color: "red" }}>*</span>
+                          </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -1138,7 +1175,9 @@ function EditMealkit() {
                     <Table>
                       <TableHead>
                         <TableRow>
-                          <TableCell colSpan={2}>Additional Informations</TableCell>
+                          <TableCell colSpan={2}>
+                            Additional Informations <span style={{ color: "red" }}>*</span>
+                          </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>

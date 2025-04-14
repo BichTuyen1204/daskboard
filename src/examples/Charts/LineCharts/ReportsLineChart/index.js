@@ -28,15 +28,12 @@ const RevenueLineChart = () => {
         return;
       }
       try {
-        const response = await axios.get(
-          "https://culcon-ad-be-30883260979.asia-southeast1.run.app/api/manager/revenue",
-          {
-            headers: {
-              Authorization: `Bearer ${jwtToken}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await axios.get(`${REACT_APP_BACKEND_API_ENDPOINT}/api/manager/revenue`, {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+            "Content-Type": "application/json",
+          },
+        });
         const sortedData = response.data.revenue.last_7_days_revenue.sort(
           (a, b) => new Date(a.date) - new Date(b.date)
         );

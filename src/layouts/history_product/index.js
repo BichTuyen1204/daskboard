@@ -110,7 +110,7 @@ function HistoryProduct() {
       }
     };
     getHistoryProduct();
-  }, [id, jwtToken]);
+  }, [id, jwtToken, pageHistory]);
 
   useEffect(() => {
     const getHistoryUpdate = async () => {
@@ -138,7 +138,7 @@ function HistoryProduct() {
       }
     };
     getHistoryUpdate();
-  }, [id, jwtToken]);
+  }, [id, jwtToken, pageHistoryUpdate]);
 
   // Sort purchase history by descending date
   const sortedHistory = [...history].sort((a, b) => new Date(b.in_date) - new Date(a.in_date));

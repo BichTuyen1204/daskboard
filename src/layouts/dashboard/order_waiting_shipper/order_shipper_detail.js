@@ -32,7 +32,7 @@ const OrderShipperDetail = () => {
     setPopupAccept(false);
   };
 
-  const opencancelOrder = (id) => {
+  const openRejectOrder = (id) => {
     setIdCancelOrder(id);
     setPopupReject(true);
   };
@@ -79,10 +79,10 @@ const OrderShipperDetail = () => {
     } catch (error) {}
   };
 
-  const cancelOrder = async (id) => {
+  const rejectOrder = async (id) => {
     if (!jwtToken) return;
     try {
-      const response = await ShipperService.cancelOrder(id);
+      const response = await ShipperService.rejectOrder(id);
       setPopupReject(false);
       setPopupAccept(false);
       setTimeout(() => {
@@ -485,7 +485,7 @@ const OrderShipperDetail = () => {
                       }}
                       onClick={() => openModal(shipper.id)}
                     >
-                      Accept
+                      ✅ Accept
                     </Button>
                     <Button
                       style={{
@@ -496,9 +496,9 @@ const OrderShipperDetail = () => {
                         borderRadius: "5px",
                         fontSize: "0.6em",
                       }}
-                      onClick={() => opencancelOrder(shipper.id)}
+                      onClick={() => openRejectOrder(shipper.id)}
                     >
-                      Not Accept
+                      ❌ Not Accept
                     </Button>
                   </div>
                 </Grid>
@@ -507,7 +507,8 @@ const OrderShipperDetail = () => {
           </Card>
         </Grid>
       </Grid>
-      {/* ✅ Popup Accept */}
+
+      {/*  Popup Accept */}
       {popupAccept && (
         <>
           {/* Background overlay */}
@@ -524,7 +525,6 @@ const OrderShipperDetail = () => {
             }}
             onClick={closerAccept}
           />
-
           {/* Popup box */}
           <div
             style={{
@@ -652,7 +652,7 @@ const OrderShipperDetail = () => {
             </p>
             <div style={{ display: "flex", justifyContent: "space-between", gap: "10px" }}>
               <button
-                onClick={() => cancelOrder(idCancelOrder)}
+                onClick={() => rejectOrder(idCancelOrder)}
                 style={{
                   flex: 1,
                   padding: "10px",

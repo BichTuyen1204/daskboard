@@ -66,7 +66,7 @@ export default function data(pageShipper, selectedType, rowsPerPageShipper) {
   const Status = ({ status }) => (
     <MDBox lineHeight={1} textAlign="center">
       <MDTypography display="block" variant="button" fontWeight="medium" fontSize="0.8em">
-        <span style={{ green }}>{status}</span>
+        <span style={{ color: "green" }}>{status}</span>
       </MDTypography>
     </MDBox>
   );

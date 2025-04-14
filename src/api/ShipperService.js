@@ -45,6 +45,23 @@ class ShipperService {
     }
   }
 
+  async shippingOrder(id) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      if (!token) throw new Error("No JWT Token found!");
+      const response = await axios.put(
+        `${API_BASE_URL}/api/shipper/order/ship/${id}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return null;
+    }
+  }
+
   async orderShipped(id) {
     try {
       const token = sessionStorage.getItem("jwtToken");
@@ -62,11 +79,24 @@ class ShipperService {
     }
   }
 
-  async cancelOrder(id) {
+  async rejectOrder(id) {
     try {
       const token = sessionStorage.getItem("jwtToken");
       if (!token) throw new Error("No JWT Token found!");
       const response = await axios.delete(`${API_BASE_URL}/api/shipper/order/reject/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async cancelOrder(id) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      if (!token) throw new Error("No JWT Token found!");
+      const response = await axios.delete(`${API_BASE_URL}/api/shipper/order/cancel/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;

@@ -50,7 +50,7 @@ export default function data(pageShipper, rowsPerPageShipper) {
       navigate("/processing_order");
     } catch (error) {
       console.error("Error assigning shipper:", error);
-      alert("❌ An error occurred while selecting the shipper.");
+      alert("❌ Sorry, please select the correct working time for the shipper.");
     }
   };
 

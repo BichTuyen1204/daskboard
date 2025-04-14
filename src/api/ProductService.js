@@ -44,15 +44,22 @@ class ProductService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const url = new URL(`${API_BASE_URL_2}/fetch_all`);
-
       url.searchParams.append("index", page - 1);
       url.searchParams.append("size", size);
-      if (type) url.searchParams.append("type", type);
-      if (searchQuery) url.searchParams.append("prod_name", searchQuery);
+
+      // Chỉ thêm type nếu khác 'ALL' và có giá trị
+      if (type && type !== "ALL") {
+        url.searchParams.append("type", type);
+      }
+
+      if (searchQuery) {
+        url.searchParams.append("prod_name", searchQuery);
+      }
 
       const response = await axios.get(url.toString(), {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       return response.data;
     } catch (error) {
       return { content: [], total_page: 1 };

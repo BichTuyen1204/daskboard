@@ -124,7 +124,7 @@ function Product() {
                 <Box display="flex" justifyContent="space-between">
                   <Button
                     variant={selectedType === "ALL" ? "contained" : "outlined"}
-                    onClick={() => setSelectedType(null)}
+                    onClick={() => setSelectedType("ALL")}
                     sx={{
                       color: selectedType === "ALL" ? "rgb(255, 255, 255)" : "rgb(70, 70, 70)",
                       borderColor: selectedType === "ALL" ? "transparent" : "rgb(34, 178, 255)",

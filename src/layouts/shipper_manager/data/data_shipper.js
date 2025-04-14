@@ -14,8 +14,6 @@ export default function data(pageShipper, selectedType, rowsPerPageShipper) {
   useEffect(() => {
     const getCallShipper = async () => {
       if (!jwtToken) return;
-      console.log("JWT Token: ", jwtToken);
-
       try {
         const response = await AccountService.getCallShipper(
           selectedType,

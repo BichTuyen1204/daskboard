@@ -2,29 +2,22 @@ import React, { useEffect, useState } from "react";
 import { Box, Typography, Button, Icon } from "@mui/material";
 import ShipperService from "api/ShipperService";
 import { Link, useNavigate } from "react-router-dom";
+import ReactDOM from "react-dom";
 
 const DataShipper = () => {
   const [shipper, setShipper] = useState(null);
   const [orderCurrent, setOrderCurrent] = useState(null);
-  const [selectedItemId, setSelectedItemId] = useState(null);
   const [idOrder, setIdOrder] = useState(null);
+  const [idShippingOrder, setIdShippingOrder] = useState(null);
   const [idCancelOrder, setIdCancelOrder] = useState(null);
-  const [popupAccept, setPopupAccept] = useState(false);
   const [popupShipped, setPopupShipped] = useState(false);
-  const [popupReject, setPopupReject] = useState(false);
+  const [popupShipping, setPopupShipping] = useState(false);
+  const [popupCancel, setPopupCancel] = useState(false);
   const [jwtToken, setJwtToken] = useState(sessionStorage.getItem("jwtToken"));
   const [popupShippedSuccess, setPopupShippedSuccess] = useState(false);
-  const [popupRejectSuccess, setPopupRejectSuccess] = useState(false);
+  const [popupShippingSuccess, setPopupShippingSuccess] = useState(false);
+  const [popupCancelSuccess, setPopupCancelSuccess] = useState(false);
   const navigate = useNavigate();
-
-  const openModal = (id) => {
-    setSelectedItemId(id);
-    setPopupAccept(true);
-  };
-
-  const closerAccept = () => {
-    setPopupAccept(false);
-  };
 
   const openOrderCurrent = (id) => {
     setIdOrder(id);
@@ -35,13 +28,22 @@ const DataShipper = () => {
     setPopupShipped(false);
   };
 
+  const openOrderShipping = (id) => {
+    setIdShippingOrder(id);
+    setPopupShipping(true);
+  };
+
+  const closerOrderShipping = () => {
+    setPopupShipping(false);
+  };
+
   const opencancelOrder = (id) => {
     setIdCancelOrder(id);
-    setPopupReject(true);
+    setPopupCancel(true);
   };
 
   const closerCancelOrder = () => {
-    setPopupReject(false);
+    setPopupCancel(false);
   };
 
   useEffect(() => {
@@ -66,49 +68,46 @@ const DataShipper = () => {
     getFetchCurrent();
   }, []);
 
-  const acceptOrder = async (id) => {
-    if (!jwtToken) return;
-    try {
-      const response = await ShipperService.acceptOrder(id);
-      if (response) {
-        const current = await ShipperService.getFetchCurrent();
-        if (current) {
-          setOrderCurrent(current);
-          setShipper(null);
-          setPopupAccept(false);
-        }
-      }
-    } catch (error) {
-      console.error("Accept order failed:", error);
-    }
-  };
-
   const orderShipped = async (id) => {
     if (!jwtToken) return;
     try {
       await ShipperService.orderShipped(id);
-      setPopupShipped(false);
       setTimeout(() => {
+        setPopupShipped(false);
         setPopupShippedSuccess(true);
-        navigate("/dashboard");
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       }, 2000);
-    } catch (error) {
-      console.error("Accept order failed:", error);
-    }
+    } catch (error) {}
+  };
+
+  const orderShipping = async (id) => {
+    if (!jwtToken) return;
+    try {
+      await ShipperService.shippingOrder(id);
+      setTimeout(() => {
+        setPopupShipping(false);
+        setPopupShippingSuccess(true);
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      }, 2000);
+    } catch (error) {}
   };
 
   const cancelOrder = async (id) => {
     if (!jwtToken) return;
     try {
-      const response = await ShipperService.cancelOrder(id);
-      setPopupReject(false);
+      await ShipperService.cancelOrder(id);
+      setPopupCancel(false);
       setTimeout(() => {
-        setPopupRejectSuccess(true);
-        navigate("/dashboard");
+        setPopupCancelSuccess(true);
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       }, 2000);
-    } catch (error) {
-      console.error("Accept order failed:", error);
-    }
+    } catch (error) {}
   };
 
   return (
@@ -124,56 +123,93 @@ const DataShipper = () => {
       }}
     >
       {orderCurrent ? (
-        <>
-          <Typography fontWeight="bold" gutterBottom style={{ fontSize: "0.8em" }}>
-            ✅ Current Order In Progress
+        orderCurrent.status === "ON_SHIPPING" ? (
+          <>
+            <Typography fontWeight="bold" gutterBottom style={{ fontSize: "0.8em" }}>
+              🚚 Order is shipping
+            </Typography>
+            <Typography variant="body1" style={{ fontSize: "0.65em" }}>
+              <strong>Customer Name:</strong> {orderCurrent.receiver}
+            </Typography>
+            <Typography variant="body1" style={{ fontSize: "0.65em" }}>
+              <strong>Delivery Address:</strong> {orderCurrent.address}
+            </Typography>
+            <Typography variant="body1" style={{ fontSize: "0.65em" }}>
+              <strong>Phone Number:</strong> {orderCurrent.phone}
+            </Typography>
+            <Typography variant="body1" style={{ fontSize: "0.65em" }}>
+              <strong>Total Price:</strong> $<strong>{orderCurrent.pay}</strong>
+            </Typography>
+            <Typography variant="body1" style={{ fontSize: "0.65em" }}>
+              <strong>Note:</strong> {orderCurrent.note || "Nothing"}
+            </Typography>
+            <Box sx={{ mt: 2, display: "flex", justifyContent: "center", gap: 2 }}>
+              <Button
+                variant="contained"
+                color="success"
+                sx={{
+                  fontSize: "0.7em",
+                  fontWeight: "bold",
+                  textTransform: "none",
+                  borderRadius: "8px",
+                  padding: "6px 12px",
+                }}
+                onClick={() => openOrderCurrent(orderCurrent.id)}
+              >
+                ✅ Shipped
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                sx={{
+                  fontSize: "0.7em",
+                  fontWeight: "bold",
+                  textTransform: "none",
+                  borderRadius: "8px",
+                  padding: "6px 12px",
+                }}
+                onClick={() => opencancelOrder(orderCurrent.id)}
+              >
+                ❌ Cancel
+              </Button>
+            </Box>
+          </>
+        ) : orderCurrent.status === "ACCEPTED" ? (
+          <>
+            <Typography fontWeight="bold" gutterBottom style={{ fontSize: "0.8em" }}>
+              📦 Order Accepted - Ready to Shipping
+            </Typography>
+            <Typography variant="body1" style={{ fontSize: "0.65em" }}>
+              <strong>Customer Name:</strong> {orderCurrent.receiver}
+            </Typography>
+            <Typography variant="body1" style={{ fontSize: "0.65em" }}>
+              <strong>Address:</strong> {orderCurrent.address}
+            </Typography>
+            <Typography variant="body1" style={{ fontSize: "0.65em" }}>
+              <strong>Phone:</strong> {orderCurrent.phone}
+            </Typography>
+            <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{
+                  fontSize: "0.7em",
+                  fontWeight: "bold",
+                  textTransform: "none",
+                  borderRadius: "8px",
+                  padding: "6px 12px",
+                }}
+                onClick={() => openOrderShipping(orderCurrent.id)}
+              >
+                <span style={{ color: "white" }}>🚀 Start Shipping</span>
+              </Button>
+            </Box>
+          </>
+        ) : (
+          <Typography variant="body2" style={{ fontSize: "0.7em", textAlign: "center" }}>
+            ⚠️ You have a current order but status is not supported.
           </Typography>
-          <Typography variant="body1" style={{ fontSize: "0.65em" }}>
-            <strong>Customer Name:</strong> {orderCurrent.receiver}
-          </Typography>
-          <Typography variant="body1" style={{ fontSize: "0.65em" }}>
-            <strong>Delivery Address:</strong> {orderCurrent.address}
-          </Typography>
-          <Typography variant="body1" style={{ fontSize: "0.65em" }}>
-            <strong>Phone Number:</strong> {orderCurrent.phone}
-          </Typography>
-          <Typography variant="body1" style={{ fontSize: "0.65em" }}>
-            <strong>Total Price:</strong> $<strong>{orderCurrent.pay}</strong>
-          </Typography>
-          <Typography variant="body1" style={{ fontSize: "0.65em" }}>
-            <strong>Note:</strong> {orderCurrent.note || "Nothing"}
-          </Typography>
-          <Box sx={{ mt: 2, display: "flex", justifyContent: "center", gap: 2 }}>
-            <Button
-              variant="contained"
-              color="success"
-              sx={{
-                fontSize: "0.7em",
-                fontWeight: "bold",
-                textTransform: "none",
-                borderRadius: "8px",
-                padding: "6px 12px",
-              }}
-              onClick={() => openOrderCurrent(orderCurrent.id)}
-            >
-              ✅ Shipped
-            </Button>
-            <Button
-              variant="contained"
-              color="error"
-              sx={{
-                fontSize: "0.7em",
-                fontWeight: "bold",
-                textTransform: "none",
-                borderRadius: "8px",
-                padding: "6px 12px",
-              }}
-              onClick={() => opencancelOrder(orderCurrent.id)}
-            >
-              ❌ Cancel
-            </Button>
-          </Box>
-        </>
+        )
       ) : shipper ? (
         <>
           <Typography
@@ -181,7 +217,7 @@ const DataShipper = () => {
             fontWeight="bold"
             style={{ fontSize: "0.75em", marginBottom: "10px" }}
           >
-            Orders waiting for shipper
+            ⏳ Orders waiting for shipper
           </Typography>
           <Box sx={{ padding: "10px", borderBottom: "1px solid #ccc" }}>
             <Typography variant="body1" fontSize="0.6em">
@@ -207,23 +243,6 @@ const DataShipper = () => {
                 View Detail
               </Button>
             </Link>
-            {/* <Button
-              onClick={() => openModal(shipper.id)}
-              size="small"
-              sx={{ mt: 1, fontSize: "0.6em" }}
-              variant="outlined"
-            >
-              Accept
-            </Button>
-
-            <Button
-              onClick={() => cancelAccept}
-              size="small"
-              sx={{ mt: 1, fontSize: "0.6em" }}
-              variant="outlined"
-            >
-              Not Accept
-            </Button> */}
           </Box>
         </>
       ) : (
@@ -235,8 +254,8 @@ const DataShipper = () => {
         </Typography>
       )}
 
-      {/* ✅ Popup Accept */}
-      {popupAccept && (
+      {/* ✅ Popup Shipping */}
+      {popupShipping && (
         <>
           {/* Background overlay */}
           <div
@@ -250,34 +269,39 @@ const DataShipper = () => {
               backdropFilter: "blur(0.05em)",
               zIndex: "999",
             }}
-            onClick={closerAccept}
+            onClick={closerOrderShipping}
           />
 
           {/* Popup box */}
           <div
             style={{
               position: "fixed",
-              top: "50%",
+              top: "40%",
               left: "50%",
               transform: "translate(-50%, -50%)",
               backgroundColor: "white",
               borderRadius: "8px",
-              padding: "20px",
-              width: "400px",
+              padding: "15px",
+              width: "85%",
+              maxWidth: "400px",
               boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
               zIndex: "1000",
               textAlign: "center",
             }}
           >
-            <h3 style={{ marginBottom: "20px", color: "#333", fontWeight: "bold" }}>
-              Confirm Accept
+            <h3
+              style={{ marginBottom: "10px", color: "#333", fontWeight: "bold", fontSize: "0.8em" }}
+            >
+              Confirm Shipping Order
             </h3>
-            <p style={{ marginBottom: "30px", color: "#555", fontSize: "0.9em" }}>
-              Are you sure you want to accept this order?
+            <p
+              style={{ marginBottom: "20px", color: "#555", fontSize: "0.9em", fontSize: "0.7em" }}
+            >
+              Are you sure you want to shipping this order?
             </p>
             <div style={{ display: "flex", justifyContent: "space-between", gap: "10px" }}>
               <button
-                onClick={() => acceptOrder(selectedItemId)}
+                onClick={() => orderShipping(idShippingOrder)}
                 style={{
                   flex: 1,
                   padding: "10px",
@@ -292,7 +316,7 @@ const DataShipper = () => {
                 Yes
               </button>
               <button
-                onClick={closerAccept}
+                onClick={closerOrderShipping}
                 style={{
                   flex: 1,
                   padding: "10px",
@@ -308,7 +332,7 @@ const DataShipper = () => {
               </button>
             </div>
             <Icon
-              onClick={closerAccept}
+              onClick={closerOrderShipping}
               style={{
                 position: "absolute",
                 top: "10px",
@@ -366,7 +390,7 @@ const DataShipper = () => {
             <p
               style={{ marginBottom: "20px", color: "#555", fontSize: "0.9em", fontSize: "0.7em" }}
             >
-              Are you sure you want to accept this order?
+              Are you sure you shipped this order?
             </p>
             <div style={{ display: "flex", justifyContent: "space-between", gap: "10px" }}>
               <button
@@ -416,8 +440,8 @@ const DataShipper = () => {
         </>
       )}
 
-      {/* ✅ Popup Reject */}
-      {popupReject && (
+      {/* ✅ Popup Cancel */}
+      {popupCancel && (
         <>
           {/* Background overlay */}
           <div
@@ -443,18 +467,27 @@ const DataShipper = () => {
               transform: "translate(-50%, -50%)",
               backgroundColor: "white",
               borderRadius: "8px",
-              padding: "20px",
-              width: "400px",
+              padding: "15px",
+              width: "85%",
+              maxWidth: "90vw",
               boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
               zIndex: "1000",
               textAlign: "center",
+              boxSizing: "border-box",
             }}
           >
-            <h3 style={{ marginBottom: "20px", color: "#333", fontWeight: "bold" }}>
-              Confirm Reject Order
+            <h3
+              style={{
+                marginBottom: "10px",
+                color: "#333",
+                fontWeight: "bold",
+                fontSize: "0.85em",
+              }}
+            >
+              Confirm Cancel Order
             </h3>
-            <p style={{ marginBottom: "30px", color: "#555", fontSize: "0.9em" }}>
-              Are you sure you want to reject this order?
+            <p style={{ marginBottom: "20px", color: "#555", fontSize: "0.7em" }}>
+              Are you sure you want to cancel this order?
             </p>
             <div style={{ display: "flex", justifyContent: "space-between", gap: "10px" }}>
               <button
@@ -504,7 +537,7 @@ const DataShipper = () => {
         </>
       )}
 
-      {popupRejectSuccess &&
+      {popupCancelSuccess &&
         ReactDOM.createPortal(
           <>
             {/* Overlay */}
@@ -564,7 +597,7 @@ const DataShipper = () => {
                   margin: 0,
                 }}
               >
-                Order rejected successfully
+                Order canceled successfully
               </p>
             </div>
 
@@ -587,24 +620,77 @@ const DataShipper = () => {
           document.body
         )}
 
-      {popupShippedSuccess &&
+      {popupShippingSuccess &&
         ReactDOM.createPortal(
           <>
-            {/* Overlay */}
+            {/* Popup */}
             <div
               style={{
                 position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100vw",
-                height: "100vh",
-                backgroundColor: "rgba(0, 0, 0, 0.2)",
-                backdropFilter: "blur(2px)",
-                zIndex: 999,
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                backgroundColor: "white",
+                borderRadius: "8px",
+                padding: "20px",
+                width: "90%",
+                maxWidth: "360px",
+                boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
+                zIndex: 1000,
+                textAlign: "center",
               }}
-              onClick={closerAccept}
-            />
+            >
+              {/* SVG Icon */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 52 52"
+                width="55"
+                height="55"
+                style={{
+                  marginBottom: "15px",
+                  animation: "popIn 0.6s ease",
+                  borderRadius: "30px",
+                }}
+              >
+                <circle cx="27" cy="26" r="25" fill="none" stroke="#4caf50" strokeWidth="4" />
+                <path fill="none" stroke="#4caf50" strokeWidth="4" d="M14 26l7 7 15-15" />
+              </svg>
 
+              {/* Message */}
+              <p
+                style={{
+                  color: "green",
+                  fontSize: "0.8em",
+                  fontWeight: "600",
+                  margin: 0,
+                }}
+              >
+                Order is shipping successfully
+              </p>
+            </div>
+
+            {/* Animation keyframes */}
+            <style>
+              {`
+                  @keyframes popIn {
+                    0% {
+                      transform: scale(0);
+                      opacity: 0;
+                    }
+                    100% {
+                      transform: scale(1);
+                      opacity: 1;
+                    }
+                  }
+                `}
+            </style>
+          </>,
+          document.body
+        )}
+
+      {popupShippedSuccess &&
+        ReactDOM.createPortal(
+          <>
             {/* Popup */}
             <div
               style={{

@@ -12,7 +12,6 @@ class OrderService {
       });
       return response.data;
     } catch (error) {
-      throw error;
       return { orders: [], totalPages: 1 };
     }
   }
@@ -34,29 +33,6 @@ class OrderService {
 
       return response.data;
     } catch (error) {
-      console.error("🛑 An error occurred while fetching orders:");
-
-      // Log the basic error message
-      console.error("Message:", error.message);
-
-      // Log Axios-specific error details
-      if (error.response) {
-        // Server responded with a status other than 2xx
-        console.error("Response status:", error.response.status);
-        console.error("Response data:", error.response.data);
-        console.error("Response headers:", error.response.headers);
-      } else if (error.request) {
-        // Request was made but no response received
-        console.error("No response received from the server.");
-        console.error("Request details:", error.request);
-      } else {
-        // Something else caused the error
-        console.error("Unexpected error:", error.message);
-      }
-
-      // Log the full stack trace for debugging
-      console.error("Stack trace:", error.stack);
-
       return { content: [], total_page: 1 };
     }
   }

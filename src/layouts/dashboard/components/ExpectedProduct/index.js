@@ -90,7 +90,10 @@ function ExpectedProduct() {
       },
       tooltip: {
         callbacks: {
-          enabled: false,
+          label: function (context) {
+            return context.raw ? context.raw : "";
+          },
+          enabled: true,
         },
       },
     },
@@ -110,6 +113,12 @@ function ExpectedProduct() {
       x: {
         ticks: {
           color: "#F5F5F5",
+          autoSkip: true,
+          maxRotation: 0,
+          minRotation: 0,
+          callback: function (value) {
+            return value.length > 10 ? value.substring(1, 10) + "..." : value;
+          },
         },
         grid: {
           color: "#F5F5F5",

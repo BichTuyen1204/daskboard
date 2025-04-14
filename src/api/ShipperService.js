@@ -62,6 +62,28 @@ class ShipperService {
     }
   }
 
+  async getSumOrderShipper(status, index, size) {
+    const jwtToken = sessionStorage.getItem("jwtToken");
+
+    console.log("🔒 JWT Token:", jwtToken);
+    console.log("📦 Params:", { status, index, size });
+
+    try {
+      const response = await axios.get(
+        `https://culcon-ad-be-30883260979.asia-southeast1.run.app/api/shipper/order/fetch/summary?status=${status}&index=${index}&size=${size}`,
+        {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("🚨 API ERROR:", error.response?.status, error.response?.data);
+      throw error;
+    }
+  }
+
   async orderShipped(id) {
     try {
       const token = sessionStorage.getItem("jwtToken");

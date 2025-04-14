@@ -65,13 +65,16 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     ? routes
         .filter(({ name }) => {
           if (account.type === 1) {
-            return name !== "Chat with customer";
+            return name !== "Chat with customer" && name !== "Order of Shipper";
           } else if (account.type === 2) {
             return (
-              name !== "Staff Management" && name !== "Dash board" && name !== "Coupon Management"
+              name !== "Staff Management" &&
+              name !== "Dash board" &&
+              name !== "Coupon Management" &&
+              name !== "Order of Shipper"
             );
           } else if (account.type === 3) {
-            return name === "Logout";
+            return name === "Logout" || name === "Order of Shipper";
           }
           return true;
         })

@@ -50,6 +50,8 @@ import Edit_Shipper from "layouts/edit_shipper/index";
 import OrderWaitingShipper from "layouts/orders_waiting_shipper/index";
 import Waiting_Shipper from "layouts/order_manager/data/shipping_order/index";
 import Order_Shipper_Detail from "layouts/dashboard/order_waiting_shipper/order_shipper_detail";
+import Order_Manager_Shipper from "layouts/order_manager_shipper/index";
+import Order_Shipper from "layouts/order_manager_shipper/data/order_shipper";
 
 const token = sessionStorage.getItem("jwtToken");
 
@@ -85,6 +87,14 @@ const routes = [
     icon: <Icon fontSize="small">list_alt</Icon>,
     route: "/order",
     component: <Order />,
+  },
+  {
+    type: "collapse",
+    name: "Order of Shipper",
+    key: "Order",
+    icon: <Icon fontSize="small">list_alt</Icon>,
+    route: "/order_manager_shipper",
+    component: <Order_Manager_Shipper />,
   },
   {
     type: "collapse",
@@ -193,6 +203,10 @@ const routes = [
   {
     route: "/order_shipper_detail/:id",
     component: <Order_Shipper_Detail />,
+  },
+  {
+    route: "/order_shipper/:id",
+    component: <Order_Shipper />,
   },
   {
     route: "/order_processing_to_shipping/:id",

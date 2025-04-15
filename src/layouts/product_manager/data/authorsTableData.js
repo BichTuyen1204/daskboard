@@ -15,7 +15,6 @@ export default function DataTable(page, rowsPerPage, selectedType, searchQuery) 
   useEffect(() => {
     const getAllProduct = async () => {
       if (!jwtToken) return;
-
       try {
         const response = await ProductService.fetchProducts(
           page,
@@ -23,7 +22,6 @@ export default function DataTable(page, rowsPerPage, selectedType, searchQuery) 
           selectedType,
           searchQuery
         );
-
         if (Array.isArray(response.content)) {
           setProduct(response.content);
           setTotalPages(response.total_page || 1);
@@ -36,7 +34,6 @@ export default function DataTable(page, rowsPerPage, selectedType, searchQuery) 
         setTotalPages(1);
       }
     };
-
     getAllProduct();
   }, [jwtToken, page, rowsPerPage, selectedType, searchQuery]);
 

@@ -45,6 +45,45 @@ class ShipperService {
     }
   }
 
+  async shippingOrder(id) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      if (!token) throw new Error("No JWT Token found!");
+      const response = await axios.put(
+        `${API_BASE_URL}/api/shipper/order/ship/${id}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async getSumOrderShipper(status, index, size) {
+    const jwtToken = sessionStorage.getItem("jwtToken");
+
+    console.log("🔒 JWT Token:", jwtToken);
+    console.log("📦 Params:", { status, index, size });
+
+    try {
+      const response = await axios.get(
+        `https://culcon-ad-be-30883260979.asia-southeast1.run.app/api/shipper/order/fetch/summary?status=${status}&index=${index}&size=${size}`,
+        {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("🚨 API ERROR:", error.response?.status, error.response?.data);
+      throw error;
+    }
+  }
+
   async orderShipped(id) {
     try {
       const token = sessionStorage.getItem("jwtToken");
@@ -62,11 +101,24 @@ class ShipperService {
     }
   }
 
-  async cancelOrder(id) {
+  async rejectOrder(id) {
     try {
       const token = sessionStorage.getItem("jwtToken");
       if (!token) throw new Error("No JWT Token found!");
       const response = await axios.delete(`${API_BASE_URL}/api/shipper/order/reject/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async cancelOrder(id) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      if (!token) throw new Error("No JWT Token found!");
+      const response = await axios.delete(`${API_BASE_URL}/api/shipper/order/cancel/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;

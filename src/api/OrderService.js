@@ -22,8 +22,10 @@ class OrderService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       if (!token) {
-        return;
+        console.error("Error: No JWT token found in session storage.");
+        return { content: [], total_page: 1 };
       }
+
       const response = await axios.get(
         `${API_BASE_URL}/fetch/all?status=${status}&index=${page - 1}&size=${size}`,
         {

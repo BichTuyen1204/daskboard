@@ -140,10 +140,23 @@ function EditShipper() {
                               setStartTimeError("");
                             }}
                             ampm
-                            componentsProps={{
-                              openPickerButton: { sx: { display: "none" } },
+                            open={false}
+                            onOpen={() => {}}
+                            onClose={() => {}}
+                            slots={{
+                              openPickerIcon: () => null,
                             }}
-                            renderInput={(params) => <TextField {...params} fullWidth />}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                fullWidth
+                                InputProps={{
+                                  ...params.InputProps,
+                                  endAdornment: null,
+                                  readOnly: false,
+                                }}
+                              />
+                            )}
                           />
                         </LocalizationProvider>
                         {startTimeError && (
@@ -170,10 +183,23 @@ function EditShipper() {
                               setEndTimeError("");
                             }}
                             ampm
-                            componentsProps={{
-                              openPickerButton: { sx: { display: "none" } },
+                            open={false}
+                            onOpen={() => {}}
+                            onClose={() => {}}
+                            slots={{
+                              openPickerIcon: () => null,
                             }}
-                            renderInput={(params) => <TextField {...params} fullWidth />}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                fullWidth
+                                InputProps={{
+                                  ...params.InputProps,
+                                  endAdornment: null,
+                                  readOnly: false,
+                                }}
+                              />
+                            )}
                           />
                         </LocalizationProvider>
                         {endTimeError && (

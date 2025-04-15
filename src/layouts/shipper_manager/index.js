@@ -6,18 +6,10 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
 import authorsTableData from "layouts/shipper_manager/data/data_shipper";
-import {
-  Box,
-  Icon,
-  IconButton,
-  Typography,
-  TextField,
-  InputAdornment,
-  Button,
-} from "@mui/material";
+import { Box, Icon, IconButton, Typography, Button } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ArrowBackIos, ArrowForwardIos, Search } from "@mui/icons-material";
+import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
 
 function Shipper() {
   const navigate = useNavigate();

@@ -8,7 +8,6 @@ import { useParams } from "react-router-dom";
 
 export default function data(pageShipper, rowsPerPageShipper) {
   const { id: orderId } = useParams();
-
   const [shipper, setShipper] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [jwtToken, setJwtToken] = sessionStorage.getItem("jwtToken");
@@ -47,13 +46,11 @@ export default function data(pageShipper, rowsPerPageShipper) {
     try {
       const response = await AccountService.chooseShipper(orderId, id);
       console.log(response);
-      setPopupChooseSuccess(true);
-      setTimeout(() => {
-        setPopupChooseSuccess(false);
-        navigate(`/shipper`);
-      }, 4000);
+      alert("✅ Shipper has been successfully selected!");
+      navigate("/processing_order");
     } catch (error) {
       console.error("Error assigning shipper:", error);
+      alert("❌ Sorry, please select the correct working time for the shipper.");
     }
   };
 
@@ -163,25 +160,23 @@ export default function data(pageShipper, rowsPerPageShipper) {
         <MDBox display="flex" justifyContent="center">
           <>
             {/* Button view shipper detail start */}
-            <Link to={`/choose_shipper`}>
-              <MDTypography
-                component="button"
-                variant="caption"
-                color="white"
-                fontWeight="medium"
-                style={{
-                  backgroundColor: "#1976d2",
-                  fontSize: "0.8em",
-                  border: "none",
-                  borderRadius: "2px",
-                  padding: "5px 10px",
-                  cursor: "pointer",
-                }}
-                onClick={() => onChooseShipper(orderId, item.id)}
-              >
-                Choose
-              </MDTypography>
-            </Link>
+            <MDTypography
+              component="button"
+              variant="caption"
+              color="white"
+              fontWeight="medium"
+              style={{
+                backgroundColor: "#1976d2",
+                fontSize: "0.8em",
+                border: "none",
+                borderRadius: "2px",
+                padding: "5px 10px",
+                cursor: "pointer",
+              }}
+              onClick={() => onChooseShipper(orderId, item.id)}
+            >
+              Choose
+            </MDTypography>
           </>
           {/* Popup Confirm Delete */}
           {popupChooseSuccess && (

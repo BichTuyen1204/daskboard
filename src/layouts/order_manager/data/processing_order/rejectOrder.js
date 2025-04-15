@@ -6,36 +6,38 @@ import { useEffect, useState } from "react";
 import AccountService from "api/AccountService";
 import { Icon } from "@mui/material";
 
-export default function data(pageShipper, selectedType, rowsPerPageShipper) {
-  const [shipper, setShipper] = useState([]);
+export default function data(pageReject, selectedType, rowsPerPageReject) {
+  const [shipper, setReject] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const jwtToken = sessionStorage.getItem("jwtToken");
 
   useEffect(() => {
-    const getCallShipper = async () => {
+    const getCallReject = async () => {
       if (!jwtToken) return;
+      console.log("JWT Token: ", jwtToken);
+
       try {
         const response = await AccountService.getCallShipper(
           selectedType,
-          pageShipper,
-          rowsPerPageShipper
+          pageReject,
+          rowsPerPageReject
         );
         if (Array.isArray(response.content)) {
-          setShipper(response.content);
+          setReject(response.content);
           setTotalPages(response.total_page || 1);
         } else {
-          setShipper([]);
+          setReject([]);
           setTotalPages(1);
         }
       } catch (error) {
-        setShipper([]);
+        setReject([]);
         setTotalPages(1);
       }
     };
-    getCallShipper();
-  }, [jwtToken, selectedType, pageShipper, rowsPerPageShipper]);
+    getCallReject();
+  }, [jwtToken, selectedType, pageReject, rowsPerPageReject]);
 
-  const hasNextPageShipper = pageShipper < totalPages;
+  const hasNextPageReject = pageReject < totalPages;
 
   const Username = ({ username }) => (
     <MDBox lineHeight={1} textAlign="center">
@@ -64,7 +66,7 @@ export default function data(pageShipper, selectedType, rowsPerPageShipper) {
   const Status = ({ status }) => (
     <MDBox lineHeight={1} textAlign="center">
       <MDTypography display="block" variant="button" fontWeight="medium" fontSize="0.8em">
-        {status}
+        <span style={{ color: "red" }}>{status}</span>
       </MDTypography>
     </MDBox>
   );
@@ -85,25 +87,27 @@ export default function data(pageShipper, selectedType, rowsPerPageShipper) {
     </MDBox>
   );
 
+  const Order = ({ order }) => (
+    <MDBox lineHeight={1} textAlign="center">
+      <MDTypography display="block" variant="button" fontWeight="medium" fontSize="0.8em">
+        {order}
+      </MDTypography>
+    </MDBox>
+  );
+
   const mapStatusToLabel = (status) => {
     const statusMap = {
-      ACCEPTED: "ACCEPTED",
       REJECTED: "REJECTED",
-      ON_SHIPPING: "ON SHIPPING",
-      DELIVERED: "DELIVERED",
-      ASSIGN: "ASSIGN",
-      IDLE: "IDLE",
     };
     return statusMap[status] || status;
   };
 
   const columns = [
-    { Header: "id", accessor: "id", width: "25%", align: "left" },
-    { Header: "name of shipper", accessor: "username", align: "center" },
+    { Header: "id of shipper", accessor: "id", align: "left" },
+    { Header: "name of shipper", accessor: "username", with: "25%", align: "left" },
     { Header: "email", accessor: "email", align: "center" },
     { Header: "status", accessor: "status", align: "center" },
-    { Header: "start time", accessor: "start", align: "center" },
-    { Header: "end time", accessor: "end", align: "center" },
+    { Header: "current order", accessor: "order", align: "center" },
     { Header: "action", accessor: "action", align: "center" },
   ];
 
@@ -113,41 +117,28 @@ export default function data(pageShipper, selectedType, rowsPerPageShipper) {
         username: <Username username={item.name} />,
         email: <Email email={item.email} />,
         status: <Status status={mapStatusToLabel(item.status)} />,
-        start: <Start start={item.start_shift} />,
-        end: <End end={item.end_shift} />,
+        order: <Order order={item.current_order} />,
         action: (
           <MDBox display="flex" justifyContent="center">
-            <>
-              <Link
-                to={`/edit_shipper/${item.id}`}
-                style={{ textDecoration: "none", marginLeft: "15px" }}
+            <Link to={`/choose_shipper/${item.current_order}`} style={{ textDecoration: "none" }}>
+              <MDTypography
+                variant="caption"
+                style={{
+                  backgroundColor: "#1976d2",
+                  fontWeight: "500",
+                  color: "white",
+                  padding: "8px 10px",
+                  borderRadius: "2px",
+                  cursor: "pointer",
+                }}
               >
-                <MDTypography
-                  component="button"
-                  variant="caption"
-                  fontWeight="medium"
-                  style={{
-                    backgroundColor: "white",
-                    color: "#1976d2",
-                    fontSize: "0.8em",
-                    border: "none",
-                    padding: "5px 10px",
-                    cursor: "pointer",
-                    transition: "all 0.3s ease",
-                  }}
-                  onMouseEnter={(e) => (e.target.style.backgroundColor = "#f0f4ff")}
-                  onMouseLeave={(e) => (e.target.style.backgroundColor = "white")}
-                >
-                  <Icon fontSize="small" style={{ marginRight: "5px" }}>
-                    edit
-                  </Icon>
-                </MDTypography>
-              </Link>
-            </>
+                Choose order shipper
+              </MDTypography>
+            </Link>
           </MDBox>
         ),
       }))
     : [];
 
-  return { columns, rows, hasNextPageShipper };
+  return { columns, rows, hasNextPageReject };
 }

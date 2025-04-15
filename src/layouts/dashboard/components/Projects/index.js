@@ -31,14 +31,6 @@ function Projects() {
     fetchRevenue();
   }, [jwtToken]);
 
-  // if (!topProductMonth.length) {
-  //   return (
-  //     <div style={{ background: "white", padding: "35px", borderRadius: "15px" }}>
-  //       <p style={{ textAlign: "center", fontSize: "0.9em", fontWeight: "450" }}>Loading...</p>
-  //     </div>
-  //   );
-  // }
-
   const chartData = {
     labels: topProductMonth.map((item) => item.product_name),
     datasets: [
@@ -122,6 +114,9 @@ function Projects() {
       x: {
         ticks: {
           color: "#F5F5F5",
+          callback: function (value, index) {
+            return index + 1;
+          },
         },
         grid: {
           color: "#F5F5F5",

@@ -86,13 +86,17 @@ class AccountService {
     }
   }
 
-  async getAllShipper(status, page, size) {
+  async getAllShipper(status, page, size, searchQuery) {
     try {
       const token = sessionStorage.getItem("jwtToken");
       let url = `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/shipper/fetch?status=${status}&index=${
         page - 1
       }&size=${size}`;
-      const params = new URLSearchParams();
+
+      if (searchQuery) {
+        url += `&name=${encodeURIComponent(searchQuery)}`;
+      }
+
       const response = await axios.get(url, {
         headers: {
           "Content-Type": "application/json",

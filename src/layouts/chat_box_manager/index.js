@@ -78,7 +78,6 @@ function ChatBox() {
                 <MDTypography variant="h6" color="white">
                   Customer list
                 </MDTypography>
-
                 <Box
                   sx={{
                     width: { xs: "100%", sm: "50%", md: "40%", lg: "30%" },
@@ -173,7 +172,7 @@ function ChatBox() {
                     height: "30px",
                     borderRadius: "50%",
                     "&:hover, &:focus": { bgcolor: "#333 !important", color: "white !important" },
-                    opacity: hasNextPageCustomer ? 0.3 : 1,
+                    opacity: hasNextPageCustomer ? 1 : 0.3,
                   }}
                 >
                   <ArrowForwardIos sx={{ fontSize: "14px" }} />

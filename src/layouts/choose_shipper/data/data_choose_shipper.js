@@ -6,11 +6,11 @@ import { useEffect, useState } from "react";
 import AccountService from "api/AccountService";
 import { useParams } from "react-router-dom";
 
-export default function data(pageShipper, rowsPerPageShipper) {
+export default function data(pageShipper, rowsPerPageShipper, searchQuery = "") {
   const { id: orderId } = useParams();
   const [shipper, setShipper] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
-  const [jwtToken, setJwtToken] = sessionStorage.getItem("jwtToken");
+  const jwtToken = sessionStorage.getItem("jwtToken");
   const hasNextPageShipper = pageShipper < totalPages;
   const [popupChooseSuccess, setPopupChooseSuccess] = useState(false);
   const navigate = useNavigate();
@@ -24,10 +24,22 @@ export default function data(pageShipper, rowsPerPageShipper) {
           const response = await AccountService.getAllShipper(
             "IDLE",
             pageShipper,
-            rowsPerPageShipper
+            rowsPerPageShipper,
+            searchQuery
           );
           if (Array.isArray(response.content)) {
-            setShipper(response.content);
+            // If API doesn't support search directly, filter client-side
+            let filteredShippers = response.content;
+            if (searchQuery && searchQuery.trim() !== "") {
+              const query = searchQuery.toLowerCase();
+              filteredShippers = response.content.filter(
+                (item) =>
+                  (item.id && item.id.toString().includes(query)) ||
+                  (item.name && item.name.toLowerCase().includes(query)) ||
+                  (item.email && item.email.toLowerCase().includes(query))
+              );
+            }
+            setShipper(filteredShippers);
             setTotalPages(response.total_page || 1);
           } else {
             setShipper([]);
@@ -40,7 +52,7 @@ export default function data(pageShipper, rowsPerPageShipper) {
       }
     };
     getAllShipper();
-  }, [jwtToken, pageShipper, rowsPerPageShipper]);
+  }, [jwtToken, pageShipper, rowsPerPageShipper, searchQuery]);
 
   const onChooseShipper = async (orderId, id) => {
     try {

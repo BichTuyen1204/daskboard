@@ -22,7 +22,18 @@ export default function data(pageShipper, selectedType, rowsPerPageShipper, sear
           searchQuery
         );
         if (Array.isArray(response.content)) {
-          setShipper(response.content);
+          // Apply client-side filtering if search query is present
+          let filteredContent = response.content;
+          if (searchQuery && searchQuery.trim() !== "") {
+            const query = searchQuery.toLowerCase();
+            filteredContent = response.content.filter(
+              (item) =>
+                (item.id && item.id.toString().includes(query)) ||
+                (item.name && item.name.toLowerCase().includes(query)) ||
+                (item.email && item.email.toLowerCase().includes(query))
+            );
+          }
+          setShipper(filteredContent);
           setTotalPages(response.total_page || 1);
         } else {
           setShipper([]);

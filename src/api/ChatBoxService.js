@@ -12,6 +12,7 @@ class ChatBoxService {
       if (searchQuery && searchQuery.trim() !== "") {
         url += `&username=${encodeURIComponent(searchQuery)}`;
       }
+
       const response = await axios.get(url, {
         headers: {
           "Content-Type": "application/json",
@@ -24,4 +25,5 @@ class ChatBoxService {
     }
   }
 }
+
 export default new ChatBoxService();

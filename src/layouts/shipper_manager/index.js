@@ -89,7 +89,6 @@ function Shipper() {
                 <MDTypography variant="h6" color="white">
                   Shipper List
                 </MDTypography>
-
                 <Box
                   sx={{
                     width: { xs: "100%", sm: "50%", md: "40%", lg: "30%" },

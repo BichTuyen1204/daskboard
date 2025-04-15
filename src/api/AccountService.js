@@ -85,7 +85,6 @@ class AccountService {
       return { content: [], total_page: 0 };
     }
   }
-
   async getAllShipper(status, page, size, searchQuery = null) {
     try {
       const token = sessionStorage.getItem("jwtToken");

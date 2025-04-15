@@ -6,21 +6,47 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
 import authorsTableData from "layouts/shipper_manager/data/data_shipper";
-import { Box, Icon, IconButton, Typography, Button } from "@mui/material";
+import {
+  Box,
+  Icon,
+  IconButton,
+  Typography,
+  Button,
+  TextField,
+  InputAdornment,
+} from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
+import { ArrowBackIos, ArrowForwardIos, Search } from "@mui/icons-material";
 
 function Shipper() {
   const navigate = useNavigate();
   const [pageShipper, setPageShipper] = useState(1);
   const rowsPerPageShipper = 50;
   const [selectedType, setSelectedType] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+
   const { columns, rows, hasNextPageShipper } = authorsTableData(
     pageShipper,
     selectedType,
-    rowsPerPageShipper
+    rowsPerPageShipper,
+    debouncedSearchQuery
   );
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+      setPageShipper(1); // Reset to first page when searching
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
 
   const handlePrevPageShipper = () => {
     if (pageShipper > 1) {
@@ -66,6 +92,37 @@ function Shipper() {
                 <MDTypography variant="h6" color="white">
                   Shipper List
                 </MDTypography>
+                <Box
+                  sx={{
+                    width: { xs: "100%", sm: "50%", md: "40%", lg: "30%" },
+                    transition: "width 0.3s ease",
+                  }}
+                >
+                  <TextField
+                    size="small"
+                    placeholder="Search shippers"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    fullWidth
+                    style={{
+                      backgroundColor: "white",
+                      borderRadius: 1,
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": { border: "none" },
+                      },
+                      "& .MuiInputBase-input": {
+                        fontSize: { xs: "0.85rem", sm: "0.875rem" },
+                      },
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Search />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Box>
               </MDBox>
 
               <MDBox mx={3} mt={2}>

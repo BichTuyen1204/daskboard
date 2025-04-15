@@ -16,7 +16,7 @@ function Order() {
 
   // On Shipping
   const [pageOnShipping, setPageOnShipping] = useState(1);
-  const rowsPerPageOnShipping = 6;
+  const rowsPerPageOnShipping = 50;
   const {
     columns: shippingColumns,
     rows: shippingRows,

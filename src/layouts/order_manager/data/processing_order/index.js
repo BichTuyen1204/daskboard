@@ -17,7 +17,7 @@ function ProcessingOrder() {
   const navigate = useNavigate();
   // On Processing
   const [pageOnProcessing, setPageOnProcessing] = useState(1);
-  const rowsPerPageOnProcessing = 6;
+  const rowsPerPageOnProcessing = 10;
 
   const {
     columns: processingColumns,
@@ -373,7 +373,7 @@ function ProcessingOrder() {
                     alignItems: "center",
                     justifyContent: "center",
                     borderRadius: "50%",
-                    bgcolor: "green",
+                    bgcolor: "red",
                   }}
                 >
                   <Typography color="white" fontWeight="bold">

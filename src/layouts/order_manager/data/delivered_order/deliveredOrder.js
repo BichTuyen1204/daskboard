@@ -39,11 +39,10 @@ export default function deliveredOrder(pageDelivered, rowsPerPageDelivered) {
   const hasNextPageDelivered = pageDelivered < totalPages;
 
   const columns = [
-    { Header: "Receiver", accessor: "name", align: "center" },
+    { Header: "Receiver", accessor: "name", align: "left" },
+    { Header: "Address", accessor: "address", align: "left" },
     { Header: "Order Date", accessor: "order_date", align: "center" },
-    { Header: "Address", accessor: "address", align: "center" },
     { Header: "Phone", accessor: "phone", align: "center" },
-    { Header: "Payment Status", accessor: "payment_status", align: "center" },
     { Header: "Total Price", accessor: "total_price", align: "center" },
     { Header: "Coupon", accessor: "coupon", align: "center" },
     { Header: "Status", accessor: "status", align: "center" },
@@ -63,7 +62,6 @@ export default function deliveredOrder(pageDelivered, rowsPerPageDelivered) {
     ),
     address: <MDTypography variant="caption">{item.delivery_address}</MDTypography>,
     phone: <MDTypography variant="caption">{item.phonenumber}</MDTypography>,
-    payment_status: <MDTypography variant="caption">{item.payment_status}</MDTypography>,
     total_price: <MDTypography variant="caption">${item.total_price}</MDTypography>,
     coupon: <MDTypography variant="caption">{item.coupon_sale || "0"}%</MDTypography>,
     status: (

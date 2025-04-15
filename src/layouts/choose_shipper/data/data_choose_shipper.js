@@ -131,9 +131,9 @@ export default function data(pageShipper, rowsPerPageShipper, searchQuery = "") 
   );
 
   const columns = [
-    { Header: "ID", accessor: "id", width: "5%", align: "left" },
-    { Header: "username", accessor: "username", align: "center" },
-    { Header: "email", accessor: "email", align: "center" },
+    { Header: "id of shipper", accessor: "id", align: "left" },
+    { Header: "username", accessor: "username", align: "left" },
+    { Header: "email", accessor: "email", align: "left" },
     { Header: "start time", accessor: "start", align: "center" },
     { Header: "end time", accessor: "end", align: "center" },
     { Header: "status", accessor: "status", align: "center" },
@@ -141,37 +141,28 @@ export default function data(pageShipper, rowsPerPageShipper, searchQuery = "") 
   ];
 
   const rows = shipper
-    ?.filter((item) => item.status === "IDLE")
+    ?.filter((item) => {
+      if (item.status !== "IDLE") return false;
+
+      const now = new Date();
+      const nowTime = new Date(`1970-01-01T${now.toTimeString().slice(0, 8)}`);
+      const start = new Date(`1970-01-01T${item.start_shift}`);
+      const end = new Date(`1970-01-01T${item.end_shift}`);
+      if (end < start) {
+        return nowTime >= start || nowTime <= end;
+      }
+      return nowTime >= start && nowTime <= end;
+    })
     .map((item) => ({
-      //ID start
       id: <ID id={item.id} />,
-      //ID end
-
-      //Username start
       username: <Username username={item.name} />,
-      //Username end
-
-      //Status start
-      status: <Status status="Free time" />,
-      //Status end
-
-      //Status start
       email: <Email email={item.email} />,
-      //Status end
-
-      //Status start
       start: <Start start={item.start_shift} />,
-      //Status end
-
-      //Status start
       end: <End end={item.end_shift} />,
-      //Status end
-
-      //Action start
+      status: <Status status="Free time" />,
       action: (
         <MDBox display="flex" justifyContent="center">
           <>
-            {/* Button view shipper detail start */}
             <MDTypography
               component="button"
               variant="caption"
@@ -190,7 +181,6 @@ export default function data(pageShipper, rowsPerPageShipper, searchQuery = "") 
               Choose
             </MDTypography>
           </>
-          {/* Popup Confirm Delete */}
           {popupChooseSuccess && (
             <>
               <div
@@ -205,8 +195,6 @@ export default function data(pageShipper, rowsPerPageShipper, searchQuery = "") 
                   zIndex: 999,
                 }}
               ></div>
-
-              {/* Popup nội dung */}
               <div
                 style={{
                   position: "fixed",
@@ -236,7 +224,6 @@ export default function data(pageShipper, rowsPerPageShipper, searchQuery = "") 
           )}
         </MDBox>
       ),
-      //Action end
     }));
 
   return { columns, rows, hasNextPageShipper };

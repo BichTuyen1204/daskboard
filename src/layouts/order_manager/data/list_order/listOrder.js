@@ -61,13 +61,12 @@ export default function listOrder(page, rowsPerPage) {
 
   const columns = [
     { Header: "Receiver", accessor: "receiver", align: "left" },
-    { Header: "Order Date", accessor: "order_date", align: "left" },
     { Header: "Address", accessor: "delivery_address", align: "left" },
+    { Header: "Order Date", accessor: "order_date", align: "left" },
     { Header: "Phone", accessor: "phonenumber", align: "center" },
-    { Header: "Payment Status", accessor: "payment_status", align: "center" },
     { Header: "Total Price", accessor: "total_price", align: "center" },
     { Header: "Coupon", accessor: "coupon_sale", align: "center" },
-    { Header: "Status", accessor: "order_status", align: "center" },
+    { Header: "Status", accessor: "order_status", align: "left" },
   ];
 
   const rows = orders.map((item) => ({
@@ -83,7 +82,6 @@ export default function listOrder(page, rowsPerPage) {
     ),
     delivery_address: <MDTypography variant="caption">{item.delivery_address}</MDTypography>,
     phonenumber: <MDTypography variant="caption">{item.phonenumber}</MDTypography>,
-    payment_status: <MDTypography variant="caption">{item.payment_status}</MDTypography>,
     total_price: <MDTypography variant="caption">${item.total_price}</MDTypography>,
     coupon_sale: <MDTypography variant="caption">{item.coupon_sale || "0"}%</MDTypography>,
     order_status: (

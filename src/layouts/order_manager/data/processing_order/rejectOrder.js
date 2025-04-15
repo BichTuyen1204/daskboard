@@ -3,8 +3,7 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import AccountService from "api/AccountService";
-import { Icon } from "@mui/material";
+import ShipperService from "api/ShipperService";
 
 export default function data(pageReject, selectedType, rowsPerPageReject) {
   const [shipper, setReject] = useState([]);
@@ -12,16 +11,15 @@ export default function data(pageReject, selectedType, rowsPerPageReject) {
   const jwtToken = sessionStorage.getItem("jwtToken");
 
   useEffect(() => {
-    const getCallReject = async () => {
+    const getShipmentFetchShipper = async () => {
       if (!jwtToken) return;
-      console.log("JWT Token: ", jwtToken);
-
       try {
-        const response = await AccountService.getCallShipper(
+        const response = await ShipperService.getShipmentFetchShipper(
           selectedType,
           pageReject,
           rowsPerPageReject
         );
+        console.log(response);
         if (Array.isArray(response.content)) {
           setReject(response.content);
           setTotalPages(response.total_page || 1);
@@ -34,18 +32,10 @@ export default function data(pageReject, selectedType, rowsPerPageReject) {
         setTotalPages(1);
       }
     };
-    getCallReject();
-  }, [jwtToken, selectedType, pageReject, rowsPerPageReject]);
+    getShipmentFetchShipper();
+  }, [jwtToken, pageReject, selectedType, rowsPerPageReject]);
 
   const hasNextPageReject = pageReject < totalPages;
-
-  const Username = ({ username }) => (
-    <MDBox lineHeight={1} textAlign="center">
-      <MDTypography display="block" variant="button" fontWeight="medium" fontSize="0.8em">
-        {username}
-      </MDTypography>
-    </MDBox>
-  );
 
   const ID = ({ id }) => (
     <MDBox lineHeight={1} textAlign="left">
@@ -55,72 +45,36 @@ export default function data(pageReject, selectedType, rowsPerPageReject) {
     </MDBox>
   );
 
-  const Email = ({ email }) => (
+  const Process = ({ process }) => (
     <MDBox lineHeight={1} textAlign="center">
       <MDTypography display="block" variant="button" fontWeight="medium" fontSize="0.8em">
-        {email}
+        {process}
       </MDTypography>
     </MDBox>
   );
 
-  const Status = ({ status }) => (
+  const Shipping = ({ shipping }) => (
     <MDBox lineHeight={1} textAlign="center">
       <MDTypography display="block" variant="button" fontWeight="medium" fontSize="0.8em">
-        <span style={{ color: "red" }}>{status}</span>
+        {shipping}
       </MDTypography>
     </MDBox>
   );
-
-  const Start = ({ start }) => (
-    <MDBox lineHeight={1} textAlign="left">
-      <MDTypography display="block" variant="button" fontWeight="medium" fontSize="0.8em">
-        {start}
-      </MDTypography>
-    </MDBox>
-  );
-
-  const End = ({ end }) => (
-    <MDBox lineHeight={1} textAlign="left">
-      <MDTypography display="block" variant="button" fontWeight="medium" fontSize="0.8em">
-        {end}
-      </MDTypography>
-    </MDBox>
-  );
-
-  const Order = ({ order }) => (
-    <MDBox lineHeight={1} textAlign="center">
-      <MDTypography display="block" variant="button" fontWeight="medium" fontSize="0.8em">
-        {order}
-      </MDTypography>
-    </MDBox>
-  );
-
-  const mapStatusToLabel = (status) => {
-    const statusMap = {
-      REJECTED: "REJECTED",
-    };
-    return statusMap[status] || status;
-  };
 
   const columns = [
     { Header: "id of shipper", accessor: "id", align: "left" },
-    { Header: "name of shipper", accessor: "username", with: "25%", align: "left" },
-    { Header: "email", accessor: "email", align: "center" },
-    { Header: "status", accessor: "status", align: "center" },
-    { Header: "current order", accessor: "order", align: "center" },
+    { Header: "process by", accessor: "process", align: "center" },
     { Header: "action", accessor: "action", align: "center" },
   ];
 
   const rows = Array.isArray(shipper)
     ? shipper.map((item) => ({
         id: <ID id={item.id} />,
-        username: <Username username={item.name} />,
-        email: <Email email={item.email} />,
-        status: <Status status={mapStatusToLabel(item.status)} />,
-        order: <Order order={item.current_order} />,
+        process: <Process process={item.process_by} />,
+        shipping: <Shipping shipping={item.shipping_by} />,
         action: (
           <MDBox display="flex" justifyContent="center">
-            <Link to={`/choose_shipper/${item.current_order}`} style={{ textDecoration: "none" }}>
+            <Link to={`/choose_shipper/${item.id}`} style={{ textDecoration: "none" }}>
               <MDTypography
                 variant="caption"
                 style={{

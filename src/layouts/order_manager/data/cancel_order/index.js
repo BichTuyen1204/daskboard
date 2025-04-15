@@ -16,7 +16,7 @@ function Order() {
 
   //Cancel
   const [pageCancelOrder, setPageCancelOrder] = useState(1);
-  const rowsPerPageCancelOrder = 6;
+  const rowsPerPageCancelOrder = 50;
   const {
     columns: cancelColumns,
     rows: cancelRows,

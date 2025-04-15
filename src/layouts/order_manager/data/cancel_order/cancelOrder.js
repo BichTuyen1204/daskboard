@@ -41,10 +41,9 @@ export default function cancelOrder(pageCancelOrder, rowsPerPageCancelOrder) {
 
   const columns = [
     { Header: "Receiver", accessor: "name", align: "left" },
-    { Header: "Order Date", accessor: "order_date", align: "left" },
     { Header: "Address", accessor: "address", align: "left" },
+    { Header: "Order Date", accessor: "order_date", align: "left" },
     { Header: "Phone", accessor: "phone", align: "left" },
-    { Header: "Payment Status", accessor: "payment_status", align: "left" },
     { Header: "Total Price", accessor: "total_price", align: "left" },
     { Header: "Coupon", accessor: "coupon", align: "center" },
     { Header: "Status", accessor: "status", align: "left" },
@@ -55,16 +54,6 @@ export default function cancelOrder(pageCancelOrder, rowsPerPageCancelOrder) {
     name: <MDTypography variant="caption">{item.receiver}</MDTypography>,
     order_date: (
       <MDTypography variant="caption">
-        {/* {new Date(item.order_date).toLocaleString("en-US", {
-          timeZone: "Asia/Ho_Chi_Minh",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: false,
-        })} */}
         {(() => {
           const utcDate = new Date(item.order_date);
           utcDate.setHours(utcDate.getHours() + 7);
@@ -74,7 +63,6 @@ export default function cancelOrder(pageCancelOrder, rowsPerPageCancelOrder) {
     ),
     address: <MDTypography variant="caption">{item.delivery_address}</MDTypography>,
     phone: <MDTypography variant="caption">{item.phonenumber}</MDTypography>,
-    payment_status: <MDTypography variant="caption">{item.payment_status}</MDTypography>,
     total_price: <MDTypography variant="caption">${item.total_price}</MDTypography>,
     coupon: <MDTypography variant="caption">{item.coupon_sale || "0"}%</MDTypography>,
     status: (

@@ -1,5 +1,5 @@
 import axios from "axios";
-const API_BASE_URL = "https://culcon-ad-be-30883260979.asia-southeast1.run.app/";
+const API_BASE_URL = "https://culcon-ad-be-30883260979.asia-southeast1.run.app";
 
 class ShipperService {
   async getOrderAwait() {
@@ -111,6 +111,27 @@ class ShipperService {
       return response.data;
     } catch (error) {
       return null;
+    }
+  }
+
+  async getShipmentFetchShipper(selectedType, page, size) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      if (!token) throw new Error("No JWT Token found!");
+
+      const response = await axios.get(
+        `${API_BASE_URL}/api/staff/shipment/fetch?delivery_status=${selectedType}&index=${
+          page - 1
+        }&size=${size}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return { content: [], total_page: 0 };
     }
   }
 

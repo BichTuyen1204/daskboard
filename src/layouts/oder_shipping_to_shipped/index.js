@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Card from "@mui/material/Card";
-import { Grid, TextField, Button, Icon } from "@mui/material";
+import { Grid, Icon } from "@mui/material";
 import MDBox from "components/MDBox";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -12,9 +12,6 @@ function OrderShippingToShipped() {
   const [orderDetail, setOrderDetail] = useState("");
   const { id } = useParams();
   const jwtToken = sessionStorage.getItem("jwtToken");
-  const [popupOnShipped, setPopupOnShipped] = useState(false);
-  const [popupShippedOrderSuccess, setPopupShippedOrderSuccess] = useState(false);
-  const [selectedItemIdShipped, setSelectedItemIdShipped] = useState(null);
   const page = 1;
   const pageSize = 50;
 
@@ -38,24 +35,6 @@ function OrderShippingToShipped() {
     getOrderDetail();
   }, [id, jwtToken]);
 
-  const shippedOrder = async (id) => {
-    const jwtToken = sessionStorage.getItem("jwtToken");
-    if (!jwtToken) {
-      return;
-    }
-    try {
-      const response = await OrderService.shippedOrder(id);
-      if (response === true) {
-        setPopupOnShipped(false);
-        setPopupShippedOrderSuccess(true);
-        setTimeout(() => {
-          setPopupShippedOrderSuccess(false);
-          navigate("/shipping_order");
-        }, 2000);
-      }
-    } catch (error) {}
-  };
-
   useEffect(() => {
     const getOrderItem = async () => {
       if (jwtToken) {
@@ -76,17 +55,6 @@ function OrderShippingToShipped() {
       MK: "Meal kit",
     };
     return typeMap[type] || type;
-  };
-
-  // Hàm mở popup
-  const openShippedOrder = (id) => {
-    setSelectedItemIdShipped(id);
-    setPopupOnShipped(true);
-  };
-
-  // Hàm hủy xóa
-  const cancelShippedOrder = () => {
-    setPopupOnShipped(false);
   };
 
   return (
@@ -431,174 +399,12 @@ function OrderShippingToShipped() {
                         {orderDetail.payment_method}
                       </div>
                     </div>
-
-                    <div
-                      style={{
-                        width: "100%",
-                        display: "flex",
-                        justifyContent: "flex-end",
-                      }}
-                    >
-                      <Button
-                        style={{
-                          border: "1px solid green",
-                          padding: "10px",
-                          backgroundColor: "green",
-                          color: "white",
-                          borderRadius: "5px",
-                          fontSize: "0.6em",
-                        }}
-                        onClick={() => openShippedOrder(orderDetail.id)}
-                      >
-                        SHIPPED
-                      </Button>
-                    </div>
                   </Grid>
                 </Card>
               </MDBox>
             </Card>
           </Grid>
         </Grid>
-        {popupOnShipped && (
-          <>
-            <div
-              style={{
-                position: "fixed",
-                top: "0",
-                left: "0",
-                width: "100vw",
-                height: "100vh",
-                backgroundColor: "rgba(87, 87, 87, 0.5)",
-                backdropFilter: "blur(0.05em)",
-                zIndex: "999",
-              }}
-              onClick={cancelShippedOrder}
-            ></div>
-
-            <div
-              style={{
-                position: "fixed",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                backgroundColor: "white",
-                borderRadius: "8px",
-                padding: "20px",
-                width: "400px",
-                boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
-                zIndex: "1000",
-                textAlign: "center",
-              }}
-            >
-              <h3
-                style={{
-                  marginBottom: "10px",
-                  color: "#333",
-                  fontWeight: "bold",
-                  fontSize: "0.9em",
-                }}
-              >
-                Confirm Shipped Order
-              </h3>
-              <p
-                style={{
-                  marginBottom: "15px",
-                  color: "#555",
-                  fontSize: "0.8em",
-                }}
-              >
-                Are you sure you have successfully delivered the order?
-              </p>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: "10px",
-                }}
-              >
-                <button
-                  onClick={() => shippedOrder(selectedItemIdShipped)}
-                  style={{
-                    flex: "1",
-                    padding: "10px",
-                    backgroundColor: "#d32f2f",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                    fontWeight: "bold",
-                    fontSize: "0.7em",
-                  }}
-                  onMouseEnter={(e) => (e.target.style.backgroundColor = "#c62828")}
-                  onMouseLeave={(e) => (e.target.style.backgroundColor = "#d32f2f")}
-                >
-                  Yes
-                </button>
-                <button
-                  onClick={cancelShippedOrder}
-                  style={{
-                    flex: "1",
-                    padding: "10px",
-                    backgroundColor: "#1976d2",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                    fontWeight: "bold",
-                    fontSize: "0.7em",
-                  }}
-                  onMouseEnter={(e) => (e.target.style.backgroundColor = "#1565c0")}
-                  onMouseLeave={(e) => (e.target.style.backgroundColor = "#1976d2")}
-                >
-                  No
-                </button>
-              </div>
-              <Icon
-                onClick={cancelShippedOrder}
-                style={{
-                  position: "absolute",
-                  top: "10px",
-                  right: "10px",
-                  cursor: "pointer",
-                  color: "#555",
-                }}
-              >
-                close
-              </Icon>
-            </div>
-          </>
-        )}
-        {popupShippedOrderSuccess && (
-          <>
-            <div
-              style={{
-                position: "fixed",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                backgroundColor: "white",
-                borderRadius: "8px",
-                padding: "20px",
-                width: "400px",
-                boxShadow: "0 4px 10px rgba(0, 0, 0, 0.9)",
-                zIndex: "1000",
-                textAlign: "center",
-              }}
-            >
-              <p
-                style={{
-                  marginBottom: "20px",
-                  color: "green",
-                  fontSize: "0.9em",
-                  fontWeight: "500",
-                  marginTop: "20px",
-                }}
-              >
-                You have successfully delivered the order.
-              </p>
-            </div>
-          </>
-        )}
       </MDBox>
     </DashboardLayout>
   );

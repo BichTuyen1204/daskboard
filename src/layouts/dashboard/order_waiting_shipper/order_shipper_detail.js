@@ -11,10 +11,8 @@ const OrderShipperDetail = () => {
   const [shipper, setShipper] = useState(null);
   const [item, setItem] = useState(null);
   const [selectedItemId, setSelectedItemId] = useState(null);
-  const [idOrder, setIdOrder] = useState(null);
   const [idCancelOrder, setIdCancelOrder] = useState(null);
   const [popupAccept, setPopupAccept] = useState(false);
-  const [popupShipped, setPopupShipped] = useState(false);
   const [popupAcceptSuccess, setPopupAcceptSuccess] = useState(false);
   const [popupRejectSuccess, setPopupRejectSuccess] = useState(false);
   const [popupReject, setPopupReject] = useState(false);
@@ -70,7 +68,7 @@ const OrderShipperDetail = () => {
   const acceptOrder = async (id) => {
     if (!jwtToken) return;
     try {
-      const response = await ShipperService.acceptOrder(id);
+      await ShipperService.acceptOrder(id);
       setTimeout(() => {
         setPopupAccept(false);
         setPopupAcceptSuccess(true);
@@ -82,7 +80,7 @@ const OrderShipperDetail = () => {
   const rejectOrder = async (id) => {
     if (!jwtToken) return;
     try {
-      const response = await ShipperService.rejectOrder(id);
+      await ShipperService.rejectOrder(id);
       setPopupReject(false);
       setPopupAccept(false);
       setTimeout(() => {
@@ -358,6 +356,7 @@ const OrderShipperDetail = () => {
                     )}
                   </Grid>
                 </Card>
+
                 {/* Order summary */}
                 <Card style={{ marginTop: "20px" }}>
                   <Grid p={2}>
@@ -506,7 +505,7 @@ const OrderShipperDetail = () => {
                         }}
                         onClick={() => openRejectOrder(shipper.id)}
                       >
-                        Not Accept
+                        Reject
                       </Button>
                     </div>
                   </Grid>
@@ -537,18 +536,17 @@ const OrderShipperDetail = () => {
             <div
               style={{
                 position: "fixed",
-                top: "50%",
+                top: "40%",
                 left: "50%",
                 transform: "translate(-50%, -50%)",
                 backgroundColor: "white",
                 borderRadius: "8px",
                 padding: "15px",
                 width: "85%",
-                maxWidth: "90vw",
+                maxWidth: "400px",
                 boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
                 zIndex: "1000",
                 textAlign: "center",
-                boxSizing: "border-box",
               }}
             >
               <h3
@@ -556,12 +554,19 @@ const OrderShipperDetail = () => {
                   marginBottom: "10px",
                   color: "#333",
                   fontWeight: "bold",
-                  fontSize: "0.85em",
+                  fontSize: "0.8em",
                 }}
               >
                 Confirm Accept
               </h3>
-              <p style={{ marginBottom: "20px", color: "#555", fontSize: "0.7em" }}>
+              <p
+                style={{
+                  marginBottom: "20px",
+                  color: "#555",
+                  fontSize: "0.9em",
+                  fontSize: "0.7em",
+                }}
+              >
                 Are you sure you want to accept this order?
               </p>
               <div style={{ display: "flex", justifyContent: "space-between", gap: "10px" }}>
@@ -632,14 +637,14 @@ const OrderShipperDetail = () => {
             <div
               style={{
                 position: "fixed",
-                top: "50%",
+                top: "40%",
                 left: "50%",
                 transform: "translate(-50%, -50%)",
                 backgroundColor: "white",
                 borderRadius: "8px",
-                padding: "10px",
+                padding: "15px",
                 width: "85%",
-                maxWidth: "90vw",
+                maxWidth: "400px",
                 boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
                 zIndex: "1000",
                 textAlign: "center",
@@ -647,15 +652,22 @@ const OrderShipperDetail = () => {
             >
               <h3
                 style={{
-                  marginBottom: "15px",
+                  marginBottom: "10px",
                   color: "#333",
                   fontWeight: "bold",
-                  fontSize: "0.85em",
+                  fontSize: "0.8em",
                 }}
               >
                 Confirm Reject Order
               </h3>
-              <p style={{ marginBottom: "20px", color: "#555", fontSize: "0.7em" }}>
+              <p
+                style={{
+                  marginBottom: "20px",
+                  color: "#555",
+                  fontSize: "0.9em",
+                  fontSize: "0.7em",
+                }}
+              >
                 Are you sure you want to reject this order?
               </p>
               <div style={{ display: "flex", justifyContent: "space-between", gap: "10px" }}>

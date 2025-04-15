@@ -98,9 +98,9 @@ export default function data(pageShipper, selectedType, rowsPerPageShipper) {
   };
 
   const columns = [
-    { Header: "id", accessor: "id", width: "25%", align: "left" },
-    { Header: "name of shipper", accessor: "username", align: "center" },
-    { Header: "email", accessor: "email", align: "center" },
+    { Header: "id of shipper", accessor: "id", align: "left" },
+    { Header: "name of shipper", accessor: "username", align: "left" },
+    { Header: "email", accessor: "email", align: "left" },
     { Header: "status", accessor: "status", align: "center" },
     { Header: "start time", accessor: "start", align: "center" },
     { Header: "end time", accessor: "end", align: "center" },

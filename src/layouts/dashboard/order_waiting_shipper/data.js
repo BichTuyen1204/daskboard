@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, Button, Icon } from "@mui/material";
 import ShipperService from "api/ShipperService";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import ReactDOM from "react-dom";
 
 const DataShipper = () => {
@@ -17,7 +17,6 @@ const DataShipper = () => {
   const [popupShippedSuccess, setPopupShippedSuccess] = useState(false);
   const [popupShippingSuccess, setPopupShippingSuccess] = useState(false);
   const [popupCancelSuccess, setPopupCancelSuccess] = useState(false);
-  const navigate = useNavigate();
 
   const openOrderCurrent = (id) => {
     setIdOrder(id);
@@ -138,7 +137,9 @@ const DataShipper = () => {
               <strong>Phone Number:</strong> {orderCurrent.phone}
             </Typography>
             <Typography variant="body1" style={{ fontSize: "0.65em" }}>
-              <strong>Total Price:</strong> $<strong>{orderCurrent.pay}</strong>
+              <strong>
+                Total Price:<strong style={{ color: "red" }}>${orderCurrent.pay}</strong>{" "}
+              </strong>
             </Typography>
             <Typography variant="body1" style={{ fontSize: "0.65em" }}>
               <strong>Note:</strong> {orderCurrent.note || "Nothing"}
@@ -230,7 +231,9 @@ const DataShipper = () => {
               <strong>Delivery Address:</strong> {shipper.address}
             </Typography>
             <Typography variant="body1" style={{ fontSize: "0.6em" }}>
-              <strong>Total Price:</strong> $<strong>{shipper.pay}</strong>
+              <strong>
+                Total Price: <strong style={{ color: "red" }}>${shipper.pay}</strong>{" "}
+              </strong>
             </Typography>
             <Typography variant="body1" style={{ fontSize: "0.6em" }}>
               <strong>Note:</strong> {shipper.note || "Nothing"}
@@ -462,31 +465,27 @@ const DataShipper = () => {
           <div
             style={{
               position: "fixed",
-              top: "50%",
+              top: "40%",
               left: "50%",
               transform: "translate(-50%, -50%)",
               backgroundColor: "white",
               borderRadius: "8px",
               padding: "15px",
               width: "85%",
-              maxWidth: "90vw",
+              maxWidth: "400px",
               boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
               zIndex: "1000",
               textAlign: "center",
-              boxSizing: "border-box",
             }}
           >
             <h3
-              style={{
-                marginBottom: "10px",
-                color: "#333",
-                fontWeight: "bold",
-                fontSize: "0.85em",
-              }}
+              style={{ marginBottom: "10px", color: "#333", fontWeight: "bold", fontSize: "0.8em" }}
             >
               Confirm Cancel Order
             </h3>
-            <p style={{ marginBottom: "20px", color: "#555", fontSize: "0.7em" }}>
+            <p
+              style={{ marginBottom: "20px", color: "#555", fontSize: "0.9em", fontSize: "0.7em" }}
+            >
               Are you sure you want to cancel this order?
             </p>
             <div style={{ display: "flex", justifyContent: "space-between", gap: "10px" }}>

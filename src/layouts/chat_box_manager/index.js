@@ -8,14 +8,32 @@ import DataTable from "examples/Tables/DataTable";
 import data from "layouts/chat_box_manager/data/index";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
-import { Box, IconButton, Typography } from "@mui/material";
+import { ArrowBackIos, ArrowForwardIos, Search } from "@mui/icons-material";
+import { Box, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
 
 function ChatBox() {
   const [pageCustomer, setPageCustomer] = useState(1);
-  const rowsPerPageCustomer = 7;
+  const rowsPerPageCustomer = 50;
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
-  const { columns, rows, hasNextPageCustomer } = data(pageCustomer, rowsPerPageCustomer);
+  const { columns, rows, hasNextPageCustomer } = data(
+    pageCustomer,
+    rowsPerPageCustomer,
+    debouncedSearchQuery
+  );
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+      setPageCustomer(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
 
   const handlePrevPageCustomer = () => {
     if (pageCustomer > 1) {
@@ -51,10 +69,47 @@ function ChatBox() {
                 bgColor="info"
                 borderRadius="lg"
                 coloredShadow="info"
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                flexDirection={{ xs: "column", sm: "row" }}
+                gap={{ xs: 2, sm: 0 }}
               >
                 <MDTypography variant="h6" color="white">
                   Customer list
                 </MDTypography>
+
+                <Box
+                  sx={{
+                    width: { xs: "100%", sm: "50%", md: "40%", lg: "30%" },
+                    transition: "width 0.3s ease",
+                  }}
+                >
+                  <TextField
+                    size="small"
+                    placeholder="Search customers"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    fullWidth
+                    style={{
+                      backgroundColor: "white",
+                      borderRadius: 1,
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": { border: "none" },
+                      },
+                      "& .MuiInputBase-input": {
+                        fontSize: { xs: "0.85rem", sm: "0.875rem" },
+                      },
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Search />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Box>
               </MDBox>
               <MDBox pt={3}>
                 <DataTable

@@ -86,13 +86,24 @@ class AccountService {
     }
   }
 
-  async getAllShipper(status, page, size) {
+  async getAllShipper(status, page, size, searchQuery = null) {
     try {
       const token = sessionStorage.getItem("jwtToken");
-      let url = `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/shipper/fetch?status=${status}&index=${
+      let url = `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/shipper/fetch?index=${
         page - 1
       }&size=${size}`;
-      const params = new URLSearchParams();
+      if (status && status !== "ALL") {
+        url += `&status=${encodeURIComponent(status)}`;
+      }
+      if (searchQuery) {
+        if (/^\d+$/.test(searchQuery)) {
+          url += `&phone=${encodeURIComponent(searchQuery)}`;
+        } else if (/\S+@\S+\.\S+/.test(searchQuery)) {
+          url += `&email=${encodeURIComponent(searchQuery)}`;
+        } else {
+          url += `&name=${encodeURIComponent(searchQuery)}`;
+        }
+      }
       const response = await axios.get(url, {
         headers: {
           "Content-Type": "application/json",
@@ -101,6 +112,7 @@ class AccountService {
       });
       return response.data;
     } catch (error) {
+      console.error("Error fetching shippers:", error);
       return { content: [], total_page: 0 };
     }
   }

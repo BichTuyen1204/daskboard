@@ -6,19 +6,20 @@ import { useEffect, useState } from "react";
 import AccountService from "api/AccountService";
 import { Icon } from "@mui/material";
 
-export default function data(pageShipper, selectedType, rowsPerPageShipper) {
+export default function data(pageShipper, selectedType, rowsPerPageShipper, searchQuery) {
   const [shipper, setShipper] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const jwtToken = sessionStorage.getItem("jwtToken");
 
   useEffect(() => {
-    const getCallShipper = async () => {
+    const getAllShipper = async () => {
       if (!jwtToken) return;
       try {
-        const response = await AccountService.getCallShipper(
+        const response = await AccountService.getAllShipper(
           selectedType,
           pageShipper,
-          rowsPerPageShipper
+          rowsPerPageShipper,
+          searchQuery
         );
         if (Array.isArray(response.content)) {
           setShipper(response.content);
@@ -32,8 +33,8 @@ export default function data(pageShipper, selectedType, rowsPerPageShipper) {
         setTotalPages(1);
       }
     };
-    getCallShipper();
-  }, [jwtToken, selectedType, pageShipper, rowsPerPageShipper]);
+    getAllShipper();
+  }, [jwtToken, selectedType, pageShipper, rowsPerPageShipper, searchQuery]);
 
   const hasNextPageShipper = pageShipper < totalPages;
 

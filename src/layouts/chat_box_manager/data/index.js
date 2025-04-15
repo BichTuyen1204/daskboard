@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Icon } from "@mui/material";
 import ChatBoxService from "api/ChatBoxService";
 
-export default function data(pageCustomer, rowsPerPageCustomer) {
+export default function data(pageCustomer, rowsPerPageCustomer, searchQuery) {
   const [customer, setCustomer] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const jwtToken = sessionStorage.getItem("jwtToken");
@@ -18,7 +18,11 @@ export default function data(pageCustomer, rowsPerPageCustomer) {
         return;
       } else {
         try {
-          const response = await ChatBoxService.getAllUser(pageCustomer, rowsPerPageCustomer);
+          const response = await ChatBoxService.getAllUser(
+            pageCustomer,
+            rowsPerPageCustomer,
+            searchQuery
+          );
           if (Array.isArray(response.content)) {
             setCustomer(response.content);
             setTotalPages(response.total_page || 1);
@@ -33,7 +37,7 @@ export default function data(pageCustomer, rowsPerPageCustomer) {
       }
     };
     getAllUser();
-  }, [jwtToken, pageCustomer, rowsPerPageCustomer]);
+  }, [jwtToken, pageCustomer, rowsPerPageCustomer, searchQuery]);
 
   const Status = ({ status }) => (
     <MDBox lineHeight={1} textAlign="center">

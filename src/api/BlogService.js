@@ -3,6 +3,7 @@ import axios from "axios";
 const REACT_APP_BACKEND_API_ENDPOINT = process.env.REACT_APP_BACKEND_API_ENDPOINT;
 
 const API_BASE_URL = `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/blog`;
+
 class BlogService {
   async addBlog(formData) {
     try {
@@ -42,6 +43,29 @@ class BlogService {
     }
   }
 
+  async getAllComment(id, index, size) {
+    const token = sessionStorage.getItem("jwtToken");
+    if (!token) {
+      return;
+    } else {
+      try {
+        const response = await axios.get(
+          `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/comment/fetch/all?id=${id}&index=${
+            index - 1
+          }&size=${size}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    }
+  }
+
   async getBlogDetail(id) {
     try {
       const token = sessionStorage.getItem("jwtToken");
@@ -51,6 +75,25 @@ class BlogService {
           Authorization: `Bearer ${token}`,
         },
       });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async deleteComment(id) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.delete(
+        `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/comment/delete?id=${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("Delete ok", response);
       return response.data;
     } catch (error) {
       throw error;

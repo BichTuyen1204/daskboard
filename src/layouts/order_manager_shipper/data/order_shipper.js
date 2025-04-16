@@ -1,20 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { Box, Card, Grid, Icon, IconButton, Typography } from "@mui/material";
-import { ArrowBackIos, ArrowForwardIos, Search } from "@mui/icons-material";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
+import { useNavigate, useParams } from "react-router-dom";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import ShipperService from "api/ShipperService";
+import AccountService from "api/AccountService"; // Giả sử có service này để lấy profile
 
 function OrderShipper() {
   const navigate = useNavigate();
   const { id: status } = useParams();
+  const [userName, setUserName] = useState(""); // Đặt mặc định là chuỗi rỗng
   const [page, setPage] = useState(1);
   const rowsPerPage = 30;
   const [data, setData] = useState({ content: [], total_page: 1 });
+  const jwtToken = sessionStorage.getItem("jwtToken");
 
   useEffect(() => {
     const token = sessionStorage.getItem("jwtToken");
@@ -23,6 +26,7 @@ function OrderShipper() {
     }
   }, [navigate]);
 
+  // Hàm lấy dữ liệu đơn hàng theo trạng thái
   const getSumOrderShipper = async (status, page, rowsPerPage) => {
     try {
       const result = await ShipperService.getSumOrderShipper(status, page, rowsPerPage);
@@ -31,6 +35,20 @@ function OrderShipper() {
       return null;
     }
   };
+
+  // Hàm lấy thông tin profile của người dùng (userName)
+  useEffect(() => {
+    const getProfile = async () => {
+      try {
+        const result = await AccountService.getProfile(jwtToken);
+        setUserName(result.username); // Cập nhật userName khi lấy được dữ liệu
+        return result;
+      } catch (error) {
+        return null;
+      }
+    };
+    getProfile();
+  }, [jwtToken]);
 
   useEffect(() => {
     if (!status) return;
@@ -50,18 +68,32 @@ function OrderShipper() {
   };
 
   const columns = [
-    { Header: "ID", accessor: "id", align: "left" },
-    { Header: "Confirmed At", accessor: "confirm_date", align: "center" },
-    { Header: "Shipping At", accessor: "shipping_date", align: "center" },
-    { Header: "Processed By", accessor: "process_by", align: "center" },
+    { Header: "ID of order", accessor: "id", align: "left" },
+    { Header: "Confirmed At", accessor: "confirm_date", align: "left" },
+    { Header: "Shipping At", accessor: "shipping_date", align: "left" },
+    { Header: "Processed By", accessor: "process_by", align: "left" },
+    { Header: "Shipping By", accessor: "shipping_by", align: "left" },
   ];
 
-  const rows = (data.content || []).map((item) => ({
-    id: item.id,
-    confirm_date: new Date(item.confirm_date).toLocaleString(),
-    shipping_date: new Date(item.shipping_date).toLocaleString(),
-    process_by: item.process_by,
-  }));
+  const rows = (data.content || []).map((item) => {
+    const confirmDate = new Date(item.confirm_date);
+    confirmDate.setHours(confirmDate.getHours() + 7);
+
+    const shippingDate = new Date(item.shipping_date);
+    shippingDate.setHours(shippingDate.getHours() + 7);
+
+    const redText = (text) => (
+      <span style={{ color: "black", fontWeight: "500", fontSize: "0.8em" }}>{text}</span>
+    );
+
+    return {
+      id: redText(item.id),
+      confirm_date: redText(confirmDate.toLocaleString("vi-VN")),
+      shipping_date: redText(shippingDate.toLocaleString("vi-VN")),
+      process_by: redText(item.process_by),
+      shipping_by: redText(userName),
+    };
+  });
 
   return (
     <DashboardLayout>

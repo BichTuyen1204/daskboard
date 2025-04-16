@@ -71,16 +71,6 @@ function OrderShipped() {
                   Order ID: {orderDetail.id}
                 </div>
                 <div style={{ fontWeight: "500", fontSize: "0.6em", paddingBottom: "10px" }}>
-                  {/* {new Date(orderDetail.order_date).toLocaleString("en-US", {
-                    timeZone: "Asia/Ho_Chi_Minh",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                    hour12: false,
-                  })} */}
                   {(() => {
                     const utcDate = new Date(orderDetail.order_date);
                     utcDate.setHours(utcDate.getHours() + 7);

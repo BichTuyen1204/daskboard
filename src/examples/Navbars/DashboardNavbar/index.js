@@ -10,6 +10,7 @@ import MDBox from "components/MDBox";
 import Breadcrumbs from "examples/Breadcrumbs";
 import NotificationItem from "examples/Items/NotificationItem";
 import { useRef } from "react";
+import routes from "../../../routes";
 import {
   navbar,
   navbarContainer,
@@ -31,6 +32,10 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const [openMenu, setOpenMenu] = useState(false);
   const route = useLocation().pathname.split("/").slice(1);
   const iconBoxRef = useRef(null);
+  const getRouteName = (path) => {
+    const match = routes.find((r) => r.route === `/${path}`);
+    return match ? match.name : path;
+  };
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (iconBoxRef.current && !iconBoxRef.current.contains(event.target)) {
@@ -113,17 +118,21 @@ function DashboardNavbar({ absolute, light, isMini }) {
     >
       <Toolbar sx={(theme) => navbarContainer(theme)}>
         <MDBox color="inherit" mb={{ xs: 1, md: 0 }} sx={(theme) => navbarRow(theme, { isMini })}>
-          <Breadcrumbs icon="home" title={route[route.length - 1]} route={route} light={light} />
+          <Breadcrumbs
+            icon="home"
+            title={getRouteName(route[route.length - 1])}
+            route={[]}
+            light={light}
+          />
         </MDBox>
         {isMini ? null : (
           <>
-            {/* Wrapper icon luôn nằm góc trên bên phải */}
             <MDBox
               ref={iconBoxRef}
               sx={{
-                position: "absolute", // luôn cố định tại vị trí
-                top: 10, // cách trên 10px
-                right: 10, // cách phải 10px
+                position: "absolute",
+                top: 10,
+                right: 10,
                 display: "flex",
                 alignItems: "center",
                 gap: 1,
@@ -155,8 +164,6 @@ function DashboardNavbar({ absolute, light, isMini }) {
               {/* Icon setting end */}
               {renderMenu()}
             </MDBox>
-
-            {/* Nếu có thêm nội dung dưới, bạn đặt trong một MDBox khác nếu cần */}
           </>
         )}
       </Toolbar>
@@ -164,14 +171,12 @@ function DashboardNavbar({ absolute, light, isMini }) {
   );
 }
 
-// Setting default values for the props of DashboardNavbar
 DashboardNavbar.defaultProps = {
   absolute: false,
   light: false,
   isMini: false,
 };
 
-// Typechecking props for the DashboardNavbar
 DashboardNavbar.propTypes = {
   absolute: PropTypes.bool,
   light: PropTypes.bool,

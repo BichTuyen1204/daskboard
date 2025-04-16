@@ -53,17 +53,10 @@ export default function data(pageReject, selectedType, rowsPerPageReject) {
     </MDBox>
   );
 
-  const Shipping = ({ shipping }) => (
-    <MDBox lineHeight={1} textAlign="center">
-      <MDTypography display="block" variant="button" fontWeight="medium" fontSize="0.8em">
-        {shipping}
-      </MDTypography>
-    </MDBox>
-  );
-
   const columns = [
-    { Header: "id of shipper", accessor: "id", align: "left" },
+    { Header: "id of order", accessor: "id", align: "left" },
     { Header: "process by", accessor: "process", align: "center" },
+    { Header: "confirm date", accessor: "confirm_date", align: "center" },
     { Header: "action", accessor: "action", align: "center" },
   ];
 
@@ -71,7 +64,15 @@ export default function data(pageReject, selectedType, rowsPerPageReject) {
     ? shipper.map((item) => ({
         id: <ID id={item.id} />,
         process: <Process process={item.process_by} />,
-        shipping: <Shipping shipping={item.shipping_by} />,
+        confirm_date: (
+          <MDTypography variant="caption">
+            {(() => {
+              const utcDate = new Date(item.confirm_date);
+              utcDate.setHours(utcDate.getHours() + 7);
+              return utcDate.toLocaleString("vi-VN");
+            })()}
+          </MDTypography>
+        ),
         action: (
           <MDBox display="flex" justifyContent="center">
             <Link to={`/choose_shipper/${item.id}`} style={{ textDecoration: "none" }}>

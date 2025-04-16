@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Button, Icon, Grid, Card } from "@mui/material";
+import { Button, Icon, Grid, Card } from "@mui/material";
 import ShipperService from "api/ShipperService";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import MDBox from "components/MDBox";
@@ -69,9 +69,9 @@ const OrderShipperDetail = () => {
     if (!jwtToken) return;
     try {
       await ShipperService.acceptOrder(id);
+      setPopupAcceptSuccess(true);
       setTimeout(() => {
         setPopupAccept(false);
-        setPopupAcceptSuccess(true);
         navigate("/dashboard");
       }, 2000);
     } catch (error) {}
@@ -83,8 +83,8 @@ const OrderShipperDetail = () => {
       await ShipperService.rejectOrder(id);
       setPopupReject(false);
       setPopupAccept(false);
+      setPopupRejectSuccess(true);
       setTimeout(() => {
-        setPopupRejectSuccess(true);
         navigate("/dashboard");
       }, 2000);
     } catch (error) {}

@@ -6,10 +6,6 @@ import MDBox from "components/MDBox";
 import { Link } from "react-router-dom";
 
 const squareData = [
-  { id: "AWAIT", label: "Await", color: "#2196f3" },
-  { id: "TIMEOUT", label: "Time out", color: "#4caf50" },
-  { id: "ACCEPTED", label: "Accepted", color: "#fbc02d" },
-  { id: "REJECTED", label: "Rejected", color: "#ec5228" },
   { id: "DELIVERING", label: "Shipping", color: "#3f7d58" },
   { id: "DELIVERED", label: "Shipped", color: "#074799" },
   { id: "CANCELLED", label: "Cancelled", color: "#f44336" },

@@ -20,6 +20,24 @@ class BlogService {
     }
   }
 
+  async reportComment(id) {
+    try {
+      const token = sessionStorage.getItem("jwtToken");
+      const response = await axios.patch(
+        `https://culcon-ad-be-30883260979.asia-southeast1.run.app/api/staff/comment/report/unflag?id=${id}`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async getAllBlog(page, size, searchQuery = null) {
     const token = sessionStorage.getItem("jwtToken");
     if (!token) {

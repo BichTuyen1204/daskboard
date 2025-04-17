@@ -143,6 +143,7 @@ function ExpectedProduct() {
         alignItems: "center",
         overflow: "visible",
         borderRadius: "15px",
+        boxShadow: "0px 10px 30px rgba(0,0,0,0.3)",
       }}
     >
       <div

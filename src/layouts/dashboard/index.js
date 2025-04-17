@@ -13,6 +13,8 @@ import ExpectedProduct from "./components/ExpectedProduct";
 import AccountService from "api/AccountService";
 import { Box, Button, Typography } from "@mui/material";
 import { RestaurantMenu } from "@mui/icons-material";
+import PredictedProducts from "./components/PredictedProducts";
+
 function Dashboard() {
   const navigate = useNavigate();
   const [account, setAccount] = useState(null);
@@ -27,7 +29,6 @@ function Dashboard() {
   useEffect(() => {
     const getProfile = async () => {
       if (!jwtToken) return;
-
       try {
         const response = await AccountService.getProfile(jwtToken);
         if (response) {
@@ -49,7 +50,6 @@ function Dashboard() {
       navigate("/sign-in", { replace: true });
     }
   }, [account, navigate]);
-
   if (!jwtToken || account === null) {
     return null;
   }
@@ -177,6 +177,14 @@ function Dashboard() {
               <Grid container spacing={3} mt={1}>
                 <Grid item xs={12}>
                   <ExpectedProduct />
+                </Grid>
+              </Grid>
+            </MDBox>
+
+            <MDBox>
+              <Grid container spacing={3} mt={1}>
+                <Grid item xs={12}>
+                  <PredictedProducts />
                 </Grid>
               </Grid>
             </MDBox>

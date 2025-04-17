@@ -24,7 +24,10 @@ export default function data(pageCustomer, rowsPerPageCustomer, searchQuery) {
             searchQuery
           );
           if (Array.isArray(response.content)) {
-            setCustomer(response.content);
+            const newMessageUsers = response.content.filter((user) => user.new_msg);
+            const otherUsers = response.content.filter((user) => !user.new_msg);
+            const sortedUsers = [...newMessageUsers, ...otherUsers];
+            setCustomer(sortedUsers);
             setTotalPages(response.total_page || 1);
           } else {
             setCustomer([]);
@@ -119,29 +122,40 @@ export default function data(pageCustomer, rowsPerPageCustomer, searchQuery) {
 
     //Action start
     action: (
-      <MDBox display="flex" justifyContent="center">
-        <>
-          {/* Button view customer detail start */}
-          <Link to={`/chat_with_user/${item.id}`}>
-            <MDTypography
-              component="button"
-              variant="caption"
-              color="white"
-              fontWeight="medium"
-              style={{
-                backgroundColor: "#1976d2",
-                fontSize: "0.8em",
-                border: "none",
-                borderRadius: "2px",
-                padding: "5px 10px",
-                cursor: "pointer",
-              }}
-            >
-              Chat
-            </MDTypography>
-          </Link>
-          {/* Button view customer detail end */}
-        </>
+      <MDBox display="flex" justifyContent="center" position="relative">
+        <Link to={`/chat_with_user/${item.id}`}>
+          <MDTypography
+            component="button"
+            variant="caption"
+            color="white"
+            fontWeight="medium"
+            style={{
+              backgroundColor: "#1976d2",
+              fontSize: "0.8em",
+              border: "none",
+              borderRadius: "2px",
+              padding: "5px 10px",
+              cursor: "pointer",
+              position: "relative",
+            }}
+          >
+            Chat
+            {item.new_msg && (
+              <span
+                style={{
+                  position: "absolute",
+                  top: -5,
+                  right: -5,
+                  width: "10px",
+                  height: "10px",
+                  backgroundColor: "red",
+                  borderRadius: "50%",
+                  border: "1px solid white",
+                }}
+              ></span>
+            )}
+          </MDTypography>
+        </Link>
       </MDBox>
     ),
     //Action end

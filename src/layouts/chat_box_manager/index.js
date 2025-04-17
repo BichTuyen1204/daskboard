@@ -13,7 +13,7 @@ import { Box, IconButton, InputAdornment, TextField, Typography } from "@mui/mat
 
 function ChatBox() {
   const [pageCustomer, setPageCustomer] = useState(1);
-  const rowsPerPageCustomer = 50;
+  const rowsPerPageCustomer = 500;
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();

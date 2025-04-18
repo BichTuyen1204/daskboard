@@ -72,7 +72,8 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
               name !== "Dash board" &&
               name !== "Coupon Management" &&
               name !== "Order of Shipper" &&
-              name !== "Customer Management"
+              name !== "Customer Management" &&
+              name !== "Shipper Management"
             );
           } else if (account.type === 3) {
             return name === "Logout" || name === "Order of Shipper" || name === "Dash board";

@@ -83,7 +83,7 @@ const routes = [
   {
     type: "collapse",
     name: "Order Management",
-    key: "Order",
+    key: "order",
     icon: <Icon fontSize="small">list_alt</Icon>,
     route: "/order",
     component: <Order />,
@@ -91,7 +91,7 @@ const routes = [
   {
     type: "collapse",
     name: "Order of Shipper",
-    key: "Order",
+    key: "order shipper",
     icon: <Icon fontSize="small">list_alt</Icon>,
     route: "/order_manager_shipper",
     component: <Order_Manager_Shipper />,

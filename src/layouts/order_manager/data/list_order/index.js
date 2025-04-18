@@ -28,7 +28,7 @@ function ListOrder() {
   useEffect(() => {
     const token = sessionStorage.getItem("jwtToken");
     if (!token) {
-      navigate("/sign-in", { replace: true });
+      navigate("/sign-in");
     }
   }, [navigate]);
 

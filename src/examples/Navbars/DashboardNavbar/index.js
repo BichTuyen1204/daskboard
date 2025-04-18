@@ -34,8 +34,9 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const iconBoxRef = useRef(null);
   const getRouteName = (path) => {
     const match = routes.find((r) => r.route === `/${path}`);
-    return match ? match.name : path;
+    return match?.name ?? path ?? "home";
   };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (iconBoxRef.current && !iconBoxRef.current.contains(event.target)) {

@@ -50,7 +50,7 @@ function Breadcrumbs({ icon, title, route, light }) {
           color={light ? "white" : "dark"}
           sx={{ lineHeight: 0 }}
         >
-          {title.replace("-", " ")}
+          {title ? title.replace("-", " ") : ""}
         </MDTypography>
       </MuiBreadcrumbs>
       <MDTypography
@@ -60,7 +60,7 @@ function Breadcrumbs({ icon, title, route, light }) {
         color={light ? "white" : "dark"}
         noWrap
       >
-        {title.replace("-", " ")}
+        {title ? title.replace("-", " ") : ""}
       </MDTypography>
     </MDBox>
   );

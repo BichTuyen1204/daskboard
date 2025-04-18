@@ -55,7 +55,7 @@ export default function listOrder(page, rowsPerPage) {
   useEffect(() => {
     if (account !== null && account?.type == null) {
       alert("Your session has expired. Please log in again.");
-      navigate("/sign-in", { replace: true });
+      navigate("/sign-in");
     }
   }, [account, navigate]);
 
@@ -97,7 +97,7 @@ export default function listOrder(page, rowsPerPage) {
           fontWeight: "bold",
         }}
       >
-        {item.order_status.replace("_", " ")}
+        {item.order_status}
       </MDTypography>
     ),
   }));

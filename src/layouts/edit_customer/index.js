@@ -24,10 +24,6 @@ function EditCustomer() {
   const [address, setAddress] = useState("");
   const [addressError, setAddressError] = useState("");
   const [phone, setPhone] = useState("");
-  const [profileName, setProfileName] = useState("");
-  const [profileNameError, setProfileNameError] = useState("");
-  const [profileDescription, setProfileDescription] = useState("");
-  const [profileDescriptionError, setProfileDescriptionError] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [updateInforSuccess, setUpdateInforSuccess] = useState("");
 
@@ -65,7 +61,6 @@ function EditCustomer() {
         email: response.email || "",
         phone: response.phone || "",
         address: response.address || "",
-        profile_name: response.profile_name || "",
         profile_description: "",
       });
     } catch (error) {}
@@ -245,37 +240,6 @@ function EditCustomer() {
       setAddressError("Please enter a address");
     } else {
       setAddressError("");
-    }
-  };
-
-  const ProfileNameChange = (e) => {
-    const { value } = e.target;
-    setProfileName(value);
-    setProfileNameError(false);
-    updateField("profile_name", value);
-    setUpdateInforSuccess(false);
-  };
-
-  const ProfileNameBlur = () => {
-    if (profileName === "") {
-      setProfileNameError("Please enter a real name");
-    } else {
-      setProfileNameError("");
-    }
-  };
-
-  const ProfileDescriptionChange = (e) => {
-    const { value } = e.target;
-    setProfileDescription(value);
-    updateField("profile_description", value);
-    setUpdateInforSuccess(false);
-  };
-
-  const ProfileDescriptionBlur = () => {
-    if (profileDescription === "") {
-      setProfileDescriptionError("Please enter a profile description");
-    } else {
-      setProfileDescriptionError("");
     }
   };
 
@@ -548,51 +512,6 @@ function EditCustomer() {
                             }}
                           >
                             {phoneError}
-                          </p>
-                        )}
-
-                        {/* Profile */}
-                        <TextField
-                          fullWidth
-                          type="text"
-                          value={profileName || ""}
-                          onChange={ProfileNameChange}
-                          onBlur={ProfileNameBlur}
-                          label="Real name"
-                          margin="normal"
-                        />
-                        {profileNameError && (
-                          <p
-                            style={{
-                              color: "red",
-                              fontSize: "0.6em",
-                              marginLeft: "5px",
-                              marginTop: "-6px",
-                            }}
-                          >
-                            {profileNameError}
-                          </p>
-                        )}
-
-                        <TextField
-                          fullWidth
-                          type="text"
-                          value={profileDescription || ""}
-                          onChange={ProfileDescriptionChange}
-                          onBlur={ProfileDescriptionBlur}
-                          label="Profile Description"
-                          margin="normal"
-                        />
-                        {profileDescriptionError && (
-                          <p
-                            style={{
-                              color: "red",
-                              fontSize: "0.6em",
-                              marginLeft: "5px",
-                              marginTop: "-6px",
-                            }}
-                          >
-                            {profileDescriptionError}
                           </p>
                         )}
 

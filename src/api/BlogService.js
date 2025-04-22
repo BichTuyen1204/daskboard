@@ -24,7 +24,7 @@ class BlogService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.patch(
-        `https://culcon-ad-be-30883260979.asia-southeast1.run.app/api/staff/comment/report/unflag?id=${id}`,
+        `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/comment/report/unflag?id=${id}`,
         null,
         {
           headers: {

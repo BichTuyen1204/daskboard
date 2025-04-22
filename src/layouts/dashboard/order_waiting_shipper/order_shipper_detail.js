@@ -69,6 +69,7 @@ const OrderShipperDetail = () => {
     if (!jwtToken) return;
     try {
       await ShipperService.acceptOrder(id);
+      setPopupAccept(false);
       setPopupAcceptSuccess(true);
       setTimeout(() => {
         setPopupAccept(false);

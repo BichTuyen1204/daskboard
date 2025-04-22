@@ -57,23 +57,26 @@ function EditCustomer() {
       setAddress(response.address || "");
       setPhone(response.phone || "");
 
-      setCustomerInfor({
+      setCustomerInfo({
+        username: response.username || "",
+      });
+
+      setCustomerInfor((prev) => ({
+        ...prev,
         email: response.email || "",
         phone: response.phone || "",
         address: response.address || "",
-        profile_description: "",
-      });
+      }));
     } catch (error) {}
   };
 
   const updateAccount = async (e) => {
     e.preventDefault();
-    UserNameBlur();
     PasswordBlur();
-    if (!userNameError && userName && !passwordError && password) {
+    if (!passwordError && password) {
       try {
         await AccountService.updateAccountCustomer(id, customerInfo);
-        setUpdateAccountSuccess("Username and password updated successfully.");
+        setUpdateAccountSuccess("The password updated successfully.");
         setUserNameError("");
       } catch (error) {
         if (error.response) {
@@ -106,6 +109,7 @@ function EditCustomer() {
     PhoneBlur();
     if (!emailError && email && !phoneError && phone) {
       try {
+        console.log("DATA GỬI:", customerInfor);
         await AccountService.updateInforCustomer(id, customerInfor);
         setUpdateInforSuccess("Info updated successfully.");
       } catch (error) {

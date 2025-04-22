@@ -259,7 +259,8 @@ function EditProduct() {
       description
     ) {
       try {
-        await ProductService.updateProductInfo(prod_id, productInfo);
+        const respon = await ProductService.updateProductInfo(prod_id, productInfo);
+        console.log(respon);
         setUpdateInfomationSuccess("Infor of ingredients updated successfully.");
       } catch (error) {}
     }

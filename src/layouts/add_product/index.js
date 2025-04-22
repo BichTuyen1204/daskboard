@@ -248,9 +248,6 @@ function AddProduct() {
     if (!description.trim()) {
       setDescriptionError("The description is required.");
       return false;
-    } else if (description.length > 255) {
-      setDescriptionError("The description cannot be longer than 255 characters.");
-      return false;
     }
     if (!mainImage) {
       setMainImageError("The main image is required.");

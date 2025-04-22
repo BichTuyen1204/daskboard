@@ -109,6 +109,7 @@ class ProductService {
           },
         }
       );
+      console.log(response);
       return response.data;
     } catch (error) {
       throw error;

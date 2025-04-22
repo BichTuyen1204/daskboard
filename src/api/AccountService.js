@@ -257,7 +257,7 @@ class AccountService {
     try {
       const token = sessionStorage.getItem("jwtToken");
       const response = await axios.post(
-        `${REACT_APP_BACKEND_API_ENDPOINT}/api/staff/customer/edit/info?id=${id}`,
+        `${REACT_APP_BACKEND_API_ENDPOINT}/api/manager/staff/edit/info?id=${id}`,
         data,
         {
           headers: {

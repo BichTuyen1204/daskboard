@@ -89,12 +89,10 @@ function EditProduct() {
       setDayBeforeExpiry(response.day_before_expiry || 0);
       setDescription(response.description || "");
       setArticleMd(response.article || "");
-      setInstructions(response.instructions || []); // Ensure instructions is loaded as an array
-
-      // Load additional info into infoRows
+      setInstructions(response.instructions || []);
       const infos = response.info || {};
       const infoRowsArray = Object.entries(infos).map(([key, value]) => ({ key, value }));
-      setInfoRows(infoRowsArray); // Ensure infoRows is updated here
+      setInfoRows(infoRowsArray);
 
       // Set initial productInfo
       setProductInfo({
@@ -135,28 +133,21 @@ function EditProduct() {
       ...prevState,
       [field]: value !== undefined && value !== null ? value : prevState[field],
     }));
-  };
-
-  const updateInfoField = (field, value) => {
-    setProductInfo((prevState) => ({
-      ...prevState,
-      infos: {
-        ...prevState.infos,
-        [field]: value !== undefined && value !== null ? value : prevState.infos[field],
-      },
-    }));
+    setUpdateInfomationSuccess(false);
   };
 
   const handleKeyChange = (index, key) => {
     const updatedRows = [...infoRows];
     updatedRows[index].key = key;
     setInfoRows(updatedRows);
+    setUpdateInfomationSuccess(false);
   };
 
   const handleValueChange = (index, value) => {
     const updatedRows = [...infoRows];
     updatedRows[index].value = value;
     setInfoRows(updatedRows);
+    setUpdateInfomationSuccess(false);
   };
 
   const synchronizeInfosWithRows = () => {
@@ -254,12 +245,13 @@ function EditProduct() {
       !dayBeforeExpiryError &&
       !descriptionError &&
       !articleMdError &&
-      articleMdError &&
+      articleMd &&
       dayBeforeExpiry &&
       description
     ) {
       try {
-        await ProductService.updateProductInfo(prod_id, productInfo);
+        const respon = await ProductService.updateProductInfo(prod_id, productInfo);
+        console.log(respon);
         setUpdateInfomationSuccess("Infor of ingredients updated successfully.");
       } catch (error) {}
     }
